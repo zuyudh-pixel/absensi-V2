@@ -157,11 +157,20 @@ function submitAbsensi(){
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(function(position){
+  navigator.geolocation.getCurrentPosition(
+  function(position){
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+
     const data = {
       token: API_TOKEN,
-      idPegawai, password, absensi, workFrom, kegiatan,
-      position: [position.coords.latitude, position.coords.longitude]
+      idPegawai,
+      password,
+      absensi,
+      workFrom,
+      kegiatan,
+      latitude: latitude,
+      longitude: longitude
     };
 
     fetch(API_URL, {
@@ -169,26 +178,38 @@ function submitAbsensi(){
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify(data)
     })
-    .then(res => res.json())
-    .then(dt => {
+    .then(response => response.json())
+    .then(result => {
       stopLoading();
-      if(dt.success){
-        Swal.fire({icon:"success", title:"Absensi Berhasil ✅", html:`<div>${dt.msg}</div>`, timer:2000, showConfirmButton:false})
-        .then(()=> resetFormApp());
+      if(result.success){
+        Swal.fire({
+          icon:"success",
+          title:"Absensi Berhasil ✅",
+          text: result.msg,
+          timer:2000,
+          showConfirmButton:false
+        }).then(()=> resetFormApp());
       } else {
-        Swal.fire({icon:"error", title:"Gagal ❌", html:`<div>${dt.msg}</div>`});
+        Swal.fire("Gagal ❌", result.msg, "error");
       }
     })
-    .catch(err=>{
+    .catch(error=>{
       stopLoading();
-      Swal.fire("Terjadi kesalahan server","","error");
+      Swal.fire("Server tidak merespon","","error");
+      console.error(error);
     });
-
-  },{
+  },
+  function(error){
+    stopLoading();
+    Swal.fire("GPS tidak diizinkan atau gagal membaca lokasi","","error");
+  },
+  {
     enableHighAccuracy:true,
-    timeout:5000
-  });
-}
+    timeout:10000,
+    maximumAge:0
+  }
+);
+
 
 // Loading smooth
 function startLoading(){ $("#btnSubmit").addClass("btn-loading").html('<i class="fas fa-spinner fa-spin"></i> Memproses...'); }
