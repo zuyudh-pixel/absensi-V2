@@ -157,20 +157,11 @@ function submitAbsensi(){
     return;
   }
 
-  navigator.geolocation.getCurrentPosition(
-  function(position){
-    const latitude = position.coords.latitude;
-    const longitude = position.coords.longitude;
-
+navigator.geolocation.getCurrentPosition(function(position){
     const data = {
       token: API_TOKEN,
-      idPegawai,
-      password,
-      absensi,
-      workFrom,
-      kegiatan,
-      latitude: latitude,
-      longitude: longitude
+      idPegawai, password, absensi, workFrom, kegiatan,
+      position: [position.coords.latitude, position.coords.longitude]
     };
 
     fetch(API_URL, {
@@ -178,37 +169,26 @@ function submitAbsensi(){
       headers: {"Content-Type":"application/json"},
       body: JSON.stringify(data)
     })
-    .then(response => response.json())
-    .then(result => {
+    .then(res => res.json())
+    .then(dt => {
       stopLoading();
-      if(result.success){
-        Swal.fire({
-          icon:"success",
-          title:"Absensi Berhasil ✅",
-          text: result.msg,
-          timer:2000,
-          showConfirmButton:false
-        }).then(()=> resetFormApp());
+      if(dt.success){
+        Swal.fire({icon:"success", title:"Absensi Berhasil ✅", html:`<div>${dt.msg}</div>`, timer:2000, showConfirmButton:false})
+        .then(()=> resetFormApp());
       } else {
-        Swal.fire("Gagal ❌", result.msg, "error");
+        Swal.fire({icon:"error", title:"Gagal ❌", html:`<div>${dt.msg}</div>`});
       }
     })
-    .catch(error=>{
+    .catch(err=>{
       stopLoading();
-      Swal.fire("Server tidak merespon","","error");
-      console.error(error);
+      Swal.fire("Terjadi kesalahan server","","error");
     });
-  },
-  function(error){
-    stopLoading();
-    Swal.fire("GPS tidak diizinkan atau gagal membaca lokasi","","error");
-  },
-  {
+
+  },{
     enableHighAccuracy:true,
-    timeout:10000,
-    maximumAge:0
-  }
-);
+    timeout:5000
+  });
+}  
 
 
 // Loading smooth
