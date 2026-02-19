@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Absensi Mobile</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+:root {
+--primary: #4e73df;
+--secondary: #1cc88a;
+--glass-bg: rgba(255,255,255,0.15);
+--border: rgba(255,255,255,0.3);
+--text: #ffffff;
+}
+
+body {
+margin: 0;
+height: 100vh;
+width: 100vw;
+background: linear-gradient(135deg, var(--primary), var(--secondary));
+display: flex;
+justify-content: center;
+align-items: center;
+font-family: 'Inter', sans-serif;
+color: var(--text);
+overflow: hidden;
+}
+
+.card {
+width: 100%;
+max-width: 400px;
+padding: 18px;
+background: var(--glass-bg);
+backdrop-filter: blur(20px);
+border-radius: 15px;
+overflow-y: auto;
+}
+
+.header { text-align:center; margin-bottom:10px; }
+.logo { width: 50px; margin:12px 0 5px; }
+.title { font-size:14px; }
+.subtitle { font-size:14px; font-weight:700; margin-top:8px; }
+
+#reader { width:100%; border-radius:15px; margin:12px 0; }
+
+.option-group { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+.option-group label { flex:1; text-align:center; padding:10px; border-radius:14px; background:rgba(255,255,255,0.1); cursor:pointer; transition:0.3s; font-weight:600; }
+.option-group label:hover { transform:translateY(-3px); background:rgba(255,255,255,0.25); }
+.option-group input { display:none; }
+.option-group input:checked + span { background:white; color:#333; border-radius:14px; display:inline-block; width:100%; }
+
+textarea { width:100%; min-height:35px; padding:10px; border-radius:15px; border:none; outline:none; resize:none; font-size:13px; margin-bottom:10px; }
+
+button { width:100%; padding:10px; border:none; border-radius:15px; background:white; color:#333; font-weight:600; cursor:pointer; transition:0.3s; }
+button.btn-loading { position:relative; pointer-events:none; opacity:0.8; }
+button.btn-loading::after { content:""; width:18px; height:18px; border:3px solid #ccc; border-top:3px solid #333; border-radius:50%; position:absolute; right:15px; top:50%; transform:translateY(-50%); animation:spin 0.7s linear infinite; }
+@keyframes spin { 100%{transform:translateY(-50%) rotate(360deg);} }
+
+.footer { text-align:center; font-size:10px; margin-top:20px; opacity:0.7; }
+.refresh { text-align:center; margin-top:12px; }
+.refresh a { color:white; text-decoration:none; font-size:14px; font-weight:700; }
+
+</style>
+</head>
+<body>
+<div class="card">
+
+<div class="header">
+<img src="ICON_192.png" class="logo">
+<div class="title">PASCASARJANA</div>
+<div class="subtitle">Absensi Dosen Pengampu</div>
+</div>
+
+<div id="reader"></div>
+
+<form id="formAbsensi" onsubmit="submitAbsensi(); return false;">
+<input type="hidden" id="idPegawai">
+<input type="hidden" id="password">
+
+<div class="section">Jenis Absensi</div>
+<div class="option-group">
+<label><input type="radio" name="absensi" value="Masuk" required><span>Masuk</span></label>
+<label><input type="radio" name="absensi" value="Pulang"><span>Pulang</span></label>
+<label><input type="radio" name="absensi" value="Ijin"><span>Ijin</span></label>
+</div>
+
+<div class="section">Lokasi</div>
+<div class="option-group">
+<label><input type="radio" name="workFrom" value="WFO" required><span>Kampus</span></label>
+<label><input type="radio" name="workFrom" value="WFH"><span>WFA</span></label>
+<label><input type="radio" name="workFrom" value="Ijin"><span>Ijin</span></label>
+</div>
+
+<div class="section">Kelas/Keterangan</div>
+<textarea id="kegiatan" placeholder="Isikan nama kelas atau keterangan"></textarea>
+
+<button type="submit" id="btnSubmit"><i class="fas fa-fingerprint"></i> Kirim Absensi</button>
+</form>
+
+<div class="refresh">
+<a href="#" onclick="resetFormApp()"><i class="fas fa-sync-alt"></i> Absensi Lagi | Reset</a>
+</div>
+
+<div class="footer">
+© <span id="tahun"></span> PASCASARJANA
+</div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+// Token keamanan untuk API
+const API_TOKEN = "SECRET_TOKEN_123456"; // harus sama dengan backend
+const API_URL = "PASTE_URL_API_GOOGLE_SCRIPT"; // ganti URL Web App
+
+// QR Code Scanner
+function onScanSuccess(decodedText) {
+  const data = decodedText.split("|");
+  if(data.length===2){
+    $("#idPegawai").val(data[0]);
+    $("#password").val(data[1]);
+    Swal.fire({icon:"success", title:"Scan Berhasil", text:"ID: "+data[0], timer:1500, showConfirmButton:false});
+    html5QrcodeScanner.clear();
+  } else {
+    Swal.fire("Barcode tidak dikenal","","error");
+  }
+}
+
+let html5QrcodeScanner = new Html5QrcodeScanner("reader",{fps:10, qrbox:150});
+html5QrcodeScanner.render(onScanSuccess);
+
+// Submit absensi
+function submitAbsensi(){
+  const idPegawai = $("#idPegawai").val();
+  const password = $("#password").val();
+  const absensi = $("input[name=absensi]:checked").val();
+  const workFrom = $("input[name=workFrom]:checked").val();
+  const kegiatan = $("#kegiatan").val();
+
+  if(!idPegawai || !password || !absensi || !workFrom){
+    Swal.fire("Lengkapi data absensi dan lokasi","","warning");
+    return;
+  }
+
+  startLoading();
+
+  if(!navigator.geolocation){
+    stopLoading();
+    Swal.fire("Browser tidak mendukung GPS","","error");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(function(position){
+    const data = {
+      token: API_TOKEN,
+      idPegawai, password, absensi, workFrom, kegiatan,
+      position: [position.coords.latitude, position.coords.longitude]
+    };
+
+    fetch(API_URL, {
+      method:"POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(data)
+    })
+    .then(res => res.json())
+    .then(dt => {
+      stopLoading();
+      if(dt.success){
+        Swal.fire({icon:"success", title:"Absensi Berhasil ✅", html:`<div>${dt.msg}</div>`, timer:2000, showConfirmButton:false})
+        .then(()=> resetFormApp());
+      } else {
+        Swal.fire({icon:"error", title:"Gagal ❌", html:`<div>${dt.msg}</div>`});
+      }
+    })
+    .catch(err=>{
+      stopLoading();
+      Swal.fire("Terjadi kesalahan server","","error");
+    });
+
+  },{
+    enableHighAccuracy:true,
+    timeout:5000
+  });
+}
+
+// Loading smooth
+function startLoading(){ $("#btnSubmit").addClass("btn-loading").html('<i class="fas fa-spinner fa-spin"></i> Memproses...'); }
+function stopLoading(){ $("#btnSubmit").removeClass("btn-loading").html('<i class="fas fa-fingerprint"></i> Kirim Absensi'); }
+
+// Reset form
+function resetFormApp(){
+  $("#idPegawai,#password,#kegiatan").val("");
+  $("input[type=radio]").prop("checked", false);
+  if(html5QrcodeScanner){
+    html5QrcodeScanner.clear().then(()=>{
+      document.getElementById("reader").innerHTML="";
+      html5QrcodeScanner = new Html5QrcodeScanner("reader",{fps:10, qrbox:150});
+      html5QrcodeScanner.render(onScanSuccess);
+    });
+  }
+}
+
+// Tahun footer
+document.getElementById("tahun").textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
+
