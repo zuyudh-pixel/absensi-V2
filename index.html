@@ -9,18 +9,15 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 
   <style>
-    /* Body gradasi biru muda */
     body {
       min-height: 100vh;
       font-family: 'Segoe UI', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #a2d2ff, #74c0fc, #4dabf7);
+      background: linear-gradient(135deg, #0a3d62, #1e3799, #3c40c6);
       margin: 0;
     }
-
-    /* Glassmorphism Card */
     .glass-card {
       backdrop-filter: blur(25px);
       background: rgba(255,255,255,0.15);
@@ -34,23 +31,16 @@
       text-align: center;
       animation: fadeIn 0.6s ease-in-out;
     }
-
     @keyframes fadeIn {
       from { opacity:0; transform:translateY(20px); }
       to { opacity:1; transform:translateY(0); }
     }
-
-    /* Logo */
     .logo {
       width: 80px;
-      height: auto;
-      object-fit: contain;
       margin-bottom: 15px;
       transition: transform 0.3s ease;
     }
     .logo:hover { transform: scale(1.08); }
-
-    /* Input / select */
     input, select {
       background: rgba(255,255,255,0.2) !important;
       border: none !important;
@@ -58,8 +48,6 @@
       border-radius: 10px;
     }
     input::placeholder { color: rgba(255,255,255,0.8); }
-
-    /* Tombol modern + ripple */
     .btn-modern {
       border-radius: 50px;
       font-weight: 500;
@@ -68,11 +56,8 @@
       overflow: hidden;
       transition: all 0.25s ease;
     }
-
     .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
     .btn-modern:active { transform: scale(0.97); }
-
-    /* Ripple Effect */
     .ripple {
       position: absolute;
       border-radius: 50%;
@@ -82,23 +67,16 @@
       pointer-events: none;
     }
     @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-
-    /* Spinner */
     .spinner-border-sm { width: 1rem; height: 1rem; border-width: 0.15em; }
-
   </style>
 </head>
 
 <body>
 <div class="glass-card">
-  <!-- Logo -->
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
   <h4 class="mb-4">Sistem Absensi Pegawai</h4>
-
-  <!-- Notifikasi -->
   <div id="notif"></div>
 
-  <!-- LOGIN AREA -->
   <div id="loginArea">
     <input class="form-control mb-3" id="idInput" placeholder="ID Pegawai">
     <input type="password" class="form-control mb-3" id="passwordInput" placeholder="Password">
@@ -107,7 +85,6 @@
     </button>
   </div>
 
-  <!-- ABSEN AREA -->
   <div id="absenArea" style="display:none;">
     <h6 id="userInfo" class="mb-3"></h6>
     <select class="form-select mb-3" id="workfrom">
@@ -116,10 +93,10 @@
     </select>
     <input class="form-control mb-3" id="kegiatan" placeholder="Kegiatan">
     <div class="d-grid gap-2 mb-3">
-      <button class="btn btn-success btn-modern" onclick="absen('Masuk', event)">
+      <button class="btn btn-success btn-modern" id="btnMasuk" onclick="absen('Masuk', event)">
         <i class="bi bi-door-open me-2"></i>Absen Masuk
       </button>
-      <button class="btn btn-danger btn-modern" onclick="absen('Pulang', event)">
+      <button class="btn btn-danger btn-modern" id="btnPulang" onclick="absen('Pulang', event)">
         <i class="bi bi-door-closed me-2"></i>Absen Pulang
       </button>
     </div>
@@ -133,13 +110,13 @@
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZkus_1zSCQCwIj78CF4eZKN0pIH9Ptfl2FNXEe34-W5yqF5-QMCHvYakEENSl-T67-g/exec";
 let currentUser = {};
 
-// Notifikasi
+const todayKey = () => new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
 function showNotif(message, type="light"){
   document.getElementById("notif").innerHTML =
     `<div class="alert alert-${type} mt-2">${message}</div>`;
 }
 
-// Ripple Effect
 function createRipple(event) {
   const button = event.currentTarget;
   const circle = document.createElement("span");
@@ -152,10 +129,27 @@ function createRipple(event) {
   circle.addEventListener('animationend', () => circle.remove());
 }
 
-// Pasang ripple ke semua tombol
 document.querySelectorAll('.btn-modern').forEach(btn=>{
   btn.addEventListener('click', createRipple);
 });
+
+// Fungsi auto-manage tombol berdasarkan localStorage & tanggal
+function updateButtons() {
+  const key = todayKey();
+  const absenHariIni = JSON.parse(localStorage.getItem(key) || "{}");
+  const userAbsen = absenHariIni[currentUser.id] || {};
+
+  const btnMasuk = document.getElementById("btnMasuk");
+  const btnPulang = document.getElementById("btnPulang");
+
+  if(userAbsen.masuk) {
+    btnMasuk.style.display = "none";
+    btnPulang.style.display = userAbsen.pulang ? "none" : "inline-block";
+  } else {
+    btnMasuk.style.display = "inline-block";
+    btnPulang.style.display = "none";
+  }
+}
 
 // Login
 function login(event){
@@ -174,7 +168,8 @@ function login(event){
       document.getElementById("absenArea").style.display="block";
       document.getElementById("userInfo").innerText=data.nama + " - " + data.bagian;
       showNotif('<i class="bi bi-check-circle me-2"></i>Login berhasil!', "success");
-    }else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!', "danger");
+      updateButtons(); // update otomatis tombol setelah login
+    } else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!', "danger");
   })
   .catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!', 'danger'));
 }
@@ -185,6 +180,15 @@ function absen(tipe,event){
 
   navigator.geolocation.getCurrentPosition(
     function(pos){
+      let key = todayKey();
+      let absenHariIni = JSON.parse(localStorage.getItem(key) || "{}");
+      absenHariIni[currentUser.id] = absenHariIni[currentUser.id] || {};
+
+      if(tipe==="Masuk" && absenHariIni[currentUser.id].masuk){
+        showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen masuk hari ini!', 'warning');
+        return;
+      }
+
       fetch(WEB_APP_URL, { method:"POST", body:new URLSearchParams({
         action:"absen",
         id:currentUser.id,
@@ -197,14 +201,20 @@ function absen(tipe,event){
       })})
       .then(res=>res.json())
       .then(data=>{
-        if(data.status==="success")
+        if(data.status==="success"){
           showNotif('<i class="bi bi-check-circle me-2"></i>Absensi berhasil!', 'success');
-        else if(data.status==="duplicate")
+
+          absenHariIni[currentUser.id][tipe.toLowerCase()] = true;
+          localStorage.setItem(key, JSON.stringify(absenHariIni));
+
+          updateButtons(); // otomatis update tombol
+        } else if(data.status==="duplicate") {
           showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!', 'warning');
-        else if(data.status==="out_of_radius")
+        } else if(data.status==="out_of_radius") {
           showNotif('<i class="bi bi-geo-alt me-2"></i>Di luar radius kampus!', 'danger');
-        else
+        } else {
           showNotif('<i class="bi bi-x-circle me-2"></i>Terjadi kesalahan!', 'danger');
+        }
       })
       .catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!', 'danger'));
     },
