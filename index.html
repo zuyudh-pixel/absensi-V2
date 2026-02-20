@@ -1,158 +1,56 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-  <meta charset="UTF-8">
   <title>Absensi Kampus 2026 - Futuristik</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-  <!-- Html5 QR Code Library -->
   <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
-
   <style>
-    body {
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      background: linear-gradient(135deg,#0a3d62,#1e3799,#3c40c6);
-    }
-
-    .glass-card {
-      backdrop-filter: blur(25px);
-      background: rgba(255,255,255,0.12);
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.3);
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      padding: 25px 20px;
-      width: 100%;
-      max-width: 380px;
-      color: white;
-      text-align: center;
-      position: relative;
-    }
-
-    .logo { width: 70px; margin-bottom: 8px; }
-    h3 { margin-bottom: 6px; font-size: 1rem; }
-    h4 { margin-bottom: 12px; font-weight:400; }
-
-    /* Scanner */
-    #scanner {
-      width: 100%;
-      height: 240px;
-      border-radius: 15px;
-      overflow: hidden;
-      position: relative;
-      background: rgba(255,255,255,0.05);
-      margin-bottom: 10px;
-    }
-
-    #scanner::before {
-      content:"";
-      position:absolute;
-      top:0;
-      left:0;
-      width:100%;
-      height:3px;
-      background: rgba(0,255,204,0.6);
-      animation: scanLine 2s infinite;
-    }
-    @keyframes scanLine {
-      0% { top:0; }
-      50% { top: calc(100% - 3px); }
-      100% { top:0; }
-    }
-
-    /* Upload */
-    #uploadLabel {
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:6px;
-      margin-bottom: 12px;
-      cursor:pointer;
-      font-size: 0.9rem;
-    }
-    #uploadLabel input { display:none; }
-
-    /* Inputs & Buttons */
-    input, select {
-      background: rgba(255,255,255,0.15) !important;
-      border: none !important;
-      color: white !important;
-      border-radius: 10px;
-    }
-    input::placeholder { color: rgba(255,255,255,0.7); }
-
-    .btn-modern {
-      border-radius: 50px;
-      font-weight: 500;
-      padding: 8px;
-      position: relative;
-      overflow: hidden;
-      transition: all 0.25s ease;
-    }
-    .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
-    .btn-modern:active { transform: scale(0.97); }
-
-    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255,255,255,0.4); pointer-events: none; }
-    @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-
-    /* Toast */
-    .scan-success {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      color: white;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.4s ease;
-      z-index: 10;
-    }
-    .scan-success.show { opacity: 1; transform: translateY(0); }
-    .login-toast { background: #0d6efd; }
-    .masuk-toast { background: #28a745; }
-    .pulang-toast { background: #fd7e14; }
+    body { min-height:100vh; display:flex; align-items:center; justify-content:center; font-family:'Segoe UI', sans-serif;
+      background: linear-gradient(135deg,#0a3d62,#1e3799,#3c40c6); margin:0;}
+    .glass-card {backdrop-filter: blur(25px); background: rgba(255,255,255,0.12); border-radius:20px; border:1px solid rgba(255,255,255,0.3);
+      box-shadow:0 8px 32px rgba(0,0,0,0.2); padding:30px 20px; width:100%; max-width:380px; color:white; text-align:center; position:relative;}
+    .logo{width:70px;margin-bottom:8px;transition:transform .3s ease;} .logo:hover{transform:scale(1.08);}
+    h3{margin-bottom:6px;font-size:1rem;} h4{margin-bottom:14px;font-weight:400;}
+    #scanner{width:100%;height:220px;border-radius:15px;overflow:hidden;position:relative;background:rgba(255,255,255,0.05); margin-bottom:10px;}
+    #scanner::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:rgba(0,255,204,0.6);animation:scanLine 2s infinite;}
+    @keyframes scanLine{0%{top:0;}50%{top:calc(100% - 3px);}100%{top:0;}}
+    #uploadLabel{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:10px;cursor:pointer;font-size:.9rem;}
+    #uploadLabel input{display:none;}
+    input, select{background:rgba(255,255,255,0.15)!important;border:none!important;color:white!important;border-radius:10px;}
+    input::placeholder{color:rgba(255,255,255,0.7);}
+    .btn-modern{border-radius:50px;font-weight:500;padding:8px;position:relative;overflow:hidden;transition:all .25s ease;}
+    .btn-modern:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.3);}
+    .btn-modern:active{transform:scale(0.97);}
+    .ripple{position:absolute;border-radius:50%;transform:scale(0);animation:ripple .6s linear;background-color:rgba(255,255,255,0.4);pointer-events:none;}
+    @keyframes ripple{to{transform:scale(4);opacity:0;}}
+    .scan-success{position:absolute;top:10px;right:10px;color:white;padding:8px 12px;border-radius:20px;font-weight:600;display:flex;align-items:center;gap:5px;opacity:0;transform:translateY(-20px);transition:opacity .4s ease,transform .4s ease,background-color .4s ease;z-index:10;}
+    .scan-success.show{opacity:1;transform:translateY(0);}
+    .login-toast{background:#0d6efd;}
+    .masuk-toast{background:#28a745;}
+    .pulang-toast{background:#fd7e14;}
   </style>
 </head>
-
 <body>
 <div class="glass-card">
-  <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
+  <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo">
   <h3>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h3>
   <h4>Sistem Absensi Pegawai</h4>
-
   <div id="notif"></div>
 
-  <!-- Scan success -->
-  <div id="scanSuccess" class="scan-success">
-    <i id="scanIcon" class="bi bi-check2-circle"></i> <span id="scanText">Scan Berhasil</span>
-  </div>
+  <div id="scanSuccess" class="scan-success"><i id="scanIcon" class="bi bi-check2-circle"></i> <span id="scanText">Scan Berhasil</span></div>
 
-  <!-- LOGIN AREA -->
+  <!-- Login area -->
   <div id="loginArea">
-    <!-- Kamera Scanner -->
     <div id="scanner"></div>
-
-    <!-- Upload Barcode -->
     <label id="uploadLabel" class="btn btn-outline-light btn-modern w-100">
       <i class="bi bi-upload"></i> Upload Gambar Barcode
       <input type="file" id="barcodeFile" accept="image/*">
     </label>
   </div>
 
-  <!-- ABSEN AREA -->
+  <!-- Absen area -->
   <div id="absenArea" style="display:none;">
     <h6 id="userInfo" class="mb-2"></h6>
     <select class="form-select mb-2" id="workfrom">
@@ -161,170 +59,100 @@
     </select>
     <input class="form-control mb-2" id="kegiatan" placeholder="Kegiatan">
     <div class="d-grid gap-2 mb-2">
-      <button class="btn btn-success btn-modern" id="btnMasuk" onclick="absen('Masuk', event)">
-        <i class="bi bi-door-open me-2"></i>Absen Masuk
-      </button>
-      <button class="btn btn-danger btn-modern" id="btnPulang" onclick="absen('Pulang', event)">
-        <i class="bi bi-door-closed me-2"></i>Absen Pulang
-      </button>
+      <button class="btn btn-success btn-modern" id="btnMasuk" onclick="absen('Masuk')"><i class="bi bi-door-open me-2"></i>Absen Masuk</button>
+      <button class="btn btn-danger btn-modern" id="btnPulang" onclick="absen('Pulang')"><i class="bi bi-door-closed me-2"></i>Absen Pulang</button>
     </div>
-    <button class="btn btn-outline-light w-100 btn-modern" onclick="resetForm(event)">
-      <i class="bi bi-arrow-clockwise me-2"></i>Refresh
-    </button>
+    <button class="btn btn-outline-light w-100 btn-modern" onclick="resetForm()"><i class="bi bi-arrow-clockwise me-2"></i>Refresh</button>
   </div>
 </div>
 
 <script>
 const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzZkus_1zSCQCwIj78CF4eZKN0pIH9Ptfl2FNXEe34-W5yqF5-QMCHvYakEENSl-T67-g/exec";
 let currentUser={};
-const todayKey=()=>new Date().toISOString().split("T")[0];
-let html5QrCode;
+const todayKey = ()=>new Date().toISOString().split('T')[0];
 
-// Ripple effect
-function createRipple(event){
-  const button=event.currentTarget;
-  const circle=document.createElement("span");
-  const diameter=Math.max(button.clientWidth,button.clientHeight);
-  circle.style.width=circle.style.height=diameter+"px";
-  circle.style.left=`${event.clientX - button.getBoundingClientRect().left - diameter/2}px`;
-  circle.style.top=`${event.clientY - button.getBoundingClientRect().top - diameter/2}px`;
-  circle.classList.add("ripple");
-  button.appendChild(circle);
-  circle.addEventListener("animationend",()=>circle.remove());
-}
-document.querySelectorAll(".btn-modern").forEach(btn=>btn.addEventListener("click",createRipple));
+function showNotif(msg,type="light"){document.getElementById("notif").innerHTML=`<div class="alert alert-${type} mt-2">${msg}</div>`;}
+function showScanSuccess(type="masuk"){const el=document.getElementById("scanSuccess"),txt=document.getElementById("scanText"),ic=document.getElementById("scanIcon"); el.className="scan-success show"; if(type==="login"){el.classList.add("login-toast"); txt.innerText="Login Berhasil"; ic.className="bi bi-person-check";}
+else if(type==="Masuk"){el.classList.add("masuk-toast"); txt.innerText="Absen Masuk Berhasil"; ic.className="bi bi-check2-circle";}
+else if(type==="Pulang"){el.classList.add("pulang-toast"); txt.innerText="Absen Pulang Berhasil"; ic.className="bi bi-box-arrow-right";} setTimeout(()=>el.classList.remove("show"),1200); }
 
-// Toast
-function showScanSuccess(type="masuk"){
-  const el=document.getElementById("scanSuccess");
-  const text=document.getElementById("scanText");
-  const icon=document.getElementById("scanIcon");
-  el.className="scan-success show";
-
-  if(type==="login"){el.classList.add("login-toast"); text.innerText="Login Berhasil"; icon.className="bi bi-person-check";}
-  else if(type==="Masuk"){el.classList.add("masuk-toast"); text.innerText="Absen Masuk Berhasil"; icon.className="bi bi-check2-circle";}
-  else if(type==="Pulang"){el.classList.add("pulang-toast"); text.innerText="Absen Pulang Berhasil"; icon.className="bi bi-box-arrow-right";}
-
-  setTimeout(()=>el.classList.remove("show"),1200);
-}
-
-// Update tombol
 function updateButtons(){
-  const key=todayKey();
-  const absenHariIni=JSON.parse(localStorage.getItem(key)||"{}");
-  const userAbsen=absenHariIni[currentUser.id]||{};
-  const btnMasuk=document.getElementById("btnMasuk");
-  const btnPulang=document.getElementById("btnPulang");
-
-  if(userAbsen.masuk){btnMasuk.style.display="none"; btnPulang.style.display=userAbsen.pulang?"none":"inline-block";}
-  else{btnMasuk.style.display="inline-block"; btnPulang.style.display="none";}
+  const key=todayKey(); const absenHariIni=JSON.parse(localStorage.getItem(key)||"{}"); const userAbsen=absenHariIni[currentUser.id]||{};
+  const btnMasuk=document.getElementById("btnMasuk"), btnPulang=document.getElementById("btnPulang");
+  if(userAbsen.masuk){ btnMasuk.style.display="none"; btnPulang.style.display=userAbsen.pulang?"none":"inline-block";}else{ btnMasuk.style.display="inline-block"; btnPulang.style.display="none";}
 }
 
-// Login via barcode
-function loginWithBarcode(barcode){
-  if(!barcode) return;
-  document.getElementById("notif").innerHTML='<div class="alert alert-info mt-2"><i class="bi bi-hourglass-split me-2"></i>Login diproses...</div>';
-
-  if(html5QrCode) html5QrCode.pause(true);
-
-  fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"login",id:barcode})})
-  .then(res=>res.json())
-  .then(data=>{
-    if(data.status==="success"){
-      currentUser={id:barcode,nama:data.nama,bagian:data.bagian};
+function loginWithBarcode(id){
+  if(!id) return;
+  showNotif('<i class="bi bi-hourglass-split me-2"></i>Login sedang diproses...','info');
+  fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({action:"login",id:id})})
+  .then(r=>r.json())
+  .then(d=>{
+    if(d.status==="success"){
+      currentUser={id:id,nama:d.nama};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
-      document.getElementById("userInfo").innerText=data.nama+" - "+data.bagian;
-      updateButtons();
-      showScanSuccess("login");
-    } else {
-      document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-x-circle me-2"></i>Login gagal!</div>';
-    }
-  })
-  .catch(()=>document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-x-octagon me-2"></i>Server tidak merespon!</div>')
-  .finally(()=>{ setTimeout(()=>{ if(html5QrCode) html5QrCode.resume(); },500); });
+      document.getElementById("userInfo").innerText=d.nama+' - '+d.bagian;
+      updateButtons(); showScanSuccess("login"); 
+    }else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!','danger');
+  }).catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!','danger'));
 }
 
-// Absen
-function absen(tipe,event){
-  document.getElementById("notif").innerHTML='<div class="alert alert-info mt-2"><i class="bi bi-hourglass-split me-2"></i>Mengirim data...</div>';
-
+function absen(tipe){
+  showNotif('<i class="bi bi-hourglass-split me-2"></i>Mengirim data...','info');
   navigator.geolocation.getCurrentPosition(pos=>{
-    let key=todayKey();
-    let absenHariIni=JSON.parse(localStorage.getItem(key)||"{}");
+    let key=todayKey(); let absenHariIni=JSON.parse(localStorage.getItem(key)||"{}");
     absenHariIni[currentUser.id]=absenHariIni[currentUser.id]||{};
-
-    if(tipe==="Masuk" && absenHariIni[currentUser.id].masuk){
-      document.getElementById("notif").innerHTML='<div class="alert alert-warning mt-2"><i class="bi bi-exclamation-triangle me-2"></i>Sudah absen masuk hari ini!</div>'; 
-      return;
-    }
-
+    if(tipe==="Masuk" && absenHariIni[currentUser.id].masuk){showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen masuk hari ini!','warning');return;}
     fetch(WEB_APP_URL,{method:"POST",body:new URLSearchParams({
-      action:"absen",
-      id:currentUser.id,
-      nama:currentUser.nama,
-      tipe:tipe,
+      action:"absen",id:currentUser.id,nama:currentUser.nama,tipe:tipe,
       workfrom:document.getElementById("workfrom").value,
       kegiatan:document.getElementById("kegiatan").value,
-      latitude:pos.coords.latitude,
-      longitude:pos.coords.longitude
+      latitude:pos.coords.latitude,longitude:pos.coords.longitude
     })})
-    .then(res=>res.json())
-    .then(data=>{
-      if(data.status==="success"){
-        document.getElementById("notif").innerHTML='<div class="alert alert-success mt-2"><i class="bi bi-check-circle me-2"></i>Absensi berhasil!</div>';
+    .then(r=>r.json())
+    .then(d=>{
+      if(d.status==="success"){showNotif('<i class="bi bi-check-circle me-2"></i>Absensi berhasil!','success');
         absenHariIni[currentUser.id][tipe.toLowerCase()]=true;
         localStorage.setItem(key,JSON.stringify(absenHariIni));
-        updateButtons();
-        showScanSuccess(tipe);
-      } else if(data.status==="duplicate") {
-        document.getElementById("notif").innerHTML='<div class="alert alert-warning mt-2"><i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!</div>';
-      } else if(data.status==="out_of_radius") {
-        document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-geo-alt me-2"></i>Di luar radius kampus!</div>';
-      } else {
-        document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-x-circle me-2"></i>Terjadi kesalahan!</div>';
-      }
-    })
-    .catch(()=>document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-x-octagon me-2"></i>Server tidak merespon!</div>');
-  },()=>{document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-geo-alt-slash me-2"></i>GPS tidak diizinkan!</div>';});
+        updateButtons(); showScanSuccess(tipe);
+      }else if(d.status==="duplicate"){showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!','warning');}
+      else if(d.status==="out_of_radius"){showNotif('<i class="bi bi-geo-alt me-2"></i>Di luar radius kampus!','danger');}
+      else{showNotif('<i class="bi bi-x-circle me-2"></i>Terjadi kesalahan!','danger');}
+    }).catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!','danger'));
+  },()=>showNotif('<i class="bi bi-geo-alt-slash me-2"></i>GPS tidak diizinkan!','danger'));
 }
 
-// Reset
-function resetForm(event){
-  currentUser={};
-  document.getElementById("loginArea").style.display="block";
-  document.getElementById("absenArea").style.display="none";
-  document.getElementById("notif").innerHTML="";
-}
+function resetForm(){currentUser={}; document.getElementById("loginArea").style.display="block"; document.getElementById("absenArea").style.display="none"; document.getElementById("notif").innerHTML=""; startScanner(); }
 
-// Init Kamera & Upload
-window.onload=function(){
-  html5QrCode=new Html5Qrcode("scanner");
+// Scanner & Upload
+let html5QrCode;
+function startScanner(){
+  html5QrCode = new Html5Qrcode("scanner");
   Html5Qrcode.getCameras().then(cameras=>{
     if(cameras && cameras.length){
-      // Pilih kamera belakang smartphone/laptop jika ada
-      html5QrCode.start(
-        cameras[0].id,
-        {fps:10, qrbox:250},
-        decodedText=>loginWithBarcode(decodedText)
-      ).catch(err=>console.error(err));
-    } else alert("Tidak ada kamera yang terdeteksi");
+      html5QrCode.start(cameras[0].id, {fps:10, qrbox:250},
+        decodedText=>{
+          loginWithBarcode(decodedText);
+          html5QrCode.stop().then(()=>html5QrCode.start(cameras[0].id, {fps:10, qrbox:250})); // auto restart
+        },
+        err=>{}
+      );
+    }
   }).catch(err=>console.error(err));
 
-  document.getElementById("barcodeFile").addEventListener("change",function(e){
+  document.getElementById("barcodeFile").addEventListener("change",e=>{
     const file=e.target.files[0];
     if(file){
-      Html5Qrcode.scanFile(file,true)
-        .then(decodedText=>{
-          loginWithBarcode(decodedText);
-          e.target.value=""; // reset file input
-        })
-        .catch(err=>alert("Gagal membaca barcode"));
+      Html5Qrcode.scanFile(file,true).then(decodedText=>{
+        loginWithBarcode(decodedText);
+      }).catch(err=>showNotif("Gagal membaca barcode","danger"));
     }
   });
-};
-</script>
+}
 
+window.onload=startScanner;
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
