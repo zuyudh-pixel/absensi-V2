@@ -159,7 +159,7 @@ function showToast(msg){
   setTimeout(()=>toast.classList.remove("show"),2500);
 }
 
-// Get lokasi
+// Lokasi
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -174,8 +174,16 @@ let videoStream=null;
 let scanning=false;
 
 function toggleScanner(){
-  if(scanning){ stopScanner(); scanning=false; document.getElementById("btnScan").innerText="Scan Barcode"; showToast("Scanner dimatikan ❌"); }
-  else{ startScanner(); scanning=true; document.getElementById("btnScan").innerText="Stop Scan"; }
+  if(scanning){
+    stopScanner(); 
+    scanning=false; 
+    document.getElementById("btnScan").innerText="Scan Barcode"; 
+    showToast("Scanner dimatikan ❌");
+  } else{
+    startScanner(); 
+    scanning=true; 
+    document.getElementById("btnScan").innerText="Stop Scan";
+  }
 }
 
 function startScanner(){
@@ -217,10 +225,9 @@ function stopScanner(){
 
 // Scan file upload
 function scanFile(input){
-  if(input.files.length === 0) return;
+  if(input.files.length===0) return;
   const file = input.files[0];
   const reader = new FileReader();
-
   reader.onload = function(){
     const img = new Image();
     img.onload = function(){
@@ -243,53 +250,50 @@ function scanFile(input){
   reader.readAsDataURL(file);
 }
 
-// Validasi barcode & login
+// Proses barcode
 function processBarcode(data){
   const trimmed = data.trim();
   if(trimmed.includes("|")){
     const [id,password] = trimmed.split("|");
     if(id && password){
       loginWithBarcode(trimmed);
-    } else {
+    } else{
       showToast("Format barcode salah ❌");
       resetLoginArea();
     }
-  } else {
+  } else{
     showToast("Format barcode salah ❌");
     resetLoginArea();
   }
 }
 
-// Login
+// Login dengan FormData
 async function loginWithBarcode(data){
-  const [id,password]=data.split("|");
+  const [id,password] = data.split("|");
   if(!id || !password){ showToast("Format barcode salah ❌"); resetLoginArea(); return; }
 
-  const formData=new URLSearchParams();
+  const formData = new FormData();
   formData.append("action","login");
-  formData.append("id",id);
-  formData.append("password",password);
+  formData.append("id", id);
+  formData.append("password", password);
 
   try{
-    const res=await fetch(WEB_APP_URL,{ method:"POST", body:formData });
-    const result=await res.json();
+    const res = await fetch(WEB_APP_URL,{ method:"POST", body:formData });
+    const result = await res.json();
 
     if(result.status==="success"){
       currentUser={id,nama:result.nama,bagian:result.bagian};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
-
-      document.getElementById("userInfo").innerText=`${result.nama} - Bagian: ${result.bagian}`;
       document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
       document.getElementById("userIdDisplay").innerText=`ID Dosen: ${currentUser.id}`;
-
       showToast("Login berhasil ✅");
       getLocation();
-    } else {
+    } else{
       showToast("Barcode tidak valid ❌");
       resetLoginArea();
     }
-  } catch(e){
+  }catch(e){
     console.error(e);
     showToast("Terjadi kesalahan server ❌");
     resetLoginArea();
@@ -300,7 +304,6 @@ async function loginWithBarcode(data){
 function resetLoginArea(){
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
-  document.getElementById("userInfo").innerText="";
   document.getElementById("userInfoAbsen").innerText="";
   document.getElementById("userIdDisplay").innerText="";
 }
@@ -309,19 +312,19 @@ function resetLoginArea(){
 async function absen(){
   if(!userLat){ showToast("GPS belum aktif!"); return; }
 
-  const formData=new URLSearchParams();
+  const formData = new FormData();
   formData.append("action","absen");
-  formData.append("id",currentUser.id);
-  formData.append("nama",currentUser.nama);
-  formData.append("tipe",document.getElementById("tipe").value);
-  formData.append("workfrom",document.getElementById("workfrom").value);
-  formData.append("kegiatan",document.getElementById("kegiatan").value);
-  formData.append("latitude",userLat);
-  formData.append("longitude",userLng);
+  formData.append("id", currentUser.id);
+  formData.append("nama", currentUser.nama);
+  formData.append("tipe", document.getElementById("tipe").value);
+  formData.append("workfrom", document.getElementById("workfrom").value);
+  formData.append("kegiatan", document.getElementById("kegiatan").value);
+  formData.append("latitude", userLat);
+  formData.append("longitude", userLng);
 
   try{
-    const res=await fetch(WEB_APP_URL,{ method:"POST", body:formData });
-    const result=await res.json();
+    const res = await fetch(WEB_APP_URL,{ method:"POST", body:formData });
+    const result = await res.json();
 
     if(result.status==="success"){ showToast("Absensi berhasil ✅"); }
     else if(result.status==="duplicate_masuk"){ showToast("Anda sudah absen MASUK hari ini ❗"); }
@@ -339,7 +342,6 @@ function logout(){
   currentUser={};
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
-  document.getElementById("userInfo").innerText="";
   document.getElementById("userInfoAbsen").innerText="";
   document.getElementById("userIdDisplay").innerText="";
   stopScanner();
