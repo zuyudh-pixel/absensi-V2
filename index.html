@@ -108,7 +108,7 @@ button:hover{transform:translateY(-2px)}
     <input type="file" id="fileInput" accept="image/*" style="margin-top:8px;" onchange="scanFile(this)">
   </div>
 
-  <!-- ABSEN AREA -->
+<!-- ABSEN AREA -->
 <div id="absenArea" style="display:none; margin-top:15px;">
   <h4 id="userInfoAbsen" style="text-align:center; margin-bottom:15px;"></h4>
 
@@ -131,16 +131,17 @@ button:hover{transform:translateY(-2px)}
     </select>
   </div>
 
-  <!-- Kegiatan -->
+  <!-- Kegiatan (1 baris) -->
   <div style="margin-bottom:15px;">
     <label for="kegiatan" style="font-size:14px; color:#cbd5e1;">Keterangan / Kegiatan</label>
-    <textarea id="kegiatan" placeholder="Tuliskan kegiatan hari ini..." style="width:100%; padding:12px; border-radius:12px; background:#334155; color:white; border:none; min-height:100px; resize:none;"></textarea>
+    <input type="text" id="kegiatan" placeholder="Tuliskan kegiatan hari ini..." 
+           style="width:100%; padding:12px; border-radius:12px; background:#334155; color:white; border:none; box-sizing:border-box;">
   </div>
 
   <!-- Tombol -->
   <button class="btn-success" onclick="absen()" style="margin-bottom:10px;">Kirim Absensi</button>
   <button class="btn-danger" onclick="logout()">Logout</button>
-</div>
+</div>  
 
 <div class="toast" id="toast"></div>
 
