@@ -134,19 +134,19 @@ button:hover{transform:translateY(-2px)}
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzSDk2YOeC-DsJ6ghMrMdK-13Eh8SCtLe3TAucgwW8k80hezegDrjqoSo7efL_Cg4bLKw/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzSDk2YOeC-DsJ6ghMrMdK-13Eh8SCtLe3TAucgwW8k80hezegDrjqoSo7efL_Cg4bLKw/exec"; // ganti sesuai URL deploy Apps Script
 let currentUser = {};
 let userLat = null;
 let userLng = null;
 
-// ===== WAKTU REALTIME =====
+// WAKTU REALTIME
 setInterval(()=>{
   const now = new Date();
   document.getElementById("timeNow").innerText =
     now.toLocaleDateString()+" - "+now.toLocaleTimeString();
 },1000);
 
-// ===== TOAST =====
+// TOAST
 function showToast(msg){
   const toast = document.getElementById("toast");
   toast.innerText = msg;
@@ -154,7 +154,7 @@ function showToast(msg){
   setTimeout(()=>toast.classList.remove("show"),2500);
 }
 
-// ===== LOGIN =====
+// LOGIN
 async function login(){
   const id = document.getElementById("id").value;
   const password = document.getElementById("password").value;
@@ -189,7 +189,7 @@ async function login(){
   }
 }
 
-// ===== GET GPS =====
+// GET GPS
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -199,7 +199,7 @@ function getLocation(){
   }
 }
 
-// ===== ABSEN =====
+// ABSEN
 async function absen(){
 
   if(!userLat){
@@ -226,7 +226,7 @@ async function absen(){
 
   const result = await res.json();
 
-  // ===== TOAST KHUSUS =====
+  // TOAST KHUSUS
   if(result.status === "success"){
     if(tipe === "Masuk"){
       showToast("Absen Masuk berhasil ✅");
@@ -250,7 +250,7 @@ async function absen(){
   }
 }
 
-// ===== LOGOUT =====
+// LOGOUT
 function logout(){
   currentUser = {};
   document.getElementById("loginArea").style.display="block";
