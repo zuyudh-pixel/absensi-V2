@@ -285,7 +285,7 @@ async function loginWithBarcode(data){
       currentUser={id,nama:result.nama,bagian:result.bagian};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
-      document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
+      document.getElementById("userInfoAbsen").innerText=`${result.nama}`;
      // document.getElementById("userIdDisplay").innerText=`ID Dosen: ${currentUser.id}`;
       showToast("Login berhasil ✅");
       getLocation();
