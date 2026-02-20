@@ -224,18 +224,21 @@ async function absen(){
 
   const result = await res.json();
 
-  if(result.status === "success"){
-    showToast("Absensi berhasil ✅");
-  }
-  else if(result.status === "duplicate"){
-    showToast("Sudah absen hari ini ❗");
-  }
-  else if(result.status === "out_of_radius"){
-    showToast("Di luar radius kampus ❌");
-  }
-  else{
-    showToast("Gagal absen ❌");
-  }
+if(result.status === "success"){
+  showToast("Absensi berhasil ✅");
+}
+else if(result.status === "duplicate_masuk"){
+  showToast("Anda sudah absen MASUK hari ini ❗");
+}
+else if(result.status === "duplicate"){
+  showToast("Sudah absen hari ini ❗");
+}
+else if(result.status === "out_of_radius"){
+  showToast("Di luar radius kampus ❌");
+}
+else{
+  showToast("Gagal absen ❌");
+}
 }
 
 // ===== LOGOUT =====
