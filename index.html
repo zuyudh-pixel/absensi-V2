@@ -46,7 +46,7 @@ h2{text-align:center;margin-bottom:5px}
 
 input, select, textarea, button{
   width:100%;
-  box-sizing:border-box; /* penting supaya padding tidak menambah lebar */
+  box-sizing:border-box;
 }
 
 input,select,textarea{
@@ -59,7 +59,7 @@ input,select,textarea{
 }
 
 textarea{
-  min-height:100px; /* supaya lebih proporsional */
+  min-height:100px;
   resize:none;
 }
 
@@ -207,11 +207,13 @@ async function absen(){
     return;
   }
 
+  const tipe = document.getElementById("tipe").value;
+
   const formData = new URLSearchParams();
   formData.append("action","absen");
   formData.append("id",currentUser.id);
   formData.append("nama",currentUser.nama);
-  formData.append("tipe",document.getElementById("tipe").value);
+  formData.append("tipe",tipe);
   formData.append("workfrom",document.getElementById("workfrom").value);
   formData.append("kegiatan",document.getElementById("kegiatan").value);
   formData.append("latitude",userLat);
@@ -224,21 +226,28 @@ async function absen(){
 
   const result = await res.json();
 
-if(result.status === "success"){
-  showToast("Absensi berhasil ✅");
-}
-else if(result.status === "duplicate_masuk"){
-  showToast("Anda sudah absen MASUK hari ini ❗");
-}
-else if(result.status === "duplicate"){
-  showToast("Sudah absen hari ini ❗");
-}
-else if(result.status === "out_of_radius"){
-  showToast("Di luar radius kampus ❌");
-}
-else{
-  showToast("Gagal absen ❌");
-}
+  // ===== TOAST KHUSUS =====
+  if(result.status === "success"){
+    if(tipe === "Masuk"){
+      showToast("Absen Masuk berhasil ✅");
+    } else if(tipe === "Pulang"){
+      showToast("Absen Pulang berhasil ✅");
+    } else {
+      showToast("Absensi berhasil ✅");
+    }
+  }
+  else if(result.status === "duplicate_masuk"){
+    showToast("Anda sudah absen MASUK hari ini ❗");
+  }
+  else if(result.status === "duplicate_pulang"){
+    showToast("Anda sudah absen PULANG hari ini ❗");
+  }
+  else if(result.status === "out_of_radius"){
+    showToast("Di luar radius kampus ❌");
+  }
+  else{
+    showToast("Gagal absen ❌");
+  }
 }
 
 // ===== LOGOUT =====
