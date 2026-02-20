@@ -3,8 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Absensi Digital Modern</title>
+<title>Absensi Dosen</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jsqr/dist/jsQR.js"></script>
 
 <style>
 :root{
@@ -42,7 +43,7 @@ body{
 }
 
 h2{text-align:center;margin-bottom:5px}
-.time{text-align:center;font-size:14px;margin-bottom:20px;opacity:.8}
+.time{text-align:center;font-size:14px;margin-bottom:10px;opacity:.8}
 
 input, select, textarea, button{
   width:100%;
@@ -93,59 +94,59 @@ button:hover{transform:translateY(-2px)}
 .toast.show{opacity:1}
 </style>
 </head>
-
 <body>
 
 <div class="card">
-<!-- LOGO -->
-  <div style="text-align:center;margin-bottom:15px;">
-    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" 
-         alt="Logo Absensi" 
-         style="width:100px;height:auto;">
+  <!-- HEADER -->
+  <div style="text-align:center;margin-bottom:10px;">
+    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" alt="Logo" style="width:80px;height:auto;margin-bottom:5px;">
+    <div style="font-size:12px;color:#a1a1aa;">UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</div>
+    <div style="font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:8px;">PONOROGO</div>
+    <div style="font-size:16px;font-weight:600;color:white;margin-bottom:10px;">Dr. Abid Rohmanu, M.H.I. (Dosen)</div>
   </div>
-  <!-- TEKS KECIL -->
-    <div style="text-align:center;font-size:12px;color:#a1a1aa;">UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</div>
-    
-    <!-- TEKS BAWAH -->
-    <div style="text-align:center;font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:8px;">PASCASARJANA</div>
-  <h2>ABSENSI DOSEN PENGAMPU</h2>
+
+  <!-- JUDUL -->
+  <h2 style="text-align:center;">ABSENSI DOSEN PENGAMPU</h2>
   <div class="time" id="timeNow"></div>
+  <div id="userInfo" style="text-align:center;font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:15px;"></div>
 
   <!-- LOGIN AREA -->
   <div id="loginArea">
     <input type="text" id="id" placeholder="ID Pegawai">
     <input type="password" id="password" placeholder="Password">
+
+    <!-- SCAN/UPLOAD -->
+    <div id="scanner" style="text-align:center;margin-bottom:12px;">
+      <video id="video" width="250" height="200" style="border:1px solid #334155;border-radius:12px;"></video>
+      <button class="btn-primary" onclick="startScanner()">Scan Barcode</button>
+      <input type="file" id="fileInput" accept="image/*" style="margin-top:8px;" onchange="scanFile(this)">
+    </div>
+
     <button class="btn-primary" onclick="login()">Login</button>
   </div>
 
   <!-- ABSEN AREA -->
   <div id="absenArea" style="display:none;">
-   <!-- TAMPILAN DATA DOSEN LOGIN -->
-<div id="userInfo" style="text-align:center;font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:15px;"></div>
-
+    <h4 id="userInfoAbsen" style="text-align:center;"></h4>
     <select id="tipe">
       <option value="Masuk">Masuk</option>
       <option value="Pulang">Pulang</option>
       <option value="Ijin">Ijin</option>
     </select>
-
     <select id="workfrom">
       <option value="WFO">Kampus (WFO)</option>
       <option value="WFH">WFH</option>
     </select>
-
     <textarea id="kegiatan" placeholder="Keterangan"></textarea>
-
     <button class="btn-success" onclick="absen()">Kirim Absensi</button>
     <button class="btn-danger" onclick="logout()">Logout</button>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRdqXQiEtRjkNV5Z4mef8pauPA-F2E90LzSMFRaITfKCy_JsOLP87OKa7V6pPdY-ebTg/exec"; // ganti sesuai URL deploy Apps Script
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwRdqXQiEtRjkNV5Z4mef8pauPA-F2E90LzSMFRaITfKCy_JsOLP87OKa7V6pPdY-ebTg/exec";
 let currentUser = {};
 let userLat = null;
 let userLng = null;
@@ -153,8 +154,7 @@ let userLng = null;
 // WAKTU REALTIME
 setInterval(()=>{
   const now = new Date();
-  document.getElementById("timeNow").innerText =
-    now.toLocaleDateString()+" - "+now.toLocaleTimeString();
+  document.getElementById("timeNow").innerText = now.toLocaleDateString()+" - "+now.toLocaleTimeString();
 },1000);
 
 // TOAST
@@ -170,37 +170,29 @@ async function login(){
   const id = document.getElementById("id").value;
   const password = document.getElementById("password").value;
 
-  if(!id || !password){
-    showToast("Isi ID & Password!");
-    return;
-  }
+  if(!id || !password){ showToast("Isi ID & Password!"); return; }
 
   const formData = new URLSearchParams();
   formData.append("action","login");
   formData.append("id",id);
   formData.append("password",password);
 
-  const res = await fetch(WEB_APP_URL,{
-    method:"POST",
-    body:formData
-  });
-
+  const res = await fetch(WEB_APP_URL,{ method:"POST", body:formData });
   const result = await res.json();
 
-  if(result.status === "success"){
-    currentUser = {id:id,nama:result.nama};
+  if(result.status==="success"){
+    currentUser = {id:id,nama:result.nama, bagian:result.bagian};
     document.getElementById("loginArea").style.display="none";
     document.getElementById("absenArea").style.display="block";
-    document.getElementById("userInfo").innerText =
-      result.nama+" ("+result.bagian+")";
+
+    document.getElementById("userInfo").innerText = `${result.nama} - Bagian: ${result.bagian}`;
+    document.getElementById("userInfoAbsen").innerText = `${result.nama} - Bagian: ${result.bagian}`;
     showToast("Login berhasil ✅");
     getLocation();
-  }else{
-    showToast("Login gagal ❌");
-  }
+  } else { showToast("Login gagal ❌"); }
 }
 
-// GET GPS
+// GPS
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -210,64 +202,105 @@ function getLocation(){
   }
 }
 
+// SCANNER CAMERA
+let videoStream = null;
+function startScanner(){
+  const video = document.getElementById("video");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ showToast("Kamera tidak tersedia ❌"); return; }
+
+  navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"} })
+    .then(stream=>{
+      videoStream = stream;
+      video.srcObject = stream;
+      video.setAttribute("playsinline",true);
+      video.play();
+      requestAnimationFrame(tick);
+    })
+    .catch(err=>{ console.error(err); showToast("Gagal akses kamera ❌"); });
+
+  function tick(){
+    if(video.readyState === video.HAVE_ENOUGH_DATA){
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code = jsQR(imageData.data, imageData.width, imageData.height, {inversionAttempts:"dontInvert"});
+      if(code){
+        stopScanner();
+        const [id,password] = code.data.split("|");
+        document.getElementById("id").value=id;
+        document.getElementById("password").value=password;
+        showToast("Barcode terbaca ✅");
+        return;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+}
+function stopScanner(){ if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; } }
+
+// SCANNER FILE IMAGE
+function scanFile(input){
+  if(input.files.length===0) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(){
+    const img = new Image();
+    img.onload = function(){
+      const canvas=document.createElement("canvas");
+      canvas.width=img.width; canvas.height=img.height;
+      const ctx=canvas.getContext("2d");
+      ctx.drawImage(img,0,0);
+      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code=jsQR(imageData.data, imageData.width, imageData.height,{inversionAttempts:"dontInvert"});
+      if(code){
+        const [id,password]=code.data.split("|");
+        document.getElementById("id").value=id;
+        document.getElementById("password").value=password;
+        showToast("Barcode terbaca dari file ✅");
+      } else { showToast("Gagal membaca barcode ❌"); }
+    };
+    img.src=reader.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 // ABSEN
 async function absen(){
-
-  if(!userLat){
-    showToast("GPS belum aktif!");
-    return;
-  }
-
-  const tipe = document.getElementById("tipe").value;
+  if(!userLat){ showToast("GPS belum aktif!"); return; }
 
   const formData = new URLSearchParams();
   formData.append("action","absen");
   formData.append("id",currentUser.id);
   formData.append("nama",currentUser.nama);
-  formData.append("tipe",tipe);
+  formData.append("tipe",document.getElementById("tipe").value);
   formData.append("workfrom",document.getElementById("workfrom").value);
   formData.append("kegiatan",document.getElementById("kegiatan").value);
   formData.append("latitude",userLat);
   formData.append("longitude",userLng);
 
-  const res = await fetch(WEB_APP_URL,{
-    method:"POST",
-    body:formData
-  });
-
+  const res = await fetch(WEB_APP_URL,{ method:"POST", body:formData });
   const result = await res.json();
 
-  // TOAST KHUSUS
-  if(result.status === "success"){
-    if(tipe === "Masuk"){
-      showToast("Absen Masuk berhasil ✅");
-    } else if(tipe === "Pulang"){
-      showToast("Absen Pulang berhasil ✅");
-    } else {
-      showToast("Absensi berhasil ✅");
-    }
-  }
-  else if(result.status === "duplicate_masuk"){
-    showToast("Anda sudah absen MASUK hari ini ❗");
-  }
-  else if(result.status === "duplicate_pulang"){
-    showToast("Anda sudah absen PULANG hari ini ❗");
-  }
-  else if(result.status === "out_of_radius"){
-    showToast("Di luar radius kampus ❌");
-  }
-  else{
-    showToast("Gagal absen ❌");
-  }
+  if(result.status==="success"){ showToast("Absensi berhasil ✅"); }
+  else if(result.status==="duplicate_masuk"){ showToast("Anda sudah absen MASUK hari ini ❗"); }
+  else if(result.status==="duplicate_pulang"){ showToast("Anda sudah absen PULANG hari ini ❗"); }
+  else if(result.status==="out_of_radius"){ showToast("Di luar radius kampus ❌"); }
+  else{ showToast("Gagal absen ❌"); }
 }
 
 // LOGOUT
 function logout(){
-  currentUser = {};
+  currentUser={};
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
+  document.getElementById("id").value="";
+  document.getElementById("password").value="";
+  document.getElementById("userInfo").innerText="";
+  document.getElementById("userInfoAbsen").innerText="";
 }
 </script>
-
 </body>
 </html>
