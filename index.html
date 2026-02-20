@@ -115,7 +115,7 @@ select, input[type="text"]{
 
   <h2>ABSENSI DOSEN PENGAMPU</h2>
   <div class="time" id="timeNow"></div>
- 
+ <div id="userIdDisplay"></div>
 
   <!-- LOGIN AREA -->
   <div id="loginArea">
@@ -245,14 +245,20 @@ async function loginWithBarcode(data){
   const res=await fetch(WEB_APP_URL,{ method:"POST", body:formData });
   const result=await res.json();
 
-  if(result.status==="success"){
-    currentUser={id:id,nama:result.nama};
-    document.getElementById("loginArea").style.display="none";
-    document.getElementById("absenArea").style.display="block";
-    document.getElementById("userInfo").innerText=`${result.nama} - Bagian: ${result.bagian}`;
-    document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
-    showToast("Login berhasil ✅");
-    getLocation();
+ if(result.status==="success"){
+  currentUser={id:id,nama:result.nama,bagian:result.bagian};
+  document.getElementById("loginArea").style.display="none";
+  document.getElementById("absenArea").style.display="block";
+
+  document.getElementById("userInfo").innerText=`${result.nama} - Bagian: ${result.bagian}`;
+  document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
+
+  // Tampilkan ID dosen di bawah tanggal
+  document.getElementById("userIdDisplay").innerText = `ID Dosen: ${currentUser.id}`;
+
+  showToast("Login berhasil ✅");
+  getLocation();
+}
   } else{ showToast("Barcode tidak valid ❌"); resetLoginArea(); }
 }
 
