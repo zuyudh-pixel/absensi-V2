@@ -101,12 +101,17 @@ button:hover{transform:translateY(-2px)}
   <div class="time" id="timeNow"></div>
   <div id="userInfo" style="text-align:center;font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:15px;"></div>
 
-  <!-- LOGIN AREA -->
-  <div id="loginArea" style="text-align:center;">
-    <video id="video" playsinline></video>
-    <button class="btn-primary" onclick="startScanner()">Scan Barcode</button>
-    <input type="file" id="fileInput" accept="image/*" style="margin-top:8px;" onchange="scanFile(this)">
-  </div>
+  <div id="loginArea">
+  <!-- Scanner Video -->
+  <video id="video" width="250" height="200" style="border:1px solid #334155;border-radius:12px; margin-bottom:8px;"></video>
+
+  <!-- Tombol Scan / Stop Scan -->
+  <button class="btn-primary" id="btnScan" onclick="toggleScanner()">Scan Barcode</button>
+
+  <!-- Upload Barcode -->
+  <input type="file" id="fileInput" accept="image/*" style="margin-top:8px;" onchange="scanFile(this)">
+
+</div>
 
 <!-- ABSEN AREA -->
 <div id="absenArea" style="display:none; margin-top:15px;">
@@ -291,6 +296,67 @@ function logout(){
   document.getElementById("userInfo").innerText="";
   document.getElementById("userInfoAbsen").innerText="";
 }
+
+
+//   scanner  
+let videoStream = null;
+let scanning = false;
+
+function toggleScanner(){
+  if(scanning){
+    // Stop scanner jika sedang aktif
+    stopScanner();
+    scanning = false;
+    document.getElementById("btnScan").innerText = "Scan Barcode";
+    showToast("Scanner dimatikan ❌");
+  } else {
+    // Start scanner
+    startScanner();
+    scanning = true;
+    document.getElementById("btnScan").innerText = "Stop Scan";
+  }
+}
+
+function startScanner(){
+  const video = document.getElementById("video");
+  if(!navigator.mediaDevices?.getUserMedia){ showToast("Kamera tidak tersedia ❌"); return; }
+
+  navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"} })
+    .then(stream=>{
+      videoStream = stream;
+      video.srcObject = stream;
+      video.play();
+      requestAnimationFrame(tick);
+    }).catch(err=>{ console.error(err); showToast("Gagal akses kamera ❌"); scanning=false; });
+
+  function tick(){
+    if(!videoStream) return; // jika sudah stop, hentikan loop
+    if(video.readyState===video.HAVE_ENOUGH_DATA){
+      const canvas=document.createElement("canvas");
+      canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+      const ctx=canvas.getContext("2d");
+      ctx.drawImage(video,0,0,canvas.width,canvas.height);
+      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
+      if(code){
+        stopScanner();
+        scanning = false;
+        document.getElementById("btnScan").innerText = "Scan Barcode";
+        loginWithBarcode(code.data);
+        return;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+}
+
+function stopScanner(){
+  if(videoStream){
+    videoStream.getTracks().forEach(t=>t.stop());
+    videoStream=null;
+  }
+}
+  
 </script>
 </body>
 </html>
