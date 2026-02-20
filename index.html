@@ -76,7 +76,7 @@
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
  <h6 style="margin-bottom: 10px;">UIN KIAI AGENG MUHAMMAD BESARI</h6>
   <h6 style="margin-bottom: 10px;">PONOROGO</h6>
-  <h4 class="mb-4">Sistem Absensi Pegawai</h4>
+  <h4 class="mb-4">Absensi Dosen Pengampu</h4>
   <div id="notif"></div>
 
   <div id="loginArea">
@@ -168,7 +168,7 @@ function login(event){
       currentUser={id:id,nama:data.nama};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
-      document.getElementById("userInfo").innerText=data.nama + " - " + data.bagian;
+      document.getElementById("userInfo").innerText=data.nama;
       showNotif('<i class="bi bi-check-circle me-2"></i>Login berhasil!', "success");
       updateButtons(); // update otomatis tombol setelah login
     } else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!', "danger");
