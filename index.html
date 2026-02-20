@@ -47,8 +47,8 @@
     }
 
 .logo {
-  width: 70px;
-  height: 70px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 50%;
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
@@ -184,6 +184,10 @@ function login() {
 
 function absen(tipe) {
 
+  // ✅ Tampilkan notifikasi "Mengirim data..." saat mulai absen
+  showNotif('<i class="bi bi-hourglass-split me-2"></i>Mengirim data...', 'info');
+
+  // Ambil posisi GPS
   navigator.geolocation.getCurrentPosition(
 
     function(pos) {
@@ -204,24 +208,32 @@ function absen(tipe) {
       .then(res => res.json())
       .then(data => {
 
-        if (data.status === "success")
-          showNotif("Absensi berhasil!", "success");
+        // ✅ Hapus notif loading, ganti dengan status final
+        if (data.status === "success") {
+          showNotif('<i class="bi bi-check-circle me-2"></i>Absensi berhasil!', 'success');
+        }
 
-        else if (data.status === "duplicate")
-          showNotif("Sudah absen hari ini!", "warning");
+        else if (data.status === "duplicate") {
+          showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!', 'warning');
+        }
 
-        else if (data.status === "out_of_radius")
-          showNotif("Di luar radius kampus!", "danger");
+        else if (data.status === "out_of_radius") {
+          showNotif('<i class="bi bi-geo-alt me-2"></i>Di luar radius kampus!', 'danger');
+        }
 
-        else
-          showNotif("Terjadi kesalahan!", "danger");
+        else {
+          showNotif('<i class="bi bi-x-circle me-2"></i>Terjadi kesalahan!', 'danger');
+        }
 
+      })
+      .catch(() => {
+        showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!', 'danger');
       });
 
     },
 
     function() {
-      showNotif("GPS tidak diizinkan!", "danger");
+      showNotif('<i class="bi bi-geo-alt-slash me-2"></i>GPS tidak diizinkan!', 'danger');
     }
 
   );
