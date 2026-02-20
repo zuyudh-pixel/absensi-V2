@@ -1,4 +1,3 @@
-// const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzOJlbkjO0HL3yaaJj4AcD8ziy8RNUudyr6dGKd8VFzGxb_X8FFnwklNIOA3i9wDuwIBw/exec"; // ganti Web App ID
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -251,8 +250,8 @@ async function loginWithBarcode(data){
     currentUser={id:id,nama:result.nama,bagian:result.bagian};
     document.getElementById("loginArea").style.display="none";
     document.getElementById("absenArea").style.display="block";
-    document.getElementById("userInfo").innerText=`${result.nama} - Bagian: ${result.bagian}`;
-    document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
+    document.getElementById("userInfo").innerText=`${result.nama};
+    
     showToast("Login berhasil ✅");
     getLocation();
   } else{ showToast("Barcode tidak valid ❌"); resetLoginArea(); }
