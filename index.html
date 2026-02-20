@@ -176,17 +176,30 @@ async function login(){
 
   const result = await res.json();
 
-  if(result.status === "success"){
-    currentUser = {id:id,nama:result.nama};
-    document.getElementById("loginArea").style.display="none";
-    document.getElementById("absenArea").style.display="block";
-    document.getElementById("userInfo").innerText =
-      result.nama+" ("+result.bagian+")";
-    showToast("Login berhasil ✅");
-    getLocation();
-  }else{
-    showToast("Login gagal ❌");
-  }
+if(result.status === "success"){
+  showToast("Absensi berhasil ✅");
+}
+else if(result.status === "duplicate_masuk"){
+  showToast("Anda sudah absen MASUK hari ini ❗");
+}
+else if(result.status === "jam_masuk_lewat"){
+  showToast("Jam masuk sudah lewat ❌");
+}
+else if(result.status === "belum_masuk"){
+  showToast("Belum absen masuk hari ini ❗");
+}
+else if(result.status === "belum_waktunya_pulang"){
+  showToast("Belum waktunya pulang ⏰");
+}
+else if(result.status === "duplicate_pulang"){
+  showToast("Sudah absen pulang hari ini ❗");
+}
+else if(result.status === "out_of_radius"){
+  showToast("Di luar radius kampus ❌");
+}
+else{
+  showToast("Gagal absen ❌");
+}
 }
 
 // ===== GET GPS =====
@@ -200,45 +213,90 @@ function getLocation(){
 }
 
 // ===== ABSEN =====
-async function absen(){
+function absen(e) {
 
-  if(!userLat){
-    showToast("GPS belum aktif!");
-    return;
+  const id = e.parameter.id;
+  const nama = e.parameter.nama;
+  const tipe = e.parameter.tipe;
+  const workfrom = e.parameter.workfrom;
+  const kegiatan = e.parameter.kegiatan;
+  const lat = parseFloat(e.parameter.latitude);
+  const lng = parseFloat(e.parameter.longitude);
+
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheet = ss.getSheetByName(SHEET_ABSENSI);
+
+  const now = new Date();
+  const tanggal = Utilities.formatDate(now, "Asia/Jakarta", "yyyy-MM-dd");
+  const jamSekarang = Utilities.formatDate(now, "Asia/Jakarta", "HH:mm");
+  const timestamp = Utilities.formatDate(now, "Asia/Jakarta", "yyyy-MM-dd HH:mm:ss");
+
+  const BATAS_MASUK = "09:00";
+  const BATAS_PULANG = "15:00";
+
+  const data = sheet.getDataRange().getValues();
+
+  let sudahMasuk = false;
+  let sudahPulang = false;
+
+  for (let i = 1; i < data.length; i++) {
+    const rowTimestamp = new Date(data[i][0]);
+    const rowDate = Utilities.formatDate(rowTimestamp, "Asia/Jakarta", "yyyy-MM-dd");
+
+    const rowID = data[i][1];
+    const rowType = data[i][3];
+
+    if (rowID == id && rowDate == tanggal) {
+      if (rowType == "Masuk") sudahMasuk = true;
+      if (rowType == "Pulang") sudahPulang = true;
+    }
   }
 
-  const formData = new URLSearchParams();
-  formData.append("action","absen");
-  formData.append("id",currentUser.id);
-  formData.append("nama",currentUser.nama);
-  formData.append("tipe",document.getElementById("tipe").value);
-  formData.append("workfrom",document.getElementById("workfrom").value);
-  formData.append("kegiatan",document.getElementById("kegiatan").value);
-  formData.append("latitude",userLat);
-  formData.append("longitude",userLng);
+  // ===== RULE 1: MASUK MAX 1X =====
+  if (tipe == "Masuk" && sudahMasuk) {
+    return json({ status: "duplicate_masuk" });
+  }
 
-  const res = await fetch(WEB_APP_URL,{
-    method:"POST",
-    body:formData
-  });
+  // ===== RULE 2: MASUK SEBELUM JAM 09:00 =====
+  if (tipe == "Masuk" && jamSekarang > BATAS_MASUK) {
+    return json({ status: "jam_masuk_lewat" });
+  }
 
-  const result = await res.json();
+  // ===== RULE 3: PULANG HARUS SUDAH MASUK =====
+  if (tipe == "Pulang" && !sudahMasuk) {
+    return json({ status: "belum_masuk" });
+  }
 
-if(result.status === "success"){
-  showToast("Absensi berhasil ✅");
-}
-else if(result.status === "duplicate_masuk"){
-  showToast("Anda sudah absen MASUK hari ini ❗");
-}
-else if(result.status === "duplicate"){
-  showToast("Sudah absen hari ini ❗");
-}
-else if(result.status === "out_of_radius"){
-  showToast("Di luar radius kampus ❌");
-}
-else{
-  showToast("Gagal absen ❌");
-}
+  // ===== RULE 4: PULANG SETELAH JAM 15:00 =====
+  if (tipe == "Pulang" && jamSekarang < BATAS_PULANG) {
+    return json({ status: "belum_waktunya_pulang" });
+  }
+
+  // ===== RULE 5: PULANG MAX 1X =====
+  if (tipe == "Pulang" && sudahPulang) {
+    return json({ status: "duplicate_pulang" });
+  }
+
+  // ===== CEK RADIUS =====
+  const distance = getDistance(lat, lng, CAMPUS_LAT, CAMPUS_LNG);
+
+  if (distance > MAX_RADIUS && workfrom === "WFO") {
+    return json({ status: "out_of_radius" });
+  }
+
+  // ===== SIMPAN =====
+  sheet.appendRow([
+    timestamp,
+    id,
+    nama,
+    tipe,
+    workfrom,
+    kegiatan,
+    lat,
+    lng
+  ]);
+
+  return json({ status: "success" });
 }
 
 // ===== LOGOUT =====
