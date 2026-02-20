@@ -2,188 +2,239 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-<title>Absensi Manual - Futuristik</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Digital Modern</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
-:root {
-  --primary: #4e73df;
-  --secondary: #1cc88a;
-  --glass-bg: rgba(255,255,255,0.12);
-  --border: rgba(255,255,255,0.3);
-  --text: #ffffff;
+:root{
+  --primary:#6366f1;
+  --bg:#0f172a;
+  --card:#1e293b;
+  --success:#22c55e;
+  --danger:#ef4444;
 }
 
-body {
-  margin: 0;
-  font-family: 'Inter', sans-serif;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: var(--text);
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
 }
 
-.card {
-  width: 100%;
-  max-width: 400px;
-  padding: 20px;
-  border-radius: 20px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--border);
-  text-align: center;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+.card{
+  background:var(--card);
+  padding:30px;
+  width:100%;
+  max-width:420px;
+  border-radius:20px;
+  box-shadow:0 15px 40px rgba(0,0,0,.4);
+  animation:fade .5s ease;
 }
 
-h3 { font-size: 1rem; margin-bottom: 5px; }
-h4 { font-weight: 400; margin-bottom: 15px; }
-
-input, select, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.15);
-  color: var(--text);
+@keyframes fade{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-input::placeholder, textarea::placeholder {
-  color: rgba(255,255,255,0.7);
+h2{text-align:center;margin-bottom:5px}
+.time{text-align:center;font-size:14px;margin-bottom:20px;opacity:.8}
+
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  margin-bottom:12px;
+  border-radius:12px;
+  border:none;
+  background:#334155;
+  color:white;
 }
 
-textarea {
-  resize: none;
-  min-height: 40px;
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:50px;
+  font-weight:600;
+  cursor:pointer;
+  margin-bottom:10px;
+  transition:.3s;
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  border-radius: 50px;
-  border: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.3s;
+button:hover{transform:translateY(-2px)}
+
+.btn-primary{background:var(--primary);color:white}
+.btn-success{background:var(--success);color:white}
+.btn-danger{background:var(--danger);color:white}
+
+.toast{
+  position:fixed;
+  top:20px;
+  right:20px;
+  background:#111;
+  padding:12px 18px;
+  border-radius:10px;
+  opacity:0;
+  transition:.3s;
 }
 
-button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
-
-.btn-success { background: #28a745; color: #fff; }
-.btn-danger { background: #dc3545; color: #fff; }
-.btn-outline-light { border: 1px solid #fff; color: #fff; background: transparent; }
-
-.toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: rgba(0,0,0,0.7);
-  color: #fff;
-  padding: 10px 15px;
-  border-radius: 10px;
-  opacity: 0;
-  transition: 0.3s;
-  z-index: 999;
-}
-
-.toast.show { opacity: 1; }
+.toast.show{opacity:1}
 </style>
 </head>
+
 <body>
 
 <div class="card">
-  <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" alt="Logo" style="width:70px;margin-bottom:10px;">
-  <h3>UIN KIAI AGENG MUHAMMAD BESARI</h3>
-  <h4>Sistem Absensi Pegawai</h4>
 
-  <div id="toast" class="toast"></div>
+  <h2>SISTEM ABSENSI</h2>
+  <div class="time" id="timeNow"></div>
 
-  <!-- FORM LOGIN -->
+  <!-- LOGIN AREA -->
   <div id="loginArea">
-    <input type="text" id="idPegawai" placeholder="ID Pegawai" required>
-    <input type="password" id="password" placeholder="Password" required>
-    <button class="btn-success" onclick="loginManual()">Login</button>
+    <input type="text" id="id" placeholder="ID Pegawai">
+    <input type="password" id="password" placeholder="Password">
+    <button class="btn-primary" onclick="login()">Login</button>
   </div>
 
-  <!-- FORM ABSENSI -->
+  <!-- ABSEN AREA -->
   <div id="absenArea" style="display:none;">
-    <h6 id="userInfo" class="mb-2"></h6>
+    <h4 id="userInfo"></h4>
 
-    <div class="section">Jenis Absensi</div>
-    <select id="absensi">
+    <select id="tipe">
       <option value="Masuk">Masuk</option>
       <option value="Pulang">Pulang</option>
       <option value="Ijin">Ijin</option>
     </select>
 
-    <div class="section">Lokasi</div>
     <select id="workfrom">
-      <option value="WFO">Kampus</option>
+      <option value="WFO">Kampus (WFO)</option>
       <option value="WFH">WFH</option>
-      <option value="Ijin">Ijin</option>
     </select>
 
-    <div class="section">Keterangan</div>
-    <textarea id="kegiatan" placeholder="Keterangan / Nama Kelas"></textarea>
+    <textarea id="kegiatan" placeholder="Keterangan"></textarea>
 
-    <button class="btn-success mb-2" onclick="absen('Masuk')">Absen Masuk</button>
-    <button class="btn-danger mb-2" onclick="absen('Pulang')">Absen Pulang</button>
-    <button class="btn-outline-light" onclick="resetForm()">Reset / Logout</button>
+    <button class="btn-success" onclick="absen()">Kirim Absensi</button>
+    <button class="btn-danger" onclick="logout()">Logout</button>
   </div>
 
 </div>
 
-<script>
-// Simulasi login manual
-let currentUser = {};
+<div class="toast" id="toast"></div>
 
-function showToast(msg, color="#28a745") {
+<script>
+const WEB_APP_URL = "YOUR_WEB_APP_URL";
+let currentUser = {};
+let userLat = null;
+let userLng = null;
+
+// ===== WAKTU REALTIME =====
+setInterval(()=>{
+  const now = new Date();
+  document.getElementById("timeNow").innerText =
+    now.toLocaleDateString()+" - "+now.toLocaleTimeString();
+},1000);
+
+// ===== TOAST =====
+function showToast(msg){
   const toast = document.getElementById("toast");
   toast.innerText = msg;
-  toast.style.background = color;
   toast.classList.add("show");
-  setTimeout(()=>toast.classList.remove("show"),2000);
+  setTimeout(()=>toast.classList.remove("show"),2500);
 }
 
-function loginManual() {
-  const id = document.getElementById("idPegawai").value.trim();
-  const pass = document.getElementById("password").value.trim();
+// ===== LOGIN =====
+async function login(){
+  const id = document.getElementById("id").value;
+  const password = document.getElementById("password").value;
 
-  if(!id || !pass) { showToast("Isi ID dan Password!", "#dc3545"); return; }
+  if(!id || !password){
+    showToast("Isi ID & Password!");
+    return;
+  }
 
-  // Simulasi login berhasil
-  currentUser = { id: id, nama: "Pegawai "+id };
-  document.getElementById("loginArea").style.display="none";
-  document.getElementById("absenArea").style.display="block";
-  document.getElementById("userInfo").innerText = currentUser.nama;
-  showToast("Login Berhasil ✅", "#28a745");
+  const formData = new URLSearchParams();
+  formData.append("action","login");
+  formData.append("id",id);
+  formData.append("password",password);
+
+  const res = await fetch(WEB_APP_URL,{
+    method:"POST",
+    body:formData
+  });
+
+  const result = await res.json();
+
+  if(result.status === "success"){
+    currentUser = {id:id,nama:result.nama};
+    document.getElementById("loginArea").style.display="none";
+    document.getElementById("absenArea").style.display="block";
+    document.getElementById("userInfo").innerText =
+      result.nama+" ("+result.bagian+")";
+    showToast("Login berhasil ✅");
+    getLocation();
+  }else{
+    showToast("Login gagal ❌");
+  }
 }
 
-// Simulasi absensi
-function absen(tipe) {
-  if(!currentUser.id){ showToast("Login dulu!", "#dc3545"); return; }
-
-  const kegiatan = document.getElementById("kegiatan").value.trim();
-  const workfrom = document.getElementById("workfrom").value;
-  const absensi = document.getElementById("absensi").value;
-
-  showToast(`Absensi ${tipe} berhasil\nLokasi: ${workfrom}\nKeterangan: ${kegiatan}`, "#28a745");
+// ===== GET GPS =====
+function getLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      userLat = pos.coords.latitude;
+      userLng = pos.coords.longitude;
+    });
+  }
 }
 
-function resetForm() {
+// ===== ABSEN =====
+async function absen(){
+
+  if(!userLat){
+    showToast("GPS belum aktif!");
+    return;
+  }
+
+  const formData = new URLSearchParams();
+  formData.append("action","absen");
+  formData.append("id",currentUser.id);
+  formData.append("nama",currentUser.nama);
+  formData.append("tipe",document.getElementById("tipe").value);
+  formData.append("workfrom",document.getElementById("workfrom").value);
+  formData.append("kegiatan",document.getElementById("kegiatan").value);
+  formData.append("latitude",userLat);
+  formData.append("longitude",userLng);
+
+  const res = await fetch(WEB_APP_URL,{
+    method:"POST",
+    body:formData
+  });
+
+  const result = await res.json();
+
+  if(result.status === "success"){
+    showToast("Absensi berhasil ✅");
+  }
+  else if(result.status === "duplicate"){
+    showToast("Sudah absen hari ini ❗");
+  }
+  else if(result.status === "out_of_radius"){
+    showToast("Di luar radius kampus ❌");
+  }
+  else{
+    showToast("Gagal absen ❌");
+  }
+}
+
+// ===== LOGOUT =====
+function logout(){
   currentUser = {};
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
-  document.getElementById("idPegawai").value="";
-  document.getElementById("password").value="";
-  document.getElementById("kegiatan").value="";
-  showToast("Form direset", "#1cc88a");
 }
 </script>
 
