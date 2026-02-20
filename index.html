@@ -1,3 +1,4 @@
+// const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzOJlbkjO0HL3yaaJj4AcD8ziy8RNUudyr6dGKd8VFzGxb_X8FFnwklNIOA3i9wDuwIBw/exec"; // ganti Web App ID
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -75,6 +76,13 @@ button:hover{transform:translateY(-2px)}
 
 .toast.show{opacity:1}
 
+#scannerWrapper{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-bottom:12px;
+}
+
 #video{
   border:1px solid #334155;
   border-radius:12px;
@@ -82,6 +90,17 @@ button:hover{transform:translateY(-2px)}
   max-width:250px;
   height:auto;
   margin-bottom:8px;
+}
+
+select, input[type="text"]{
+  padding:12px;
+  border-radius:12px;
+  width:100%;
+  background:#334155;
+  color:white;
+  border:none;
+  margin-bottom:12px;
+  box-sizing:border-box;
 }
 </style>
 </head>
@@ -96,103 +115,89 @@ button:hover{transform:translateY(-2px)}
     <div style="font-size:16px;font-weight:600;color:white;margin-bottom:10px;">Dr. Abid Rohmanu, M.H.I. (Dosen)</div>
   </div>
 
-  <!-- JUDUL -->
-  <h2 style="text-align:center;">ABSENSI DOSEN PENGAMPU</h2>
+  <h2>ABSENSI DOSEN PENGAMPU</h2>
   <div class="time" id="timeNow"></div>
   <div id="userInfo" style="text-align:center;font-size:14px;font-weight:500;color:#cbd5e1;margin-bottom:15px;"></div>
 
+  <!-- LOGIN AREA -->
   <div id="loginArea">
-  <!-- Scanner Video -->
-  <video id="video" width="250" height="200" style="border:1px solid #334155;border-radius:12px; margin-bottom:8px;"></video>
+    <div id="scannerWrapper">
+      <video id="video" playsinline></video>
+      <button class="btn-primary" id="btnScan" onclick="toggleScanner()">Scan Barcode</button>
+      <input type="file" id="fileInput" accept="image/*" onchange="scanFile(this)">
+    </div>
+  </div>
 
-  <!-- Tombol Scan / Stop Scan -->
-  <button class="btn-primary" id="btnScan" onclick="toggleScanner()">Scan Barcode</button>
+  <!-- ABSEN AREA -->
+  <div id="absenArea" style="display:none; margin-top:15px;">
+    <h4 id="userInfoAbsen" style="text-align:center; margin-bottom:15px;"></h4>
 
-  <!-- Upload Barcode -->
-  <input type="file" id="fileInput" accept="image/*" style="margin-top:8px;" onchange="scanFile(this)">
-
-</div>
-
-<!-- ABSEN AREA -->
-<div id="absenArea" style="display:none; margin-top:15px;">
-  <h4 id="userInfoAbsen" style="text-align:center; margin-bottom:15px;"></h4>
-
-  <!-- Pilihan Tipe -->
-  <div style="margin-bottom:12px;">
-    <label for="tipe" style="font-size:14px; color:#cbd5e1;">Tipe Absensi</label>
-    <select id="tipe" style="padding:12px; border-radius:12px; width:100%; background:#334155; color:white; border:none;">
+    <label for="tipe">Tipe Absensi</label>
+    <select id="tipe">
       <option value="Masuk">Masuk</option>
       <option value="Pulang">Pulang</option>
       <option value="Ijin">Ijin</option>
     </select>
-  </div>
 
-  <!-- Pilihan Lokasi -->
-  <div style="margin-bottom:12px;">
-    <label for="workfrom" style="font-size:14px; color:#cbd5e1;">Lokasi Kerja</label>
-    <select id="workfrom" style="padding:12px; border-radius:12px; width:100%; background:#334155; color:white; border:none;">
+    <label for="workfrom">Lokasi Kerja</label>
+    <select id="workfrom">
       <option value="WFO">Kampus (WFO)</option>
       <option value="WFH">WFH</option>
     </select>
-  </div>
 
-  <!-- Kegiatan (1 baris) -->
-  <div style="margin-bottom:15px;">
-    <label for="kegiatan" style="font-size:14px; color:#cbd5e1;">Keterangan / Kegiatan</label>
-    <input type="text" id="kegiatan" placeholder="Tuliskan kegiatan hari ini..." 
-           style="width:100%; padding:12px; border-radius:12px; background:#334155; color:white; border:none; box-sizing:border-box;">
-  </div>
+    <label for="kegiatan">Keterangan / Kegiatan</label>
+    <input type="text" id="kegiatan" placeholder="Tuliskan kegiatan hari ini...">
 
-  <!-- Tombol -->
-  <button class="btn-success" onclick="absen()" style="margin-bottom:10px;">Kirim Absensi</button>
-  <button class="btn-danger" onclick="logout()">Logout</button>
-</div>  
+    <button class="btn-success" onclick="absen()">Kirim Absensi</button>
+    <button class="btn-danger" onclick="logout()">Logout</button>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzOJlbkjO0HL3yaaJj4AcD8ziy8RNUudyr6dGKd8VFzGxb_X8FFnwklNIOA3i9wDuwIBw/exec"; // ganti Web App ID
-let currentUser = {};
-let userLat = null;
-let userLng = null;
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzOJlbkjO0HL3yaaJj4AcD8ziy8RNUudyr6dGKd8VFzGxb_X8FFnwklNIOA3i9wDuwIBw/exec";
+let currentUser={};
+let userLat=null;
+let userLng=null;
 
-// WAKTU REALTIME
-setInterval(()=>{
-  const now = new Date();
-  document.getElementById("timeNow").innerText = now.toLocaleDateString()+" - "+now.toLocaleTimeString();
-},1000);
+// Waktu Real-time
+setInterval(()=>{ document.getElementById("timeNow").innerText = new Date().toLocaleDateString()+" - "+new Date().toLocaleTimeString(); },1000);
 
 function showToast(msg){
-  const toast = document.getElementById("toast");
-  toast.innerText = msg;
+  const toast=document.getElementById("toast");
+  toast.innerText=msg;
   toast.classList.add("show");
   setTimeout(()=>toast.classList.remove("show"),2500);
 }
 
-// GPS
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
-      userLat = pos.coords.latitude;
-      userLng = pos.coords.longitude;
+      userLat=pos.coords.latitude;
+      userLng=pos.coords.longitude;
     });
   }
 }
 
-// LOGIN VIA BARCODE
-let videoStream = null;
+// Barcode login
+let videoStream=null;
+let scanning=false;
+
+function toggleScanner(){
+  if(scanning){ stopScanner(); scanning=false; document.getElementById("btnScan").innerText="Scan Barcode"; showToast("Scanner dimatikan ❌"); }
+  else{ startScanner(); scanning=true; document.getElementById("btnScan").innerText="Stop Scan"; }
+}
+
 function startScanner(){
-  const video = document.getElementById("video");
+  const video=document.getElementById("video");
   if(!navigator.mediaDevices?.getUserMedia){ showToast("Kamera tidak tersedia ❌"); return; }
   navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"} })
-    .then(stream=>{
-      videoStream = stream;
-      video.srcObject = stream;
-      video.play();
-      requestAnimationFrame(tick);
-    }).catch(e=>{ console.error(e); showToast("Gagal akses kamera ❌"); });
+    .then(stream=>{ videoStream=stream; video.srcObject=stream; video.play(); requestAnimationFrame(tick); })
+    .catch(e=>{ console.error(e); showToast("Gagal akses kamera ❌"); scanning=false; });
 
   function tick(){
+    if(!videoStream) return;
     if(video.readyState===video.HAVE_ENOUGH_DATA){
       const canvas=document.createElement("canvas");
       canvas.width=video.videoWidth; canvas.height=video.videoHeight;
@@ -200,16 +205,15 @@ function startScanner(){
       ctx.drawImage(video,0,0,canvas.width,canvas.height);
       const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
       const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
-      if(code){
-        stopScanner();
-        loginWithBarcode(code.data);
-        return;
-      }
+      if(code){ stopScanner(); scanning=false; document.getElementById("btnScan").innerText="Scan Barcode"; loginWithBarcode(code.data); return; }
     }
     requestAnimationFrame(tick);
   }
 }
-function stopScanner(){ if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; } }
+
+function stopScanner(){
+  if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; }
+}
 
 function scanFile(input){
   if(input.files.length===0) return;
@@ -223,9 +227,8 @@ function scanFile(input){
       const ctx=canvas.getContext("2d");
       ctx.drawImage(img,0,0);
       const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
-      if(code){ loginWithBarcode(code.data); }
-      else{ showToast("Barcode tidak terbaca ❌"); resetLoginArea(); }
+      const code=jsQR(imageData.data, imageData.width, imageData.height,{inversionAttempts:"dontInvert"});
+      if(code){ loginWithBarcode(code.data); } else{ showToast("Barcode tidak terbaca ❌"); resetLoginArea(); }
     };
     img.src=reader.result;
   };
@@ -252,10 +255,7 @@ async function loginWithBarcode(data){
     document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
     showToast("Login berhasil ✅");
     getLocation();
-  } else {
-    showToast("Barcode tidak valid ❌");
-    resetLoginArea();
-  }
+  } else{ showToast("Barcode tidak valid ❌"); resetLoginArea(); }
 }
 
 function resetLoginArea(){
@@ -264,7 +264,6 @@ function resetLoginArea(){
   document.getElementById("userInfo").innerText="";
 }
 
-// ABSEN
 async function absen(){
   if(!userLat){ showToast("GPS belum aktif!"); return; }
 
@@ -288,7 +287,6 @@ async function absen(){
   else{ showToast("Gagal absen ❌"); }
 }
 
-// LOGOUT
 function logout(){
   currentUser={};
   document.getElementById("loginArea").style.display="block";
@@ -296,67 +294,7 @@ function logout(){
   document.getElementById("userInfo").innerText="";
   document.getElementById("userInfoAbsen").innerText="";
 }
-
-
-//   scanner  
-let videoStream = null;
-let scanning = false;
-
-function toggleScanner(){
-  if(scanning){
-    // Stop scanner jika sedang aktif
-    stopScanner();
-    scanning = false;
-    document.getElementById("btnScan").innerText = "Scan Barcode";
-    showToast("Scanner dimatikan ❌");
-  } else {
-    // Start scanner
-    startScanner();
-    scanning = true;
-    document.getElementById("btnScan").innerText = "Stop Scan";
-  }
-}
-
-function startScanner(){
-  const video = document.getElementById("video");
-  if(!navigator.mediaDevices?.getUserMedia){ showToast("Kamera tidak tersedia ❌"); return; }
-
-  navigator.mediaDevices.getUserMedia({ video:{facingMode:"environment"} })
-    .then(stream=>{
-      videoStream = stream;
-      video.srcObject = stream;
-      video.play();
-      requestAnimationFrame(tick);
-    }).catch(err=>{ console.error(err); showToast("Gagal akses kamera ❌"); scanning=false; });
-
-  function tick(){
-    if(!videoStream) return; // jika sudah stop, hentikan loop
-    if(video.readyState===video.HAVE_ENOUGH_DATA){
-      const canvas=document.createElement("canvas");
-      canvas.width=video.videoWidth; canvas.height=video.videoHeight;
-      const ctx=canvas.getContext("2d");
-      ctx.drawImage(video,0,0,canvas.width,canvas.height);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
-      if(code){
-        stopScanner();
-        scanning = false;
-        document.getElementById("btnScan").innerText = "Scan Barcode";
-        loginWithBarcode(code.data);
-        return;
-      }
-    }
-    requestAnimationFrame(tick);
-  }
-}
-
-function stopScanner(){
-  if(videoStream){
-    videoStream.getTracks().forEach(t=>t.stop());
-    videoStream=null;
-  }
-}
-  
 </script>
+
 </body>
 </html>
