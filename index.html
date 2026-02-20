@@ -29,18 +29,13 @@
       max-width: 400px;
       color: white;
       text-align: center;
+      position: relative;
       animation: fadeIn 0.6s ease-in-out;
     }
-    @keyframes fadeIn {
-      from { opacity:0; transform:translateY(20px); }
-      to { opacity:1; transform:translateY(0); }
-    }
-    .logo {
-      width: 80px;
-      margin-bottom: 15px;
-      transition: transform 0.3s ease;
-    }
+    @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+    .logo { width: 80px; margin-bottom: 10px; transition: transform 0.3s ease; }
     .logo:hover { transform: scale(1.08); }
+    h3 { margin-bottom: 10px; }
     input, select {
       background: rgba(255,255,255,0.2) !important;
       border: none !important;
@@ -58,42 +53,64 @@
     }
     .btn-modern:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
     .btn-modern:active { transform: scale(0.97); }
-    .ripple {
-      position: absolute;
-      border-radius: 50%;
-      transform: scale(0);
-      animation: ripple 0.6s linear;
-      background-color: rgba(255,255,255,0.4);
-      pointer-events: none;
-    }
+    .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255,255,255,0.4); pointer-events: none; }
     @keyframes ripple { to { transform: scale(4); opacity: 0; } }
-    .spinner-border-sm { width: 1rem; height: 1rem; border-width: 0.15em; }
+
+    /* Animasi scan berhasil */
+    .scan-success {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.4s ease;
+      z-index: 10;
+    }
+    .scan-success.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Warna toast */
+    .login-toast { background: #0d6efd; }   /* biru */
+    .masuk-toast { background: #28a745; }   /* hijau */
+    .pulang-toast { background: #fd7e14; }  /* oranye */
   </style>
 </head>
 
 <body>
 <div class="glass-card">
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
- <h6 style="margin-bottom: 10px;">UIN KIAI AGENG MUHAMMAD BESARI</h6>
-  <h6 style="margin-bottom: 10px;">PONOROGO</h6>
-  <h4 class="mb-4">Absensi Dosen Pengampu</h4>
+  <h3>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h3>
+  <h4 class="mb-4">Sistem Absensi Pegawai</h4>
   <div id="notif"></div>
 
-  <div id="loginArea">
-    <input class="form-control mb-3" id="idInput" placeholder="ID Pegawai">
-    <input type="password" class="form-control mb-3" id="passwordInput" placeholder="Password">
-    <button class="btn btn-light w-100 btn-modern" onclick="login(event)">
-      <i class="bi bi-box-arrow-in-right me-2"></i>Login
-    </button>
+  <!-- Scan sukses animasi -->
+  <div id="scanSuccess" class="scan-success">
+    <i id="scanIcon" class="bi bi-check2-circle"></i> <span id="scanText">Scan Berhasil</span>
   </div>
 
+  <!-- LOGIN AREA -->
+  <div id="loginArea">
+    <p>Silakan scan barcode ID Anda</p>
+    <input type="text" id="barcodeInput" autofocus style="opacity:0; position:absolute;">
+  </div>
+
+  <!-- ABSEN AREA -->
   <div id="absenArea" style="display:none;">
     <h6 id="userInfo" class="mb-3"></h6>
     <select class="form-select mb-3" id="workfrom">
       <option value="WFO">WFO</option>
       <option value="WFH">WFH</option>
     </select>
-    <input class="form-control mb-3" id="kegiatan" placeholder="Isikan kelas, contoh: 25.MHKI.A. B, ...">
+    <input class="form-control mb-3" id="kegiatan" placeholder="Kegiatan">
     <div class="d-grid gap-2 mb-3">
       <button class="btn btn-success btn-modern" id="btnMasuk" onclick="absen('Masuk', event)">
         <i class="bi bi-door-open me-2"></i>Absen Masuk
@@ -111,14 +128,14 @@
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZkus_1zSCQCwIj78CF4eZKN0pIH9Ptfl2FNXEe34-W5yqF5-QMCHvYakEENSl-T67-g/exec";
 let currentUser = {};
-
-const todayKey = () => new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+const todayKey = () => new Date().toISOString().split('T')[0];
 
 function showNotif(message, type="light"){
   document.getElementById("notif").innerHTML =
     `<div class="alert alert-${type} mt-2">${message}</div>`;
 }
 
+// Ripple
 function createRipple(event) {
   const button = event.currentTarget;
   const circle = document.createElement("span");
@@ -130,12 +147,9 @@ function createRipple(event) {
   button.appendChild(circle);
   circle.addEventListener('animationend', () => circle.remove());
 }
+document.querySelectorAll('.btn-modern').forEach(btn=>{ btn.addEventListener('click', createRipple); });
 
-document.querySelectorAll('.btn-modern').forEach(btn=>{
-  btn.addEventListener('click', createRipple);
-});
-
-// Fungsi auto-manage tombol berdasarkan localStorage & tanggal
+// Update tombol
 function updateButtons() {
   const key = todayKey();
   const absenHariIni = JSON.parse(localStorage.getItem(key) || "{}");
@@ -153,33 +167,81 @@ function updateButtons() {
   }
 }
 
-// Login
-function login(event){
-  const id = document.getElementById("idInput").value;
-  const password = document.getElementById("passwordInput").value;
-  if(!id || !password){ showNotif("ID dan Password wajib diisi!", "warning"); return; }
+// Fokus input barcode
+function focusBarcode(){
+  const input = document.getElementById("barcodeInput");
+  input.focus();
+  input.value = "";
+}
 
+// Animasi scan berhasil dengan ikon dan warna sesuai tipe
+function showScanSuccess(type="masuk") {
+  const el = document.getElementById("scanSuccess");
+  const text = document.getElementById("scanText");
+  const icon = document.getElementById("scanIcon");
+
+  el.className = "scan-success show"; // reset semua kelas
+
+  if(type==="login") { 
+    el.classList.add("login-toast"); 
+    text.innerText = "Login Berhasil"; 
+    icon.className = "bi bi-person-check";
+  }
+  else if(type==="Masuk") { 
+    el.classList.add("masuk-toast"); 
+    text.innerText = "Absen Masuk Berhasil"; 
+    icon.className = "bi bi-check2-circle";
+  }
+  else if(type==="Pulang") { 
+    el.classList.add("pulang-toast"); 
+    text.innerText = "Absen Pulang Berhasil"; 
+    icon.className = "bi bi-box-arrow-right";
+  }
+
+  setTimeout(()=>el.classList.remove("show"), 1200);
+}
+
+// Login via barcode
+function loginWithBarcode(barcode){
+  if(!barcode) return;
   showNotif('<i class="bi bi-hourglass-split me-2"></i>Login sedang diproses...', 'info');
 
-  fetch(WEB_APP_URL, { method:"POST", body:new URLSearchParams({ action:"login", id:id, password:password }) })
+  fetch(WEB_APP_URL, { method:"POST", body:new URLSearchParams({ action:"login", id:barcode }) })
   .then(res=>res.json())
   .then(data=>{
     if(data.status==="success"){
-      currentUser={id:id,nama:data.nama};
+      currentUser = {id:barcode, nama:data.nama};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
-      document.getElementById("userInfo").innerText=data.nama;
+      document.getElementById("userInfo").innerText = data.nama + " - " + data.bagian;
       showNotif('<i class="bi bi-check-circle me-2"></i>Login berhasil!', "success");
-      updateButtons(); // update otomatis tombol setelah login
+      updateButtons();
+      focusBarcode();
+      showScanSuccess("login");
     } else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!', "danger");
   })
   .catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!', 'danger'));
 }
 
+// Scanner listener
+let barcodeBuffer = "";
+let lastTime = Date.now();
+document.addEventListener('keydown', function(e){
+  const currentTime = Date.now();
+  if(currentTime - lastTime > 50) barcodeBuffer = "";
+  lastTime = currentTime;
+
+  if(e.key === "Enter") {
+    if(!currentUser.id) loginWithBarcode(barcodeBuffer.trim());
+    barcodeBuffer = "";
+  } else {
+    barcodeBuffer += e.key;
+  }
+});
+
 // Absen
 function absen(tipe,event){
   showNotif('<i class="bi bi-hourglass-split me-2"></i>Mengirim data...', 'info');
-
   navigator.geolocation.getCurrentPosition(
     function(pos){
       let key = todayKey();
@@ -205,11 +267,11 @@ function absen(tipe,event){
       .then(data=>{
         if(data.status==="success"){
           showNotif('<i class="bi bi-check-circle me-2"></i>Absensi berhasil!', 'success');
-
           absenHariIni[currentUser.id][tipe.toLowerCase()] = true;
           localStorage.setItem(key, JSON.stringify(absenHariIni));
-
-          updateButtons(); // otomatis update tombol
+          updateButtons();
+          focusBarcode();
+          showScanSuccess(tipe);
         } else if(data.status==="duplicate") {
           showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!', 'warning');
         } else if(data.status==="out_of_radius") {
@@ -227,13 +289,15 @@ function absen(tipe,event){
 // Reset form
 function resetForm(event){
   currentUser={};
-  document.getElementById("idInput").value="";
-  document.getElementById("passwordInput").value="";
-  document.getElementById("kegiatan").value="";
+  barcodeBuffer = "";
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
   document.getElementById("notif").innerHTML="";
+  focusBarcode();
 }
+
+// Fokus awal
+window.onload = focusBarcode;
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
