@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
-    body {
+body {
   min-height: 100vh;
   background: linear-gradient(135deg, #a2d2ff, #74c0fc);
   display: flex;
@@ -20,7 +20,7 @@
     /* Glass card tetap blur */
 .glass-card {
   backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.15);  /* transparan */
   border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.3);
   box-shadow: 0 8px 32px rgba(0,0,0,0.2);
@@ -28,9 +28,7 @@
   width: 100%;
   max-width: 420px;
   color: white;
-  animation: fadeIn 0.6s ease-in-out;
 }
-
     input, select {
       background: rgba(255,255,255,0.2) !important;
       border: none !important;
@@ -47,12 +45,11 @@
       padding: 10px;
     }
 
+/* Logo tampil natural, tidak ada lingkaran/kotak */
 .logo {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 50%;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+  width: 80px;          /* bisa disesuaikan */
+  height: auto;         /* otomatis mengikuti proporsi asli */
+  object-fit: contain;   /* pastikan proporsional */
   margin-bottom: 15px;
   transition: transform 0.3s ease;
 }
@@ -89,7 +86,8 @@
 <div class="glass-card text-center">
 
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png"
-       class="logo">
+     class="logo"
+     alt="Logo Kampus">
 
   <h4 class="mb-4">Sistem Absensi Pegawai</h4>
 
