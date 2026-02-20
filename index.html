@@ -109,21 +109,37 @@ button:hover{transform:translateY(-2px)}
   </div>
 
   <!-- ABSEN AREA -->
-  <div id="absenArea" style="display:none;">
-    <h4 id="userInfoAbsen" style="text-align:center;"></h4>
-    <select id="tipe">
+<div id="absenArea" style="display:none; margin-top:15px;">
+  <h4 id="userInfoAbsen" style="text-align:center; margin-bottom:15px;"></h4>
+
+  <!-- Pilihan Tipe -->
+  <div style="margin-bottom:12px;">
+    <label for="tipe" style="font-size:14px; color:#cbd5e1;">Tipe Absensi</label>
+    <select id="tipe" style="padding:12px; border-radius:12px; width:100%; background:#334155; color:white; border:none;">
       <option value="Masuk">Masuk</option>
       <option value="Pulang">Pulang</option>
       <option value="Ijin">Ijin</option>
     </select>
-    <select id="workfrom">
+  </div>
+
+  <!-- Pilihan Lokasi -->
+  <div style="margin-bottom:12px;">
+    <label for="workfrom" style="font-size:14px; color:#cbd5e1;">Lokasi Kerja</label>
+    <select id="workfrom" style="padding:12px; border-radius:12px; width:100%; background:#334155; color:white; border:none;">
       <option value="WFO">Kampus (WFO)</option>
       <option value="WFH">WFH</option>
     </select>
-    <textarea id="kegiatan" placeholder="Keterangan"></textarea>
-    <button class="btn-success" onclick="absen()">Kirim Absensi</button>
-    <button class="btn-danger" onclick="logout()">Logout</button>
   </div>
+
+  <!-- Kegiatan -->
+  <div style="margin-bottom:15px;">
+    <label for="kegiatan" style="font-size:14px; color:#cbd5e1;">Keterangan / Kegiatan</label>
+    <textarea id="kegiatan" placeholder="Tuliskan kegiatan hari ini..." style="width:100%; padding:12px; border-radius:12px; background:#334155; color:white; border:none; min-height:100px; resize:none;"></textarea>
+  </div>
+
+  <!-- Tombol -->
+  <button class="btn-success" onclick="absen()" style="margin-bottom:10px;">Kirim Absensi</button>
+  <button class="btn-danger" onclick="logout()">Logout</button>
 </div>
 
 <div class="toast" id="toast"></div>
