@@ -14,7 +14,6 @@
   --success:#22c55e;
   --danger:#ef4444;
 }
-
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
@@ -25,7 +24,6 @@ body{
   height:100vh;
   color:white;
 }
-
 .card{
   background:var(--card);
   padding:30px;
@@ -35,15 +33,12 @@ body{
   box-shadow:0 15px 40px rgba(0,0,0,.4);
   animation:fade .5s ease;
 }
-
 @keyframes fade{
   from{opacity:0;transform:translateY(20px)}
   to{opacity:1;transform:translateY(0)}
 }
-
 h2{text-align:center;margin-bottom:5px}
 .time{text-align:center;font-size:14px;margin-bottom:10px;opacity:.8}
-
 button{
   width:100%;
   padding:12px;
@@ -54,13 +49,10 @@ button{
   margin-bottom:10px;
   transition:.3s;
 }
-
 button:hover{transform:translateY(-2px)}
-
 .btn-primary{background:var(--primary);color:white}
 .btn-success{background:var(--success);color:white}
 .btn-danger{background:var(--danger);color:white}
-
 .toast{
   position:fixed;
   top:20px;
@@ -71,16 +63,13 @@ button:hover{transform:translateY(-2px)}
   opacity:0;
   transition:.3s;
 }
-
 .toast.show{opacity:1}
-
 #scannerWrapper{
   display:flex;
   flex-direction:column;
   align-items:center;
   margin-bottom:12px;
 }
-
 #video{
   border:1px solid #334155;
   border-radius:12px;
@@ -89,7 +78,6 @@ button:hover{transform:translateY(-2px)}
   height:auto;
   margin-bottom:8px;
 }
-
 select, input[type="text"]{
   padding:12px;
   border-radius:12px;
@@ -158,11 +146,12 @@ let currentUser={};
 let userLat=null;
 let userLng=null;
 
-// Waktu Real-time
+// Waktu real-time
 setInterval(()=>{
   document.getElementById("timeNow").innerText = new Date().toLocaleDateString()+" - "+new Date().toLocaleTimeString();
 },1000);
 
+// Toast
 function showToast(msg){
   const toast=document.getElementById("toast");
   toast.innerText=msg;
@@ -170,6 +159,7 @@ function showToast(msg){
   setTimeout(()=>toast.classList.remove("show"),2500);
 }
 
+// Get lokasi
 function getLocation(){
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(pos=>{
@@ -179,7 +169,7 @@ function getLocation(){
   }
 }
 
-// Scanner
+// Scanner kamera
 let videoStream=null;
 let scanning=false;
 
@@ -204,7 +194,8 @@ function startScanner(){
     if(!videoStream) return;
     if(video.readyState===video.HAVE_ENOUGH_DATA){
       const canvas=document.createElement("canvas");
-      canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+      canvas.width=video.videoWidth;
+      canvas.height=video.videoHeight;
       const ctx=canvas.getContext("2d");
       ctx.drawImage(video,0,0,canvas.width,canvas.height);
       const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
@@ -212,7 +203,7 @@ function startScanner(){
       if(code){
         stopScanner(); scanning=false;
         document.getElementById("btnScan").innerText="Scan Barcode";
-        loginWithBarcode(code.data);
+        processBarcode(code.data);
         return;
       }
     }
@@ -224,31 +215,49 @@ function stopScanner(){
   if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; }
 }
 
-// Scan image upload
+// Scan file upload
 function scanFile(input){
-  if(input.files.length===0) return;
-  const file=input.files[0];
-  const reader=new FileReader();
-  reader.onload=function(){
-    const img=new Image();
-    img.onload=function(){
+  if(input.files.length === 0) return;
+  const file = input.files[0];
+  const reader = new FileReader();
+
+  reader.onload = function(){
+    const img = new Image();
+    img.onload = function(){
       const canvas=document.createElement("canvas");
       canvas.width=img.width;
       canvas.height=img.height;
       const ctx=canvas.getContext("2d");
       ctx.drawImage(img,0,0);
-      const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
-      const code=jsQR(imageData.data, imageData.width, imageData.height,{inversionAttempts:"dontInvert"});
+      const imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+      const code = jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
       if(code){
-        loginWithBarcode(code.data);
-      }else{
+        processBarcode(code.data);
+      } else {
         showToast("Barcode tidak terbaca ❌");
         resetLoginArea();
       }
     };
-    img.src=reader.result;
+    img.src = reader.result;
   };
   reader.readAsDataURL(file);
+}
+
+// Validasi barcode & login
+function processBarcode(data){
+  const trimmed = data.trim();
+  if(trimmed.includes("|")){
+    const [id,password] = trimmed.split("|");
+    if(id && password){
+      loginWithBarcode(trimmed);
+    } else {
+      showToast("Format barcode salah ❌");
+      resetLoginArea();
+    }
+  } else {
+    showToast("Format barcode salah ❌");
+    resetLoginArea();
+  }
 }
 
 // Login
@@ -266,23 +275,21 @@ async function loginWithBarcode(data){
     const result=await res.json();
 
     if(result.status==="success"){
-      currentUser={id:id,nama:result.nama,bagian:result.bagian};
+      currentUser={id,nama:result.nama,bagian:result.bagian};
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
 
       document.getElementById("userInfo").innerText=`${result.nama} - Bagian: ${result.bagian}`;
       document.getElementById("userInfoAbsen").innerText=`${result.nama} - Bagian: ${result.bagian}`;
-
-      // Tampilkan ID dosen di bawah tanggal
-      document.getElementById("userIdDisplay").innerText = `ID Dosen: ${currentUser.id}`;
+      document.getElementById("userIdDisplay").innerText=`ID Dosen: ${currentUser.id}`;
 
       showToast("Login berhasil ✅");
       getLocation();
-    }else{
+    } else {
       showToast("Barcode tidak valid ❌");
       resetLoginArea();
     }
-  }catch(e){
+  } catch(e){
     console.error(e);
     showToast("Terjadi kesalahan server ❌");
     resetLoginArea();
@@ -335,6 +342,7 @@ function logout(){
   document.getElementById("userInfo").innerText="";
   document.getElementById("userInfoAbsen").innerText="";
   document.getElementById("userIdDisplay").innerText="";
+  stopScanner();
 }
 </script>
 
