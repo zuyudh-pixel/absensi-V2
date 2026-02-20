@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Absensi Kampus 2026</title>
+  <title>Absensi Kampus 2026 - Futuristik</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <script src="https://unpkg.com/html5-qrcode@2.3.7/minified/html5-qrcode.min.js"></script>
 
   <style>
+    /* Body */
     body {
       min-height: 100vh;
       font-family: 'Segoe UI', sans-serif;
@@ -18,35 +20,82 @@
       background: linear-gradient(135deg, #0a3d62, #1e3799, #3c40c6);
       margin: 0;
     }
+
+    /* Glass card */
     .glass-card {
       backdrop-filter: blur(25px);
-      background: rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.12);
       border-radius: 20px;
       border: 1px solid rgba(255,255,255,0.3);
       box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      padding: 40px 30px;
+      padding: 30px 20px;
       width: 100%;
-      max-width: 400px;
+      max-width: 360px;
       color: white;
       text-align: center;
       position: relative;
       animation: fadeIn 0.6s ease-in-out;
     }
+
     @keyframes fadeIn { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
-    .logo { width: 80px; margin-bottom: 10px; transition: transform 0.3s ease; }
+
+    .logo { width: 70px; margin-bottom: 8px; transition: transform 0.3s ease; }
     .logo:hover { transform: scale(1.08); }
-    h3 { margin-bottom: 10px; }
+    h3 { margin-bottom: 6px; font-size: 1rem; }
+    h4 { margin-bottom: 14px; font-weight:400; }
+
+    /* Scan Camera */
+    #scanner {
+      width: 100%;
+      height: 220px;
+      border-radius: 15px;
+      overflow: hidden;
+      position: relative;
+      background: rgba(255,255,255,0.05);
+      margin-bottom: 10px;
+    }
+
+    /* Garis scanning animasi */
+    #scanner::before {
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:100%;
+      height:3px;
+      background: rgba(0,255,204,0.6);
+      animation: scanLine 2s infinite;
+    }
+    @keyframes scanLine {
+      0% { top:0; }
+      50% { top: calc(100% - 3px); }
+      100% { top:0; }
+    }
+
+    /* Upload Button */
+    #uploadLabel {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+      margin-bottom: 10px;
+      cursor:pointer;
+      font-size: 0.9rem;
+    }
+    #uploadLabel input { display:none; }
+
+    /* Buttons */
     input, select {
-      background: rgba(255,255,255,0.2) !important;
+      background: rgba(255,255,255,0.15) !important;
       border: none !important;
       color: white !important;
       border-radius: 10px;
     }
-    input::placeholder { color: rgba(255,255,255,0.8); }
+    input::placeholder { color: rgba(255,255,255,0.7); }
     .btn-modern {
       border-radius: 50px;
       font-weight: 500;
-      padding: 10px;
+      padding: 8px;
       position: relative;
       overflow: hidden;
       transition: all 0.25s ease;
@@ -56,7 +105,7 @@
     .ripple { position: absolute; border-radius: 50%; transform: scale(0); animation: ripple 0.6s linear; background-color: rgba(255,255,255,0.4); pointer-events: none; }
     @keyframes ripple { to { transform: scale(4); opacity: 0; } }
 
-    /* Animasi scan berhasil */
+    /* Scan Success Toast */
     .scan-success {
       position: absolute;
       top: 10px;
@@ -73,15 +122,10 @@
       transition: opacity 0.4s ease, transform 0.4s ease, background-color 0.4s ease;
       z-index: 10;
     }
-    .scan-success.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    /* Warna toast */
-    .login-toast { background: #0d6efd; }   /* biru */
-    .masuk-toast { background: #28a745; }   /* hijau */
-    .pulang-toast { background: #fd7e14; }  /* oranye */
+    .scan-success.show { opacity: 1; transform: translateY(0); }
+    .login-toast { background: #0d6efd; }
+    .masuk-toast { background: #28a745; }
+    .pulang-toast { background: #fd7e14; }
   </style>
 </head>
 
@@ -89,42 +133,36 @@
 <div class="glass-card">
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
   <h3>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h3>
-  <h4 class="mb-4">Sistem Absensi Pegawai</h4>
+  <h4>Sistem Absensi Pegawai</h4>
+
   <div id="notif"></div>
 
-  <!-- Scan sukses animasi -->
+  <!-- Scan success -->
   <div id="scanSuccess" class="scan-success">
     <i id="scanIcon" class="bi bi-check2-circle"></i> <span id="scanText">Scan Berhasil</span>
   </div>
 
-  
   <!-- LOGIN AREA -->
-<div id="loginArea">
-  <p>Silakan scan barcode ID Anda</p>
-  <input type="text" id="barcodeInput" autofocus
-         style="
-           width: 100%;
-           padding: 12px;
-           border-radius: 10px;
-           border: 2px dashed rgba(255,255,255,0.6);
-           background: rgba(255,255,255,0.1);
-           color: white;
-           text-align: center;
-           font-size: 1.1rem;
-           outline: none;
-         "
-         placeholder="Tempat scan barcode">
-</div>
+  <div id="loginArea">
+    <!-- Kamera Scanner -->
+    <div id="scanner"></div>
+
+    <!-- Upload Barcode -->
+    <label id="uploadLabel" class="btn btn-outline-light btn-modern w-100">
+      <i class="bi bi-upload"></i> Upload Gambar Barcode
+      <input type="file" id="barcodeFile" accept="image/*">
+    </label>
+  </div>
 
   <!-- ABSEN AREA -->
   <div id="absenArea" style="display:none;">
-    <h6 id="userInfo" class="mb-3"></h6>
-    <select class="form-select mb-3" id="workfrom">
+    <h6 id="userInfo" class="mb-2"></h6>
+    <select class="form-select mb-2" id="workfrom">
       <option value="WFO">WFO</option>
       <option value="WFH">WFH</option>
     </select>
-    <input class="form-control mb-3" id="kegiatan" placeholder="Kegiatan">
-    <div class="d-grid gap-2 mb-3">
+    <input class="form-control mb-2" id="kegiatan" placeholder="Kegiatan">
+    <div class="d-grid gap-2 mb-2">
       <button class="btn btn-success btn-modern" id="btnMasuk" onclick="absen('Masuk', event)">
         <i class="bi bi-door-open me-2"></i>Absen Masuk
       </button>
@@ -162,7 +200,7 @@ function createRipple(event) {
 }
 document.querySelectorAll('.btn-modern').forEach(btn=>{ btn.addEventListener('click', createRipple); });
 
-// Update tombol
+// Update tombol Masuk/Pulang
 function updateButtons() {
   const key = todayKey();
   const absenHariIni = JSON.parse(localStorage.getItem(key) || "{}");
@@ -180,20 +218,13 @@ function updateButtons() {
   }
 }
 
-// Fokus input barcode
-function focusBarcode(){
-  const input = document.getElementById("barcodeInput");
-  input.focus();
-  input.value = "";
-}
-
-// Animasi scan berhasil dengan ikon dan warna sesuai tipe
+// Scan Success Toast
 function showScanSuccess(type="masuk") {
   const el = document.getElementById("scanSuccess");
   const text = document.getElementById("scanText");
   const icon = document.getElementById("scanIcon");
 
-  el.className = "scan-success show"; // reset semua kelas
+  el.className = "scan-success show";
 
   if(type==="login") { 
     el.classList.add("login-toast"); 
@@ -227,30 +258,12 @@ function loginWithBarcode(barcode){
       document.getElementById("loginArea").style.display="none";
       document.getElementById("absenArea").style.display="block";
       document.getElementById("userInfo").innerText = data.nama + " - " + data.bagian;
-      showNotif('<i class="bi bi-check-circle me-2"></i>Login berhasil!', "success");
       updateButtons();
-      focusBarcode();
       showScanSuccess("login");
     } else showNotif('<i class="bi bi-x-circle me-2"></i>Login gagal!', "danger");
   })
   .catch(()=>showNotif('<i class="bi bi-x-octagon me-2"></i>Server tidak merespon!', 'danger'));
 }
-
-// Scanner listener
-let barcodeBuffer = "";
-let lastTime = Date.now();
-document.addEventListener('keydown', function(e){
-  const currentTime = Date.now();
-  if(currentTime - lastTime > 50) barcodeBuffer = "";
-  lastTime = currentTime;
-
-  if(e.key === "Enter") {
-    if(!currentUser.id) loginWithBarcode(barcodeBuffer.trim());
-    barcodeBuffer = "";
-  } else {
-    barcodeBuffer += e.key;
-  }
-});
 
 // Absen
 function absen(tipe,event){
@@ -283,7 +296,6 @@ function absen(tipe,event){
           absenHariIni[currentUser.id][tipe.toLowerCase()] = true;
           localStorage.setItem(key, JSON.stringify(absenHariIni));
           updateButtons();
-          focusBarcode();
           showScanSuccess(tipe);
         } else if(data.status==="duplicate") {
           showNotif('<i class="bi bi-exclamation-triangle me-2"></i>Sudah absen hari ini!', 'warning');
@@ -302,15 +314,35 @@ function absen(tipe,event){
 // Reset form
 function resetForm(event){
   currentUser={};
-  barcodeBuffer = "";
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
   document.getElementById("notif").innerHTML="";
-  focusBarcode();
 }
 
-// Fokus awal
-window.onload = focusBarcode;
+// Init Kamera Scanner & Upload
+function initScanner(){
+  const html5QrCode = new Html5Qrcode("scanner");
+  Html5Qrcode.getCameras().then(cameras => {
+    if(cameras && cameras.length){
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        (decodedText)=>loginWithBarcode(decodedText)
+      ).catch(err=>console.error(err));
+    }
+  }).catch(err=>console.error(err));
+
+  document.getElementById("barcodeFile").addEventListener("change", function(e){
+    const file = e.target.files[0];
+    if(file){
+      Html5Qrcode.scanFile(file, true)
+        .then(decodedText => loginWithBarcode(decodedText))
+        .catch(err => showNotif("Gagal membaca barcode", "danger"));
+    }
+  });
+}
+
+window.onload = initScanner;
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
