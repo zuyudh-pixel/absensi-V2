@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+  <meta charset="UTF-8">
   <title>Absensi Kampus 2026 - Futuristik</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -30,7 +31,7 @@
       box-shadow: 0 8px 32px rgba(0,0,0,0.2);
       padding: 25px 20px;
       width: 100%;
-      max-width: 360px;
+      max-width: 380px;
       color: white;
       text-align: center;
       position: relative;
@@ -43,7 +44,7 @@
     /* Scanner */
     #scanner {
       width: 100%;
-      height: 220px;
+      height: 240px;
       border-radius: 15px;
       overflow: hidden;
       position: relative;
@@ -79,7 +80,7 @@
     }
     #uploadLabel input { display:none; }
 
-    /* Buttons */
+    /* Inputs & Buttons */
     input, select {
       background: rgba(255,255,255,0.15) !important;
       border: none !important;
@@ -130,7 +131,7 @@
 <div class="glass-card">
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" class="logo" alt="Logo Kampus">
   <h3>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h3>
-  <h4>Absensi Dosen Pengampu</h4>
+  <h4>Sistem Absensi Pegawai</h4>
 
   <div id="notif"></div>
 
@@ -174,9 +175,9 @@
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzZkus_1zSCQCwIj78CF4eZKN0pIH9Ptfl2FNXEe34-W5yqF5-QMCHvYakEENSl-T67-g/exec";
-let currentUser = {};
-const todayKey = () => new Date().toISOString().split('T')[0];
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzZkus_1zSCQCwIj78CF4eZKN0pIH9Ptfl2FNXEe34-W5yqF5-QMCHvYakEENSl-T67-g/exec";
+let currentUser={};
+const todayKey=()=>new Date().toISOString().split("T")[0];
 let html5QrCode;
 
 // Ripple effect
@@ -241,9 +242,7 @@ function loginWithBarcode(barcode){
     }
   })
   .catch(()=>document.getElementById("notif").innerHTML='<div class="alert alert-danger mt-2"><i class="bi bi-x-octagon me-2"></i>Server tidak merespon!</div>')
-  .finally(()=>{
-    setTimeout(()=>{ if(html5QrCode) html5QrCode.resume(); },500);
-  });
+  .finally(()=>{ setTimeout(()=>{ if(html5QrCode) html5QrCode.resume(); },500); });
 }
 
 // Absen
@@ -303,12 +302,13 @@ window.onload=function(){
   html5QrCode=new Html5Qrcode("scanner");
   Html5Qrcode.getCameras().then(cameras=>{
     if(cameras && cameras.length){
+      // Pilih kamera belakang smartphone/laptop jika ada
       html5QrCode.start(
-        {facingMode:"environment"},
+        cameras[0].id,
         {fps:10, qrbox:250},
         decodedText=>loginWithBarcode(decodedText)
       ).catch(err=>console.error(err));
-    }
+    } else alert("Tidak ada kamera yang terdeteksi");
   }).catch(err=>console.error(err));
 
   document.getElementById("barcodeFile").addEventListener("change",function(e){
