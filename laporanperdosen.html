@@ -8,7 +8,6 @@
 
 <style>
 *{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:'Inter',sans-serif;
@@ -16,12 +15,7 @@ body{
   color:white;
   padding:30px;
 }
-
-.container{
-  max-width:1000px;
-  margin:auto;
-}
-
+.container{max-width:1000px;margin:auto;}
 .card{
   background:rgba(255,255,255,0.05);
   backdrop-filter:blur(15px);
@@ -30,116 +24,33 @@ body{
   padding:25px;
   box-shadow:0 20px 40px rgba(0,0,0,0.3);
 }
-
-h2{
-  margin-top:0;
-  font-weight:700;
-  letter-spacing:.5px;
-}
-
+h2{margin-top:0;font-weight:700}
 input,button{
-  padding:12px;
-  border-radius:10px;
-  border:none;
-  width:100%;
-  margin-top:8px;
-  font-size:14px;
+  padding:12px;border-radius:10px;border:none;width:100%;margin-top:8px;font-size:14px;
 }
-
-input{
-  background:#1e293b;
-  color:white;
-  border:1px solid #334155;
-}
-
-input:focus{
-  outline:none;
-  border:1px solid #38bdf8;
-}
-
-.row{
-  display:flex;
-  gap:15px;
-  margin-top:10px;
-}
-
-.row > div{
-  flex:1;
-}
-
+input{background:#1e293b;color:white;border:1px solid #334155;}
+.row{display:flex;gap:15px;margin-top:10px;}
+.row>div{flex:1;}
 button{
   margin-top:20px;
   background:linear-gradient(90deg,#38bdf8,#0ea5e9);
-  color:white;
-  font-weight:600;
-  cursor:pointer;
-  transition:.3s;
+  color:white;font-weight:600;cursor:pointer;
 }
-
-button:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(14,165,233,0.4);
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:25px;
-}
-
-th{
-  background:#1e293b;
-  padding:12px;
-  font-size:13px;
-  text-transform:uppercase;
-  color:#38bdf8;
-}
-
-td{
-  padding:10px;
-  border-bottom:1px solid #334155;
-  font-size:13px;
-}
-
-tr:hover{
-  background:rgba(255,255,255,0.05);
-}
-
-tfoot{
-  background:#0f172a;
-}
-
+table{width:100%;border-collapse:collapse;margin-top:25px;}
+th{background:#1e293b;padding:12px;color:#38bdf8;font-size:13px;}
+td{padding:10px;border-bottom:1px solid #334155;font-size:13px;}
+tfoot{background:#0f172a;}
 .summary-row td{
-  padding:15px;
-  text-align:center;
-  font-weight:600;
-  color:#38bdf8;
-  border-top:2px solid #334155;
-  font-size:14px;
+  padding:15px;text-align:center;font-weight:600;color:#38bdf8;
 }
-
+.summary-subrow td{
+  padding:10px;text-align:center;font-weight:500;color:#facc15;
+}
 .btn-back{
-  margin-top:15px;
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  font-weight:600;
-  cursor:pointer;
   background: linear-gradient(135deg,#6366f1,#4f46e5);
-  color:white;
-  transition:0.3s;
 }
-
-.btn-back:hover{
-  transform:translateY(-2px);
-  box-shadow:0 8px 20px rgba(99,102,241,0.4);
-}
-
 @media(max-width:768px){
-  .row{
-    flex-direction:column;
-  }
+  .row{flex-direction:column;}
 }
 </style>
 </head>
@@ -148,7 +59,7 @@ tfoot{
 <div class="container">
   <div class="card">
 
-    <h2>📊 Laporan Absensi Dosen</h2>
+    <h2>📊 Laporan Absensi Saya</h2>
 
     <div class="row">
       <div>
@@ -162,7 +73,7 @@ tfoot{
     </div>
 
     <button onclick="loadData()">Lihat Laporan</button>
-    <button class="btn-back" onclick="kembaliKeIndex()">⬅ Kembali ke Absensi</button>
+    <button class="btn-back" onclick="window.close()">⬅ Kembali</button>
 
     <div id="hasil"></div>
 
@@ -170,134 +81,118 @@ tfoot{
 </div>
 
 <script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwz8fbm1csIeeoNKMf69mR_7WgbjDadh0_-OcM4rpNQsITl8mrQrDgC3kQmXDjY4tDInw/exec";
 
-function tampilkan(data){
+function getUserId(){
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id");
+}
 
-  if(!data || data.length === 0){
-    document.getElementById("hasil").innerHTML = "<p>Tidak ada data</p>";
+function loadData(){
+
+  const userId = getUserId();
+
+  if(!userId){
+    document.getElementById("hasil").innerHTML =
+      "<p style='color:red'>ID tidak ditemukan</p>";
     return;
   }
 
-  const grouped = {};
+  const tglAwal = document.getElementById("tglAwal").value;
+  const tglAkhir = document.getElementById("tglAkhir").value;
 
-  data.forEach(r => {
+  const url = WEB_APP_URL +
+    "?action=laporan&id=" + encodeURIComponent(userId) +
+    "&awal=" + encodeURIComponent(tglAwal || "") +
+    "&akhir=" + encodeURIComponent(tglAkhir || "");
 
-    const tanggalRaw = r.tanggal || r.Tanggal || r.date;
-    if(!tanggalRaw) return;
+  fetch(url)
+    .then(res => res.json())
+    .then(data => tampilkan(data))
+    .catch(err => {
+      console.error(err);
+      document.getElementById("hasil").innerHTML =
+        "<p style='color:red'>Gagal mengambil data</p>";
+    });
+}
 
-    const dateObj = new Date(tanggalRaw);
-    if(isNaN(dateObj)) return;
+function tampilkan(data){
 
-    const tgl =
-      dateObj.getFullYear() + "-" +
-      String(dateObj.getMonth()+1).padStart(2,'0') + "-" +
-      String(dateObj.getDate()).padStart(2,'0');
+  if(!data || data.length===0){
+    document.getElementById("hasil").innerHTML="<p>Tidak ada data</p>";
+    return;
+  }
+
+  const grouped={};
+  let totalWFO=0,totalWFA=0,totalIjin=0;
+
+  data.forEach(r=>{
+    const d=new Date(r.tanggal);
+    const tgl=d.toISOString().split("T")[0];
 
     if(!grouped[tgl]){
-      grouped[tgl] = {
-        tanggal: tgl,
-        masuk: "",
-        wfMasuk: "",
-        keluar: "",
-        wfKeluar: ""
-      };
+      grouped[tgl]={tanggal:tgl,masuk:"",keluar:"",wfMasuk:"",wfKeluar:""};
     }
 
-    const tipe = (r.tipe || r.Tipe || r.jenis || r.status || "").toString().toLowerCase();
+    const jam=d.toTimeString().split(" ")[0];
 
-    const jam =
-      String(dateObj.getHours()).padStart(2,'0') + ":" +
-      String(dateObj.getMinutes()).padStart(2,'0') + ":" +
-      String(dateObj.getSeconds()).padStart(2,'0');
-
-    if(tipe.includes("masuk")){
-      grouped[tgl].masuk = jam;
-      grouped[tgl].wfMasuk = r.workfrom || r.workFrom || r.wf || "-";
+    if(r.tipe==="Masuk"){
+      grouped[tgl].masuk=jam;
+      grouped[tgl].wfMasuk=r.workfrom;
+      if(r.workfrom==="WFO") totalWFO++;
+      else if(r.workfrom==="WFA") totalWFA++;
+      else totalIjin++;
     }
 
-    if(tipe.includes("pulang")){
-      grouped[tgl].keluar = jam;
-      grouped[tgl].wfKeluar = r.workfrom || r.workFrom || r.wf || "-";
+    if(r.tipe==="Pulang"){
+      grouped[tgl].keluar=jam;
+      grouped[tgl].wfKeluar=r.workfrom;
     }
-
   });
 
-  let totalHari = 0;
-  let totalMasuk = 0;
-  let totalPulang = 0;
+  let html=`
+  <table>
+  <thead>
+  <tr>
+  <th>Tanggal</th>
+  <th>Jam Masuk</th>
+  <th>WF Masuk</th>
+  <th>Jam Keluar</th>
+  <th>WF Keluar</th>
+  </tr>
+  </thead><tbody>`;
 
-  let html = `
-    <table>
-      <thead>
-        <tr>
-          <th>Tanggal</th>
-          <th>Jam Masuk</th>
-          <th>WF Masuk</th>
-          <th>Jam Keluar</th>
-          <th>WF Keluar</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
+  Object.values(grouped).sort((a,b)=>new Date(a.tanggal)-new Date(b.tanggal))
+  .forEach(row=>{
+    html+=`
+    <tr>
+    <td>${row.tanggal}</td>
+    <td>${row.masuk||"-"}</td>
+    <td>${row.wfMasuk||"-"}</td>
+    <td>${row.keluar||"-"}</td>
+    <td>${row.wfKeluar||"-"}</td>
+    </tr>`;
+  });
 
-  Object.values(grouped)
-    .sort((a,b)=> new Date(a.tanggal) - new Date(b.tanggal))
-    .forEach(row => {
+  html+=`
+  </tbody>
+  <tfoot>
+  <tr class="summary-row">
+  <td colspan="5">
+  Total WFO: ${totalWFO} | Total WFA: ${totalWFA} | Total Ijin: ${totalIjin}
+  </td>
+  </tr>
+  </tfoot>
+  </table>`;
 
-      totalHari++;
-      if(row.masuk) totalMasuk++;
-      if(row.keluar) totalPulang++;
-
-      html += `
-        <tr>
-          <td>${row.tanggal}</td>
-          <td>${row.masuk || "-"}</td>
-          <td>${row.wfMasuk || "-"}</td>
-          <td>${row.keluar || "-"}</td>
-          <td>${row.wfKeluar || "-"}</td>
-        </tr>
-      `;
-    });
-
-  html += `
-      </tbody>
-      <tfoot>
-        <tr class="summary-row">
-          <td colspan="5">
-            Total Hari: ${totalHari} &nbsp;&nbsp; | &nbsp;&nbsp;
-            Total Masuk: ${totalMasuk} &nbsp;&nbsp; | &nbsp;&nbsp;
-            Total Pulang: ${totalPulang}
-          </td>
-        </tr>
-      </tfoot>
-    </table>
-  `;
-
-  document.getElementById("hasil").innerHTML = html;
+  document.getElementById("hasil").innerHTML=html;
 }
 
-function kembaliKeIndex(){
-  if(window.opener){
-    window.close();
-  }else{
-    window.location.href = "index.html";
-  }
-}
-
-/* Dummy function loadData (ganti dengan API Anda) */
-function loadData(){
-  const dummyData = [
-    { tanggal: "2026-02-21T00:05:03", tipe:"masuk", workfrom:"WFH"},
-    { tanggal: "2026-02-21T21:36:42", tipe:"pulang", workfrom:"WFA"},
-    { tanggal: "2026-02-22T00:26:41", tipe:"masuk", workfrom:"WFA"}
-  ];
-  tampilkan(dummyData);
-}
-
-window.onload = function(){
+// AUTO REFRESH 30 DETIK
+window.onload=function(){
   loadData();
+  setInterval(loadData,30000);
 }
-
 </script>
 
 </body>
