@@ -94,6 +94,30 @@ select, input[type="text"]{
   margin-bottom:12px;
   box-sizing:border-box;
 }
+.btn-loading{
+  position:relative;
+  pointer-events:none;
+  opacity:.8;
+}
+
+.btn-loading::after{
+  content:"";
+  position:absolute;
+  width:18px;
+  height:18px;
+  border:3px solid rgba(255,255,255,.3);
+  border-top:3px solid white;
+  border-radius:50%;
+  right:15px;
+  top:50%;
+  transform:translateY(-50%);
+  animation:spin .8s linear infinite;
+}
+
+@keyframes spin{
+  from{transform:translateY(-50%) rotate(0deg)}
+  to{transform:translateY(-50%) rotate(360deg)}
+}
 </style>
 </head>
 <body>
@@ -140,7 +164,7 @@ select, input[type="text"]{
     <label for="kegiatan">Keterangan</label>
     <input type="text" id="kegiatan" placeholder="Tuliskan kelas yang diampu (masuk), atau alasan (ijin)">
 
-    <button class="btn-success" onclick="absen()">Kirim Absensi</button>
+   <button class="btn-success" id="btnAbsen" onclick="absen()">Kirim Absensi</button>
     <button class="btn-danger" onclick="logout()">Logout</button>
   </div>
 </div>
@@ -317,7 +341,14 @@ function resetLoginArea(){
 
 // Absensi
 async function absen(){
-  if(!userLat){ showToast("GPS belum aktif!"); return; }
+  if(!userLat){ 
+    showToast("GPS belum aktif!"); 
+    return; 
+  }
+
+  const btn = document.getElementById("btnAbsen");
+  btn.classList.add("btn-loading");
+  btn.innerText = "Memproses...";
 
   const formData = new FormData();
   formData.append("action","absen");
@@ -334,27 +365,32 @@ async function absen(){
     const result = await res.json();
 
     if(result.status==="success"){ 
-  showToast("Absensi berhasil ✅"); 
-}
-else if(result.status==="duplicate_masuk"){ 
-  showToast("Anda sudah absen MASUK hari ini ❗"); 
-}
-else if(result.status==="no_masuk"){
-  showToast("Anda belum absen MASUK hari ini ❗");
-}
-else if(result.status==="updated_pulang"){
-  showToast("Absensi PULANG berhasil diupdate ✅");
-}
-else if(result.status==="out_of_radius"){ 
-  showToast("Di luar radius kampus ❌"); 
-}
-else{ 
-  showToast("Gagal absen ❌"); 
-}
+      showToast("Absensi berhasil ✅"); 
+    }
+    else if(result.status==="duplicate_masuk"){ 
+      showToast("Anda sudah absen MASUK hari ini ❗"); 
+    }
+    else if(result.status==="no_masuk"){
+      showToast("Anda belum absen MASUK hari ini ❗");
+    }
+    else if(result.status==="updated_pulang"){
+      showToast("Absensi PULANG berhasil diupdate ✅");
+    }
+    else if(result.status==="out_of_radius"){ 
+      showToast("Di luar radius kampus ❌"); 
+    }
+    else{ 
+      showToast("Gagal absen ❌"); 
+    }
+
   }catch(e){
     console.error(e);
     showToast("Terjadi kesalahan server ❌");
   }
+
+  // Reset tombol
+  btn.classList.remove("btn-loading");
+  btn.innerText = "Kirim Absensi";
 }
 
 // Logout
