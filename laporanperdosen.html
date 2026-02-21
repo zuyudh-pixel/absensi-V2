@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Absensi Dosen</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:'Inter',sans-serif;
+  background:linear-gradient(135deg,#0f172a,#1e293b);
+  color:white;
+  padding:30px;
+}
+
+.container{
+  max-width:1000px;
+  margin:auto;
+}
+
+.card{
+  background:rgba(255,255,255,0.05);
+  backdrop-filter:blur(15px);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:18px;
+  padding:25px;
+  box-shadow:0 20px 40px rgba(0,0,0,0.3);
+}
+
+h2{
+  margin-top:0;
+  font-weight:700;
+  letter-spacing:.5px;
+}
+
+input,button{
+  padding:12px;
+  border-radius:10px;
+  border:none;
+  width:100%;
+  margin-top:8px;
+  font-size:14px;
+}
+
+input{
+  background:#1e293b;
+  color:white;
+  border:1px solid #334155;
+}
+
+input:focus{
+  outline:none;
+  border:1px solid #38bdf8;
+}
+
+.row{
+  display:flex;
+  gap:15px;
+  margin-top:10px;
+}
+
+.row > div{
+  flex:1;
+}
+
+button{
+  margin-top:20px;
+  background:linear-gradient(90deg,#38bdf8,#0ea5e9);
+  color:white;
+  font-weight:600;
+  cursor:pointer;
+  transition:.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(14,165,233,0.4);
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:25px;
+}
+
+th{
+  background:#1e293b;
+  padding:12px;
+  font-size:13px;
+  text-transform:uppercase;
+  color:#38bdf8;
+}
+
+td{
+  padding:10px;
+  border-bottom:1px solid #334155;
+  font-size:13px;
+}
+
+tr:hover{
+  background:rgba(255,255,255,0.05);
+}
+
+tfoot{
+  background:#0f172a;
+}
+
+.summary-row td{
+  padding:15px;
+  text-align:center;
+  font-weight:600;
+  color:#38bdf8;
+  border-top:2px solid #334155;
+  font-size:14px;
+}
+
+.btn-back{
+  margin-top:15px;
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  font-weight:600;
+  cursor:pointer;
+  background: linear-gradient(135deg,#6366f1,#4f46e5);
+  color:white;
+  transition:0.3s;
+}
+
+.btn-back:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 20px rgba(99,102,241,0.4);
+}
+
+@media(max-width:768px){
+  .row{
+    flex-direction:column;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+  <div class="card">
+
+    <h2>📊 Laporan Absensi Dosen</h2>
+
+    <div class="row">
+      <div>
+        <label>Tanggal Awal</label>
+        <input type="date" id="tglAwal">
+      </div>
+      <div>
+        <label>Tanggal Akhir</label>
+        <input type="date" id="tglAkhir">
+      </div>
+    </div>
+
+    <button onclick="loadData()">Lihat Laporan</button>
+    <button class="btn-back" onclick="kembaliKeIndex()">⬅ Kembali ke Absensi</button>
+
+    <div id="hasil"></div>
+
+  </div>
+</div>
+
+<script>
+
+function tampilkan(data){
+
+  if(!data || data.length === 0){
+    document.getElementById("hasil").innerHTML = "<p>Tidak ada data</p>";
+    return;
+  }
+
+  const grouped = {};
+
+  data.forEach(r => {
+
+    const tanggalRaw = r.tanggal || r.Tanggal || r.date;
+    if(!tanggalRaw) return;
+
+    const dateObj = new Date(tanggalRaw);
+    if(isNaN(dateObj)) return;
+
+    const tgl =
+      dateObj.getFullYear() + "-" +
+      String(dateObj.getMonth()+1).padStart(2,'0') + "-" +
+      String(dateObj.getDate()).padStart(2,'0');
+
+    if(!grouped[tgl]){
+      grouped[tgl] = {
+        tanggal: tgl,
+        masuk: "",
+        wfMasuk: "",
+        keluar: "",
+        wfKeluar: ""
+      };
+    }
+
+    const tipe = (r.tipe || r.Tipe || r.jenis || r.status || "").toString().toLowerCase();
+
+    const jam =
+      String(dateObj.getHours()).padStart(2,'0') + ":" +
+      String(dateObj.getMinutes()).padStart(2,'0') + ":" +
+      String(dateObj.getSeconds()).padStart(2,'0');
+
+    if(tipe.includes("masuk")){
+      grouped[tgl].masuk = jam;
+      grouped[tgl].wfMasuk = r.workfrom || r.workFrom || r.wf || "-";
+    }
+
+    if(tipe.includes("pulang")){
+      grouped[tgl].keluar = jam;
+      grouped[tgl].wfKeluar = r.workfrom || r.workFrom || r.wf || "-";
+    }
+
+  });
+
+  let totalHari = 0;
+  let totalMasuk = 0;
+  let totalPulang = 0;
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Tanggal</th>
+          <th>Jam Masuk</th>
+          <th>WF Masuk</th>
+          <th>Jam Keluar</th>
+          <th>WF Keluar</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+
+  Object.values(grouped)
+    .sort((a,b)=> new Date(a.tanggal) - new Date(b.tanggal))
+    .forEach(row => {
+
+      totalHari++;
+      if(row.masuk) totalMasuk++;
+      if(row.keluar) totalPulang++;
+
+      html += `
+        <tr>
+          <td>${row.tanggal}</td>
+          <td>${row.masuk || "-"}</td>
+          <td>${row.wfMasuk || "-"}</td>
+          <td>${row.keluar || "-"}</td>
+          <td>${row.wfKeluar || "-"}</td>
+        </tr>
+      `;
+    });
+
+  html += `
+      </tbody>
+      <tfoot>
+        <tr class="summary-row">
+          <td colspan="5">
+            Total Hari: ${totalHari} &nbsp;&nbsp; | &nbsp;&nbsp;
+            Total Masuk: ${totalMasuk} &nbsp;&nbsp; | &nbsp;&nbsp;
+            Total Pulang: ${totalPulang}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  `;
+
+  document.getElementById("hasil").innerHTML = html;
+}
+
+function kembaliKeIndex(){
+  if(window.opener){
+    window.close();
+  }else{
+    window.location.href = "index.html";
+  }
+}
+
+/* Dummy function loadData (ganti dengan API Anda) */
+function loadData(){
+  const dummyData = [
+    { tanggal: "2026-02-21T00:05:03", tipe:"masuk", workfrom:"WFH"},
+    { tanggal: "2026-02-21T21:36:42", tipe:"pulang", workfrom:"WFA"},
+    { tanggal: "2026-02-22T00:26:41", tipe:"masuk", workfrom:"WFA"}
+  ];
+  tampilkan(dummyData);
+}
+
+window.onload = function(){
+  loadData();
+}
+
+</script>
+
+</body>
+</html>
