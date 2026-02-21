@@ -121,7 +121,9 @@ select, input[type="text"]{
 .btn-loading{
   position:relative;
   pointer-events:none;
-  opacity:.8;
+   opacity:1;
+  color:#fde68a !important;
+  text-shadow:0 0 8px #facc15;
 }
 
 .btn-loading::after{
@@ -182,7 +184,14 @@ select{
       <video id="video" playsinline></video>
       <button class="btn-primary" id="btnScan" onclick="toggleScanner()">Scan Barcode</button>
       <input type="file" id="fileInput" accept="image/*" onchange="scanFile(this)">
-    </div>
+      </div>
+      
+      <div style="text-align:center;margin-top:8px;">
+    <span onclick="refreshPage()" 
+          style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:underline;">
+      Refresh
+    </span>
+  </div>
   </div>
 
   <!-- ABSEN AREA -->
@@ -290,10 +299,24 @@ function startScanner(){
     requestAnimationFrame(tick);
   }
 }
-
 function stopScanner(){
-  if(videoStream){ videoStream.getTracks().forEach(t=>t.stop()); videoStream=null; }
+  const video = document.getElementById("video");
+
+  if(videoStream){
+    videoStream.getTracks().forEach(track => track.stop());
+    videoStream = null;
+  }
+
+  // Hapus sumber video
+  video.pause();
+  video.srcObject = null;
+  video.removeAttribute("src");
+  video.load(); // Reset element video
+
+  scanning = false;
 }
+
+
 
 // Scan file upload
 function scanFile(input){
@@ -367,7 +390,7 @@ async function loginWithBarcode(data){
     }
   }catch(e){
     console.error(e);
-    showToast("Terjadi kesalahan server ❌");
+    showToast("Koneksi putus / Terjadi kesalahan server ❌");
     resetLoginArea();
   }
 }
@@ -442,6 +465,25 @@ function logout(){
   document.getElementById("userInfoAbsen").innerText="";
   document.getElementById("userIdDisplay").innerText="";
   stopScanner();
+}
+
+function refreshPage(){
+  stopScanner();   // WAJIB dipanggil
+
+  currentUser = {};
+  userLat = null;
+  userLng = null;
+
+  document.getElementById("loginArea").style.display="block";
+  document.getElementById("absenArea").style.display="none";
+  document.getElementById("userInfoAbsen").innerText="";
+  document.getElementById("userIdDisplay").innerText="";
+  document.getElementById("kegiatan").value="";
+  document.getElementById("tipe").selectedIndex = 0;
+  document.getElementById("workfrom").selectedIndex = 0;
+  document.getElementById("btnScan").innerText="Scan Barcode";
+
+  showToast("Tampilan direset ✅");
 }
 </script>
 
