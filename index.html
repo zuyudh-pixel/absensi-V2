@@ -20,8 +20,10 @@ body{
   background:linear-gradient(135deg,#0f172a,#1e293b);
   display:flex;
   justify-content:center;
-  align-items:center;
-  height:100vh;
+  align-items:flex-start; /* jangan center vertikal */
+  min-height:100vh;
+  padding:20px 10px;
+  overflow-y:auto;
   color:white;
 }
 .card{
@@ -32,6 +34,8 @@ body{
   border-radius:20px;
   box-shadow:0 15px 40px rgba(0,0,0,.4);
   animation:fade .5s ease;
+  position:relative;
+  z-index:1;
 }
 @keyframes fade{
   from{opacity:0;transform:translateY(20px)}
@@ -61,21 +65,32 @@ button:hover{transform:translateY(-2px)}
 .btn-danger{background:var(--danger);color:white}
 .toast{
   position:fixed;
-  top:50%;
+  top:30%;
   left:50%;
-  transform:translate(-50%,-50%) scale(.8);
-  background:rgba(255,255,255,.75); /* putih 75% */
+  transform:translate(-50%,-50%) scale(.95);
+  
+  width:90%;              /* Lebar fleksibel di HP */
+  max-width:420px;        /* Batas maksimal di desktop */
+  
+  background:rgba(255,255,255,.55); /* putih 75% */
   backdrop-filter:blur(12px);
+  
   padding:18px 28px;
   border-radius:16px;
+  
   font-weight:500;
   font-size:15px;
+  line-height:1.4;        /* Supaya tidak rapat */
   text-align:center;
+  
   color:#000000; /* teks hitam */
   box-shadow:0 20px 60px rgba(0,0,0,.3);
   opacity:0;
   z-index:9999;
   transition:all .3s ease;
+  
+  word-break:normal;      /* Jangan potong per huruf */
+  overflow-wrap:break-word;
 }
 
 .toast.show{opacity:1}
@@ -126,6 +141,23 @@ select, input[type="text"]{
 @keyframes spin{
   from{transform:translateY(-50%) rotate(0deg)}
   to{transform:translateY(-50%) rotate(360deg)}
+}
+
+@media (max-width:480px){
+  .toast{
+  pointer-events:none;
+    font-size:14px;
+    padding:18px;
+    width:92%;
+  }
+}
+
+select{
+  -webkit-appearance: menulist !important;
+  appearance: auto !important;
+  background:#334155;
+  position:relative;
+  z-index:1;
 }
 </style>
 </head>
