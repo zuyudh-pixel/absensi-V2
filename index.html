@@ -61,14 +61,23 @@ button:hover{transform:translateY(-2px)}
 .btn-danger{background:var(--danger);color:white}
 .toast{
   position:fixed;
-  top:20px;
-  right:20px;
-  background:#111;
-  padding:12px 18px;
-  border-radius:10px;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%) scale(.8);
+  background:rgba(255,255,255,.55); /* putih 75% */
+  backdrop-filter:blur(12px);
+  padding:18px 28px;
+  border-radius:16px;
+  font-weight:500;
+  font-size:15px;
+  text-align:center;
+  color:#000000; /* teks hitam */
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
   opacity:0;
-  transition:.3s;
+  z-index:9999;
+  transition:all .3s ease;
 }
+
 .toast.show{opacity:1}
 #scannerWrapper{
   display:flex;
@@ -342,7 +351,7 @@ function resetLoginArea(){
 // Absensi
 async function absen(){
   if(!userLat){ 
-    showToast("GPS belum aktif!"); 
+    showToast("GPS belum aktif/posisi belum terdeteksi!"); 
     return; 
   }
 
