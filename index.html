@@ -216,6 +216,7 @@ select{
 
    <button class="btn-success" id="btnAbsen" onclick="absen()">Kirim Absensi</button>
     <button class="btn-danger" onclick="logout()">Logout</button>
+    <button class="btn-primary" onclick="bukaLaporan()">Lihat Laporan Saya</button>
   </div>
 </div>
 
@@ -484,6 +485,15 @@ function refreshPage(){
   document.getElementById("btnScan").innerText="Scan Barcode";
 
   showToast("Tampilan direset ✅");
+}
+function bukaLaporan(){
+  if(!currentUser.id){
+    showToast("Silakan login dulu ❗");
+    return;
+  }
+
+  const url = "laporanperdosen.html?id=" + encodeURIComponent(currentUser.id);
+  window.open(url, "_blank");
 }
 </script>
 
