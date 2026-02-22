@@ -215,11 +215,11 @@ select{
     <label for="kegiatan">Keterangan</label>
     <input type="text" id="kegiatan" placeholder="Tuliskan kelas yang diampu (masuk), atau alasan (ijin)">
 
-   <button class="btn-success" id="btnAbsen" onclick="absen()">Kirim Absensi</button>
-      
-    <button class="btn-primary" onclick="bukaLaporan()">Lihat Laporan Saya</button>
-    <button class="btn-danger" onclick="logout()">Logout</button>
-  </div>
+   <!-- Ganti bagian tombol di ABSEN AREA dengan: -->
+<div id="buttonRow" style="display:flex; gap:8px; margin-top:12px; margin-bottom:15px;">
+  <button class="btn-success" id="btnAbsen" onclick="absen()" style="flex:1;">Kirim Absensi</button>
+  <button class="btn-primary" onclick="bukaLaporan()" style="flex:1;">Lihat Laporan</button>
+  <button class="btn-danger" onclick="logout()" style="flex:1;">Logout</button>
 </div>
 
 <div class="toast" id="toast"></div>
