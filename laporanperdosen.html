@@ -106,10 +106,6 @@ button:not(.btn-back):active{
   border:1px solid rgba(255,255,255,0.15);
 }
 
-/* ============================= */
-/* TABLE */
-/* ============================= */
-
 .table-wrapper{
   margin-top:32px;
   overflow-x:auto;
@@ -135,13 +131,10 @@ td{
   padding:12px 10px;
   text-align:center;
   border-bottom:1px solid #334155;
-
-  /* DEFAULT WRAP */
   white-space:normal;
   word-break:break-word;
 }
 
-/* Tanggal & Keterangan TIDAK WRAP */
 td.no-wrap{
   white-space:nowrap;
 }
@@ -237,7 +230,6 @@ function tampilkan(data){
 
     const d = new Date(r.tanggal);
 
-    // ✅ AMBIL TANGGAL LOKAL (ANTI UTC SHIFT)
     const key =
       d.getFullYear()+"-"+
       String(d.getMonth()+1).padStart(2,'0')+"-"+
@@ -249,10 +241,8 @@ function tampilkan(data){
         masuk:"",
         keluar:"",
         lokasi:"",
-        isIjin:false,
-        kegiatanMasuk:"",
-        kegiatanPulang:"",
-        kegiatanIjin:""
+        kegiatan:"",
+        isIjin:false
       };
     }
 
@@ -262,37 +252,32 @@ function tampilkan(data){
       String(d.getSeconds()).padStart(2,'0');
 
     const jenis=(r.tipe||"").toLowerCase().trim();
-    const kegiatan=(r.keterangan||"").trim();
     const workfrom=(r.workfrom||"").trim();
+    const kegiatanSheet=(r.kegiatan||"").trim(); // KOLOM F
 
-    // ==========================
-    // IJIN
-    // ==========================
     if(jenis==="ijin"){
       grouped[key].isIjin=true;
-      grouped[key].kegiatanIjin=kegiatan;
+      grouped[key].kegiatan="Ijin";
       totalIjin++;
       return;
     }
 
-    // ==========================
-    // MASUK
-    // ==========================
     if(jenis==="masuk"){
       grouped[key].masuk=jam;
       grouped[key].lokasi=workfrom;
-      grouped[key].kegiatanMasuk=kegiatan;
 
-      if(workfrom==="WFO") totalWFO++;
-      else if(workfrom==="WFA") totalWFA++;
+      if(workfrom==="WFO"){
+        totalWFO++;
+        grouped[key].kegiatan=kegiatanSheet;
+      }
+      else if(workfrom==="WFA"){
+        totalWFA++;
+        grouped[key].kegiatan=kegiatanSheet;
+      }
     }
 
-    // ==========================
-    // PULANG
-    // ==========================
     if(jenis==="pulang"){
       grouped[key].keluar=jam;
-      grouped[key].kegiatanPulang=kegiatan;
     }
 
   });
@@ -333,23 +318,7 @@ function tampilkan(data){
         d.getFullYear();
 
       const lama=hitungDurasi(row.masuk,row.keluar);
-
-      let ket="-";
-
-      // ==========================
-      // LOGIKA FINAL KETERANGAN
-      // ==========================
-      if(row.isIjin){
-        ket = row.kegiatanIjin
-              ? row.kegiatanIjin
-              : "Ijin";
-      }else{
-        ket = row.kegiatanMasuk
-              ? row.kegiatanMasuk
-              : (row.kegiatanPulang
-                 ? row.kegiatanPulang
-                 : "-");
-      }
+      const ket=row.kegiatan||"-";
 
       html+=`
       <tr>
