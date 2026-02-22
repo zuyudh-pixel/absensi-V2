@@ -7,9 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-/* ============================= */
-/* RESET & GLOBAL */
-/* ============================= */
 *,
 *::before,
 *::after{
@@ -17,9 +14,7 @@
   -webkit-tap-highlight-color:transparent;
 }
 
-html{
-  font-size:16px;
-}
+html{ font-size:16px; }
 
 body{
   margin:0;
@@ -29,11 +24,8 @@ body{
   padding:16px;
 }
 
-/* ============================= */
-/* LAYOUT */
-/* ============================= */
 .container{
-  max-width:480px;     /* Fokus mobile */
+  max-width:480px;
   margin:auto;
 }
 
@@ -41,14 +33,10 @@ body{
   background:rgba(255,255,255,0.06);
   backdrop-filter:blur(20px);
   border-radius:18px;
-  padding:10px;
-  padding-top:24px;
+  padding:20px;
   box-shadow:0 15px 40px rgba(0,0,0,0.35);
 }
 
-/* ============================= */
-/* TYPOGRAPHY */
-/* ============================= */
 h2{
   margin:0 0 24px 0;
   text-align:center;
@@ -61,24 +49,15 @@ label{
   opacity:0.8;
 }
 
-/* ============================= */
-/* FORM */
-/* ============================= */
 .row{
   display:flex;
   flex-direction:column;
   gap:16px;
   margin-bottom:24px;
-  width:100%;
-}
-
-.row > div{
-  width:100%;
 }
 
 input[type="date"]{
   width:100%;
-  display:block;
   padding:14px 16px;
   margin-top:6px;
   border-radius:14px;
@@ -87,7 +66,6 @@ input[type="date"]{
   color:#ffffff;
   font-size:1rem;
   outline:none;
-  transition:all 0.2s ease;
 }
 
 input[type="date"]:focus{
@@ -95,12 +73,9 @@ input[type="date"]:focus{
   box-shadow:0 0 0 2px rgba(56,189,248,0.3);
 }
 
-/* ============================= */
-/* BUTTONS */
-/* ============================= */
 button{
   width:100%;
-  padding:10px;
+  padding:12px;
   border:none;
   border-radius:14px;
   font-size:1rem;
@@ -109,45 +84,32 @@ button{
   transition:all 0.25s ease;
 }
 
-/* Primary Button */
 button:not(.btn-back){
   margin-top:8px;
   background:linear-gradient(135deg,#38bdf8,#0ea5e9);
   color:#ffffff;
-  box-shadow:0 6px 14px rgba(14,165,233,0.35); /* sedikit lebih kecil */
+  box-shadow:0 6px 14px rgba(14,165,233,0.35);
 }
 
 button:not(.btn-back):hover{
   transform:translateY(-2px);
-  box-shadow:0 12px 25px rgba(14,165,233,0.45);
 }
 
 button:not(.btn-back):active{
   transform:scale(0.97);
 }
 
-/* Secondary Button */
 .btn-back{
   margin-top:12px;
-   padding:10px; /* dari 16px ke 10px */
   background:rgba(255,255,255,0.08);
   color:#ffffff;
   border:1px solid rgba(255,255,255,0.15);
-  backdrop-filter:blur(10px);
-}
-
-.btn-back:hover{
-  background:rgba(255,255,255,0.15);
-  transform:translateY(-2px);
-}
-
-.btn-back:active{
-  transform:scale(0.97);
 }
 
 /* ============================= */
 /* TABLE */
 /* ============================= */
+
 .table-wrapper{
   margin-top:32px;
   overflow-x:auto;
@@ -158,21 +120,30 @@ table{
   width:100%;
   border-collapse:collapse;
   font-size:0.9rem;
-  min-width:600px;
+  min-width:700px;
 }
 
 th{
   padding:14px 10px;
-  text-align:center;
   background:#1e293b;
   color:#38bdf8;
   font-weight:600;
+  text-align:center;
 }
 
 td{
   padding:12px 10px;
   text-align:center;
   border-bottom:1px solid #334155;
+
+  /* DEFAULT WRAP */
+  white-space:normal;
+  word-break:break-word;
+}
+
+/* Tanggal & Keterangan TIDAK WRAP */
+td.no-wrap{
+  white-space:nowrap;
 }
 
 tfoot{
@@ -185,23 +156,10 @@ tfoot{
   color:#facc15;
 }
 
-/* ============================= */
-/* DESKTOP ENHANCEMENT */
-/* ============================= */
 @media(min-width:768px){
-
-  .container{
-    max-width:900px;
-  }
-
-  .row{
-    flex-direction:row;
-  }
-
-  h2{
-    font-size:1.6rem;
-  }
-
+  .container{ max-width:900px; }
+  .row{ flex-direction:row; }
+  h2{ font-size:1.6rem; }
 }
 </style>
 </head>
@@ -213,11 +171,11 @@ tfoot{
     <h2>📊 Laporan Absensi Saya</h2>
 
     <div class="row">
-      <div>
+      <div style="flex:1">
         <label>Tanggal Awal</label>
         <input type="date" id="tglAwal">
       </div>
-      <div>
+      <div style="flex:1">
         <label>Tanggal Akhir</label>
         <input type="date" id="tglAkhir">
       </div>
@@ -226,6 +184,7 @@ tfoot{
     <button onclick="loadData()">Lihat Laporan</button>
     <div id="hasil"></div>
     <button class="btn-back" onclick="window.close()">⬅ Kembali</button>
+
   </div>
 </div>
 
@@ -238,9 +197,7 @@ function getUserId(){
 }
 
 function loadData(){
-
   const userId = getUserId();
-
   if(!userId){
     document.getElementById("hasil").innerHTML =
       "<p style='color:red'>ID tidak ditemukan</p>";
@@ -258,8 +215,7 @@ function loadData(){
   fetch(url)
     .then(res => res.json())
     .then(data => tampilkan(data))
-    .catch(err => {
-      console.error(err);
+    .catch(() => {
       document.getElementById("hasil").innerHTML =
         "<p style='color:red'>Gagal mengambil data</p>";
     });
@@ -276,62 +232,99 @@ function tampilkan(data){
   let totalWFO=0,totalWFA=0,totalIjin=0;
 
   data.forEach(r=>{
-    const d = new Date(r.tanggal);
-    // Ambil tahun, bulan, tanggal sesuai timezone lokal
-    const tgl = d.getFullYear() + "-" +
-            String(d.getMonth()+1).padStart(2,'0') + "-" +
-            String(d.getDate()).padStart(2,'0');
-    if(!grouped[tgl]){
-      grouped[tgl]={tanggal:tgl,masuk:"",keluar:"",wfMasuk:"",wfKeluar:""};
+    const d=new Date(r.tanggal);
+
+    const key =
+      d.getFullYear()+"-"+
+      String(d.getMonth()+1).padStart(2,'0')+"-"+
+      String(d.getDate()).padStart(2,'0');
+
+    if(!grouped[key]){
+      grouped[key]={
+        tanggal:key,
+        masuk:"",
+        keluar:"",
+        lokasi:"",
+        ketMasuk:"",
+        ketKeluar:""
+      };
     }
 
     const jam=d.toTimeString().split(" ")[0];
 
     if(r.tipe==="Masuk"){
-      grouped[tgl].masuk=jam;
-      grouped[tgl].wfMasuk=r.workfrom;
+      grouped[key].masuk=jam;
+      grouped[key].lokasi=r.workfrom;
+      grouped[key].ketMasuk=r.keterangan||"";
+
       if(r.workfrom==="WFO") totalWFO++;
       else if(r.workfrom==="WFA") totalWFA++;
       else totalIjin++;
     }
 
     if(r.tipe==="Pulang"){
-      grouped[tgl].keluar=jam;
-      grouped[tgl].wfKeluar=r.workfrom;
+      grouped[key].keluar=jam;
+      grouped[key].ketKeluar=r.keterangan||"";
     }
   });
+
+  function hitungDurasi(m,k){
+    if(!m||!k) return "-";
+    const masuk=new Date("1970-01-01T"+m);
+    const keluar=new Date("1970-01-01T"+k);
+    const diff=(keluar-masuk)/1000;
+    if(diff<=0) return "-";
+    const jam=Math.floor(diff/3600);
+    const menit=Math.floor((diff%3600)/60);
+    return String(jam).padStart(2,'0')+":"+String(menit).padStart(2,'0');
+  }
 
   let html=`
   <div class="table-wrapper">
   <table>
   <thead>
   <tr>
-  <th>Tanggal</th>
-  <th>Jam Masuk</th>
-  <th>Lokasi (M)</th>
-  <th>Jam Keluar</th>
-  <th>Lokasi (K)</th>
+    <th>Tanggal</th>
+    <th>Jam Masuk</th>
+    <th>Jam Keluar</th>
+    <th>Lokasi</th>
+    <th>Lama Kerja</th>
+    <th>Keterangan</th>
   </tr>
   </thead><tbody>`;
 
-  Object.values(grouped).sort((a,b)=>new Date(a.tanggal)-new Date(b.tanggal))
-  .forEach(row=>{
-    html+=`
-    <tr>
-    <td>${row.tanggal}</td>
-    <td>${row.masuk||"-"}</td>
-    <td>${row.wfMasuk||"-"}</td>
-    <td>${row.keluar||"-"}</td>
-    <td>${row.wfKeluar||"-"}</td>
-    </tr>`;
-  });
+  Object.values(grouped)
+    .sort((a,b)=>new Date(a.tanggal)-new Date(b.tanggal))
+    .forEach(row=>{
+
+      const d=new Date(row.tanggal);
+      const tglFormat=
+        String(d.getDate()).padStart(2,'0')+"-"+
+        String(d.getMonth()+1).padStart(2,'0')+"-"+
+        d.getFullYear();
+
+      const lama=hitungDurasi(row.masuk,row.keluar);
+      const ket=row.ketMasuk||row.ketKeluar||"-";
+
+      html+=`
+      <tr>
+        <td class="no-wrap">${tglFormat}</td>
+        <td>${row.masuk||"-"}</td>
+        <td>${row.keluar||"-"}</td>
+        <td>${row.lokasi||"-"}</td>
+        <td>${lama}</td>
+        <td class="no-wrap">${ket}</td>
+      </tr>`;
+    });
 
   html+=`
   </tbody>
   <tfoot>
   <tr class="summary-row">
-  <td colspan="5">
-  Total WFO: ${totalWFO} | Total WFA: ${totalWFA} | Total Ijin: ${totalIjin}
+  <td colspan="6">
+  Total WFO: ${totalWFO} |
+  Total WFA: ${totalWFA} |
+  Total Ijin: ${totalIjin}
   </td>
   </tr>
   </tfoot>
@@ -341,7 +334,6 @@ function tampilkan(data){
   document.getElementById("hasil").innerHTML=html;
 }
 
-// AUTO REFRESH 30 DETIK
 window.onload=function(){
   loadData();
   setInterval(loadData,30000);
