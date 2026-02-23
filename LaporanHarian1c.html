@@ -239,7 +239,7 @@ function loadData(){
     return;
   }
 
-  document.getElementById("hasil").innerHTML = "Memuat data...";
+  document.getElementById("hasil").innerHTML = "Update per 60 detik...";
 
   fetch(`${API}?action=laporanharian&sheet=absensi&tanggal=${tanggal}`)
     .then(res => res.json())
