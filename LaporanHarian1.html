@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Perkuliahan Harian</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin:0; padding:0; }
+
+body {
+  font-family:'Poppins',sans-serif;
+  background: linear-gradient(135deg,#1a1f3a,#385694);
+  color: #fff;
+  padding: 30px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+}
+
+.card {
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(30px);
+  border-radius: 22px;
+  padding: 35px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 30px 70px rgba(56,86,148,0.6);
+}
+
+h2 {
+  text-align: center;
+  font-weight: 400;
+  margin-bottom: 8px;
+  font-size: 16px;
+  color: #ffffff; /* putih */
+}
+h3 {
+  text-align: center;
+  font-weight: 700;
+  margin-bottom: 25px;
+  font-size: 18px;
+  color: #ffffff; /* putih */
+}
+
+input, button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 12px;
+  border-radius: 14px;
+  border: none;
+  font-size: 15px;
+}
+
+input {
+  background:#2c3b72;
+  color:#fff;
+  border:1px solid #3a4f7c;
+}
+
+input:focus {
+  outline:none;
+  border:1px solid #CCFF00;
+  box-shadow: 0 0 10px rgba(255,215,0,0.4);
+}
+
+button {
+  background: linear-gradient(90deg,#385694,#2b3a70);
+  font-weight:700;
+  color:#ffffff; /* teks putih */
+  cursor:pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.5); /* glow hitam */
+}
+
+button:hover {
+  transform: translateY(-3px);
+  box-shadow:0 15px 35px rgba(0,0,0,0.7); /* glow hitam */
+}
+
+.judul-harian {
+  text-align: center;
+  margin-top: 20px;
+  margin-bottom: 10PX;
+  font-weight: 600;
+  font-size: 20px;
+  color:#CCFF00;
+  text-shadow: 0 0 8px rgba(255,215,0,0.6);
+}
+
+/* =================== TABEL ULTRA PREMIUM =================== */
+.table-container {
+  max-height: 520px;
+  overflow-y: auto;
+  overflow-x: auto;
+  margin-top: 15px;
+  border-radius: 18px;
+}
+
+table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 12px 35px rgba(0,0,0,0.25);
+  min-width: 750px;
+  }
+
+th, td {
+  padding: 8px 6px;
+  text-align: left;
+  position: relative;
+}
+
+th {
+  background: rgba(56,86,148,0.95);
+  color: #CCFF00;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  text-shadow: 0 0 5px rgba(255,215,0,0.5);
+}
+
+tr:nth-child(odd) {
+  background: linear-gradient(90deg, rgba(56,86,148,0.08), rgba(56,86,148,0.12));
+}
+
+tr:nth-child(even) {
+  background: linear-gradient(90deg, rgba(56,86,148,0.12), rgba(56,86,148,0.16));
+}
+
+tr:hover {
+  background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,215,0,0.25));
+  transform: scale(1.015);
+  transition: all 0.2s ease;
+}
+
+.wfo td:nth-child(3) {
+  color: #CCFF00;
+  font-weight: 700;
+}
+
+.wfa td:nth-child(3) {
+  color: #FFB74D;
+  font-weight: 700;
+}
+
+@media(max-width:768px){
+  body { padding: 15px; }
+  th, td { padding: 12px 8px; font-size: 13px; }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="card">
+<div style="text-align:center;margin-bottom:10px;">
+<img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" style="width:80px;">
+<h2>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h2>
+<h3>PASCASARJANA</h3>
+<label>Pilih Tanggal</label>
+<input type="date" id="filterTanggal">
+
+<button onclick="loadData()">Tampilkan Data</button>
+
+<div id="judulHarian" class="judul-harian"></div>
+<div class="table-container" id="hasil"></div>
+
+</div>
+</div>
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbz7DlCzKWkXLlchOGij2gVkDbuwpBqobQ2t9cleK5V_8XZ9wsfTzyXeo9LaGi89LtYZqg/exec";
+
+// Default tanggal hari ini
+document.getElementById("filterTanggal").value = new Date().toISOString().split("T")[0];
+
+function formatIndonesia(dateObj){
+  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  return hari[dateObj.getDay()] + ", " +
+         dateObj.getDate() + " " +
+         bulan[dateObj.getMonth()] + " " +
+         dateObj.getFullYear();
+}
+
+function loadData(){
+  const tanggal = document.getElementById("filterTanggal").value;
+  if(!tanggal){
+    alert("Pilih tanggal terlebih dahulu");
+    return;
+  }
+
+  document.getElementById("hasil").innerHTML = "Update data per 60 detik...";
+
+  fetch(`${API}?action=laporanharian&sheet=absensi&tanggal=${tanggal}`)
+    .then(res => res.json())
+    .then(res => {
+      if(!res || res.status !== "success" || !res.data){
+        document.getElementById("hasil").innerHTML = "Tidak ada data";
+        return;
+      }
+      tampilkan(res.data, tanggal);
+    })
+    .catch(() => {
+      document.getElementById("hasil").innerHTML = "Gagal mengambil data";
+    });
+}
+
+function tampilkan(data, tanggalFilter){
+  const dateObj = new Date(tanggalFilter);
+  document.getElementById("judulHarian").innerText =
+    "Perkuliahan " + formatIndonesia(dateObj);
+
+  if(!data || data.length === 0){
+    document.getElementById("hasil").innerHTML = "Tidak ada data";
+    return;
+  }
+
+  let html = `<table>
+    <tr>
+      <th>No</th>
+      <th>Nama Dosen</th>
+      <th>Jenis Kuliah</th>
+      <th>Kelas</th>
+      <th>Konfirmasi</th>
+    </tr>`;
+
+  let no = 1;
+  data.forEach(row => {
+    const timestamp = new Date(row.timestamp || row.Tanggal);
+    const jam = String(timestamp.getHours()).padStart(2,'0') + ":" +
+                String(timestamp.getMinutes()).padStart(2,'0') + ":" +
+                String(timestamp.getSeconds()).padStart(2,'0');
+
+    let jenisKuliah = "-";
+    let kelasClass = "";
+    if(row.workfrom === "WFO") { jenisKuliah = "Luring)"; kelasClass="wfo"; }
+    else if(row.workfrom === "WFA") { jenisKuliah = "Daring"; kelasClass="wfa"; }
+
+    html += `<tr class="${kelasClass}">
+      <td>${no++}</td>
+      <td>${row.nama || "-"}</td>
+      <td>${jenisKuliah}</td>
+      <td>${row.kegiatan || "-"}</td>
+      <td>${jam}</td>
+    </tr>`;
+  });
+
+  html += "</table>";
+  document.getElementById("hasil").innerHTML = html;
+}
+
+// Load otomatis hari ini + realtime refresh 60 detik
+window.onload = () => {
+  loadData();
+  setInterval(loadData, 60000);
+};
+</script>
+
+</body>
+</html>
