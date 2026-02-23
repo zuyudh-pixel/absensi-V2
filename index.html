@@ -56,16 +56,38 @@ button:hover{transform:translateY(-2px)}
 .btn-success{background:var(--success);color:white}
 .btn-danger{background:var(--danger);color:white}
 
-select,input[type="text"]{
-  padding:12px;
-  border-radius:12px;
+select,
+input[type="text"]{
   width:100%;
+  padding:12px 40px 12px 12px; /* ruang untuk icon select */
+  border-radius:12px;
   background:#334155;
   color:white;
-  border:none;
+  border:2px solid #334155;
   margin-bottom:12px;
+  box-sizing:border-box;
+  font-family:'Poppins',sans-serif;
+  font-size:14px;
+  outline:none;
 }
 
+/* Hilangkan tampilan default select */
+select{
+  appearance:none;
+  -webkit-appearance:none;
+  -moz-appearance:none;
+  background-image:url("data:image/svg+xml;utf8,<svg fill='white' height='20' viewBox='0 0 20 20' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M5 7l5 5 5-5z'/></svg>");
+  background-repeat:no-repeat;
+  background-position:right 12px center;
+  background-size:16px;
+}
+
+/* Focus */
+select:focus,
+input[type="text"]:focus{
+  border:2px solid #6366f1;
+  box-shadow:none;
+}
 #video{
   border:1px solid #334155;
   border-radius:12px;
@@ -144,7 +166,7 @@ select,input[type="text"]{
 </select>
 
 <label>Kelas (Saat Masuk)</label>
-<input type="text" id="kegiatan" placeholder="Contoh: 25.MHKI.A">
+<input type="text" id="kegiatan" placeholder="Contoh: 25.MHKI.A; 25.MPAI.B;...">
 
 <div style="display:flex;gap:8px;margin-top:12px;">
 <button class="btn-success" id="btnAbsen" onclick="absen()">Kirim</button>
