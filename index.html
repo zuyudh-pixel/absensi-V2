@@ -350,6 +350,18 @@ async function absen(){
   }
   
   // ===============================
+// VALIDASI KELAS SAAT MASUK
+// ===============================
+const tipe = document.getElementById("tipe").value;
+const kegiatan = document.getElementById("kegiatan").value.trim();
+
+if(tipe === "Masuk" && kegiatan === ""){
+  showToast("Kelas wajib diisi saat absen MASUK ❗");
+  document.getElementById("kegiatan").focus();
+  return;
+}
+  
+  // ===============================
   // VALIDASI GPS
   // ===============================
   if(!userLat){ 
