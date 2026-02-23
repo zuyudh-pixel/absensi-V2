@@ -409,6 +409,27 @@ function resetLoginArea(){
 
 // Absensi
 async function absen(){
+
+// ===============================
+  // BATAS JAM ABSEN (13:00 - 22:00)
+  // ===============================
+  const now = new Date();
+  const hour = now.getHours();
+  const minute = now.getMinutes();
+  const second = now.getSeconds();
+
+  const currentTime = hour * 3600 + minute * 60 + second;
+  const startTime = 15 * 3600; // 13:00:00
+  const endTime   = 22 * 3600; // 22:00:00
+
+  if(currentTime < startTime || currentTime > endTime){
+    showToast("Absensi hanya bisa dilakukan pukul 15.00-22.00 WIB. sesuai jadwal perkuliahan❗");
+    return;
+  }
+  
+  // ===============================
+  // VALIDASI GPS
+  // ===============================
   if(!userLat){ 
     showToast("GPS belum aktif/posisi belum terdeteksi!"); 
     return; 
