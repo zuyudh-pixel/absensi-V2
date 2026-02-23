@@ -70,7 +70,7 @@ select,input[type="text"]{
   border:1px solid #334155;
   border-radius:12px;
   width:100%;
-  max-width:250px;
+  max-width:280px;
   margin-bottom:8px;
 }
 
@@ -97,29 +97,6 @@ select,input[type="text"]{
   opacity:1;
   transform:translate(-50%,-50%) scale(1);
 }
-
-.btn-loading{
-  position:relative;
-  pointer-events:none;
-  color:#fde68a !important;
-}
-.btn-loading::after{
-  content:"";
-  position:absolute;
-  width:18px;
-  height:18px;
-  border:3px solid rgba(255,255,255,.3);
-  border-top:3px solid white;
-  border-radius:50%;
-  right:15px;
-  top:50%;
-  transform:translateY(-50%);
-  animation:spin .8s linear infinite;
-}
-@keyframes spin{
-  from{transform:translateY(-50%) rotate(0deg)}
-  to{transform:translateY(-50%) rotate(360deg)}
-}
 </style>
 </head>
 
@@ -140,7 +117,8 @@ select,input[type="text"]{
 <div id="loginArea">
 <div style="display:flex;flex-direction:column;align-items:center;">
 <video id="video" playsinline></video>
-<button class="btn-primary" id="btnScan" onclick="toggleScanner()">Scan Barcode</button>
+<canvas id="canvas" style="display:none;"></canvas>
+<button class="btn-primary" id="btnScan">Scan Barcode</button>
 <input type="file" id="fileInput" accept="image/*" onchange="scanFile(this)">
 </div>
 
@@ -177,13 +155,17 @@ select,input[type="text"]{
 
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
 const WEB_APP_URL="https://script.google.com/macros/s/AKfycbwz8fbm1csIeeoNKMf69mR_7WgbjDadh0_-OcM4rpNQsITl8mrQrDgC3kQmXDjY4tDInw/exec";
+
 let currentUser={}, userLat=null, userLng=null;
 let videoStream=null, scanning=false;
+
+const video=document.getElementById("video");
+const canvas=document.getElementById("canvas");
+const ctx=canvas.getContext("2d");
 
 setInterval(()=>{
 document.getElementById("timeNow").innerText=
@@ -206,48 +188,56 @@ userLng=pos.coords.longitude;
 }
 }
 
+document.getElementById("btnScan").addEventListener("click",toggleScanner);
+
 function toggleScanner(){
 if(scanning){ stopScanner(); showToast("Scanner dimatikan ❌"); return; }
 startScanner();
 }
 
-function startScanner(){
-navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}})
-.then(stream=>{
-videoStream=stream;
-video.srcObject=stream;
-video.play();
+async function startScanner(){
+try{
+videoStream=await navigator.mediaDevices.getUserMedia({
+video:{facingMode:{ideal:"environment"}}
+});
+video.srcObject=videoStream;
+await video.play();
 scanning=true;
 document.getElementById("btnScan").innerText="Stop Scan";
-requestAnimationFrame(scanFrame);
-})
-.catch(()=>showToast("Gagal akses kamera ❌"));
+scanLoop();
+}catch{
+showToast("Gagal akses kamera ❌");
+}
 }
 
-function scanFrame(){
-if(!videoStream) return;
-const canvas=document.createElement("canvas");
+function scanLoop(){
+if(!scanning) return;
+
 canvas.width=video.videoWidth;
 canvas.height=video.videoHeight;
-const ctx=canvas.getContext("2d");
-ctx.drawImage(video,0,0);
-const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-const code=jsQR(imgData.data,imgData.width,imgData.height);
+ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+const code=jsQR(imageData.data,imageData.width,imageData.height,{
+inversionAttempts:"dontInvert"
+});
+
 if(code){
 stopScanner();
 processBarcode(code.data);
 return;
 }
-requestAnimationFrame(scanFrame);
+
+requestAnimationFrame(scanLoop);
 }
 
 function stopScanner(){
 if(videoStream){
-videoStream.getTracks().forEach(t=>t.stop());
+videoStream.getTracks().forEach(track=>track.stop());
 videoStream=null;
 }
-video.srcObject=null;
 scanning=false;
+video.srcObject=null;
 document.getElementById("btnScan").innerText="Scan Barcode";
 }
 
@@ -257,13 +247,11 @@ const reader=new FileReader();
 reader.onload=e=>{
 const img=new Image();
 img.onload=()=>{
-const canvas=document.createElement("canvas");
 canvas.width=img.width;
 canvas.height=img.height;
-const ctx=canvas.getContext("2d");
 ctx.drawImage(img,0,0);
-const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-const code=jsQR(imgData.data,imgData.width,imgData.height);
+const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
+const code=jsQR(imageData.data,imageData.width,imageData.height);
 if(code){
 showToast("Barcode terdeteksi ✅");
 processBarcode(code.data);
@@ -304,6 +292,19 @@ showToast("Barcode tidak valid ❌");
 }catch{
 showToast("Server error ❌");
 }
+}
+
+function logout(){
+currentUser={};
+document.getElementById("loginArea").style.display="block";
+document.getElementById("absenArea").style.display="none";
+stopScanner();
+showToast("Logout berhasil");
+}
+
+function refreshPage(){
+stopScanner();
+location.reload();
 }
 
 // Absensi
@@ -417,6 +418,15 @@ function bukaLaporan(){
 
   const url = "laporanperdosen.html?id=" + encodeURIComponent(currentUser.id);
   window.open(url, "_blank");
+}
+
+function bukaLaporan(){
+if(!currentUser.id){
+showToast("Silakan login dulu ❗");
+return;
+}
+const url="laporanperdosen.html?id="+encodeURIComponent(currentUser.id);
+window.open(url,"_blank");
 }
 </script>
 
