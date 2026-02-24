@@ -22,21 +22,16 @@ body {
   background: rgba(255,255,255,0.08);
   backdrop-filter: blur(30px);
   border-radius: 22px;
-  padding-top: 35px;
   padding: 20px;
   box-shadow: 0 25px 60px rgba(0,0,0,0.5);
   border: 1px solid rgba(255,255,255,0.1);
-  transition: all 0.3s ease;
 }
-
-.card:hover { box-shadow: 0 30px 70px rgba(56,86,148,0.6); }
 
 h2 {
   text-align: center;
   font-weight: 400;
   margin-bottom: 8px;
   font-size: 16px;
-  color: #ffffff;
 }
 
 h3 {
@@ -44,7 +39,6 @@ h3 {
   font-weight: 700;
   margin-bottom: 25px;
   font-size: 18px;
-  color: #ffffff;
 }
 
 input, button {
@@ -79,7 +73,6 @@ button {
 
 button:hover {
   transform: translateY(-3px);
-  box-shadow:0 15px 35px rgba(0,0,0,0.7);
 }
 
 .judul-harian {
@@ -89,24 +82,14 @@ button:hover {
   font-weight: 600;
   font-size: 20px;
   color:#CCFF00;
-  text-shadow: 0 0 8px rgba(255,215,0,0.6);
 }
 
 .table-container {
   max-height: 520px;
-  overflow-y: auto;
-  overflow-x: auto;
+  overflow: auto;
   margin-top: 20px;
   border-radius: 18px;
-
-  /* Shadow Premium */
-  box-shadow:
-    0 15px 35px rgba(0,0,0,0.45),
-    0 5px 15px rgba(56,86,148,0.4);
-
-  border: 1px solid rgba(255,255,255,0.08);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.45);
 }
 
 table {
@@ -114,9 +97,6 @@ table {
   border-collapse: separate;
   border-spacing: 0;
   font-size: 14px;
-  border-radius: 18px;
-  overflow: hidden;
-  box-shadow: 0 12px 35px rgba(0,0,0,0.25);
   min-width: 750px;
 }
 
@@ -128,52 +108,41 @@ th {
   font-weight: 700;
   position: sticky;
   top: 0;
-  z-index: 2;
 }
 
-tr:nth-child(odd) {
-  background: linear-gradient(90deg, rgba(56,86,148,0.08), rgba(56,86,148,0.12));
-}
-
-tr:nth-child(even) {
-  background: linear-gradient(90deg, rgba(56,86,148,0.12), rgba(56,86,148,0.16));
-}
-
-tr:hover {
-  background: linear-gradient(90deg, rgba(255,215,0,0.15), rgba(255,215,0,0.25));
-}
+tr:nth-child(odd) { background: rgba(56,86,148,0.08); }
+tr:nth-child(even) { background: rgba(56,86,148,0.12); }
 
 .wfo td:nth-child(3) { color: #CCFF00; font-weight: 700; }
 .wfa td:nth-child(3) { color: #FFB74D; font-weight: 700; }
 
-/* ====== PDF Preview Style ====== */
+/* ===== PDF PREVIEW STYLE ===== */
 .pdf-container {
   margin-top: 40px;
   background: rgba(255,255,255,0.05);
   border-radius: 18px;
-  padding: 15px;
+  padding: 20px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .pdf-title {
   text-align: center;
   color: #CCFF00;
   font-weight: 600;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
+  font-size: 18px;
 }
 
-iframe {
+.pdf-frame {
   width: 100%;
-  height: 600px;
+  height: 80vh;
   border: none;
-  border-radius: 12px;
+  border-radius: 14px;
 }
 
 @media(max-width:768px){
   body { padding: 15px; }
-  th, td { padding: 12px 8px; font-size: 13px; }
-  iframe { height: 400px; }
+  .pdf-frame { height: 60vh; }
 }
 </style>
 </head>
@@ -199,10 +168,10 @@ iframe {
   <div class="pdf-title">
     Jadwal Perkuliahan Semester Genap 2025/2026
   </div>
- <iframe 
-  src="https://drive.google.com/file/d/1nB0jzNliRQLStIeTaO3JwjMBE6P5PxHJ/view?usp=sharing"
-  type="application/pdf">
-  allow="autoplay">
+
+  <iframe 
+    class="pdf-frame"
+    src="https://drive.google.com/file/d/1nB0jzNliRQLStIeTaO3JwjMBE6P5PxHJ/preview">
   </iframe>
 </div>
 <!-- ============================================== -->
@@ -215,11 +184,7 @@ iframe {
 const API = "https://script.google.com/macros/s/AKfycbz7DlCzKWkXLlchOGij2gVkDbuwpBqobQ2t9cleK5V_8XZ9wsfTzyXeo9LaGi89LtYZqg/exec";
 
 function getLocalDateISO() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return new Date().toISOString().split("T")[0];
 }
 
 document.getElementById("filterTanggal").value = getLocalDateISO();
@@ -235,12 +200,7 @@ function formatIndonesia(dateObj){
 
 function loadData(){
   const tanggal = document.getElementById("filterTanggal").value;
-  if(!tanggal){
-    alert("Pilih tanggal terlebih dahulu");
-    return;
-  }
-
-  document.getElementById("hasil").innerHTML = "Update per 60 detik...";
+  document.getElementById("hasil").innerHTML = "Memuat data...";
 
   fetch(`${API}?action=laporanharian&sheet=absensi&tanggal=${tanggal}`)
     .then(res => res.json())
@@ -261,11 +221,6 @@ function tampilkan(data, tanggalFilter){
   document.getElementById("judulHarian").innerText =
     "Perkuliahan " + formatIndonesia(dateObj);
 
-  if(!data || data.length === 0){
-    document.getElementById("hasil").innerHTML = "Tidak ada data";
-    return;
-  }
-
   let html = `<table>
     <tr>
       <th>No</th>
@@ -278,13 +233,7 @@ function tampilkan(data, tanggalFilter){
   let no = 1;
   data.forEach(row => {
     const timestamp = new Date(row.timestamp || row.Tanggal);
-
-    const jam = timestamp.toLocaleTimeString("id-ID", {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false
-    });
+    const jam = timestamp.toLocaleTimeString("id-ID",{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
 
     let jenisKuliah = "-";
     let kelasClass = "";
