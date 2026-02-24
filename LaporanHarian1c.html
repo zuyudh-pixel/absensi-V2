@@ -27,19 +27,8 @@ body {
   border: 1px solid rgba(255,255,255,0.1);
 }
 
-h2 {
-  text-align: center;
-  font-weight: 400;
-  margin-bottom: 8px;
-  font-size: 16px;
-}
-
-h3 {
-  text-align: center;
-  font-weight: 700;
-  margin-bottom: 25px;
-  font-size: 18px;
-}
+h2 { text-align: center; font-weight: 400; margin-bottom: 8px; font-size: 16px; }
+h3 { text-align: center; font-weight: 700; margin-bottom: 25px; font-size: 18px; }
 
 input, button {
   width: 100%;
@@ -55,7 +44,6 @@ input {
   color:#fff;
   border:1px solid #3a4f7c;
 }
-
 input:focus {
   outline:none;
   border:1px solid #CCFF00;
@@ -70,10 +58,7 @@ button {
   transition: all 0.3s ease;
   box-shadow: 0 5px 20px rgba(0,0,0,0.5);
 }
-
-button:hover {
-  transform: translateY(-3px);
-}
+button:hover { transform: translateY(-3px); }
 
 .judul-harian {
   text-align: center;
@@ -101,7 +86,6 @@ table {
 }
 
 th, td { padding: 8px 6px; text-align: left; }
-
 th {
   background: rgba(56,86,148,0.95);
   color: #CCFF00;
@@ -116,7 +100,7 @@ tr:nth-child(even) { background: rgba(56,86,148,0.12); }
 .wfo td:nth-child(3) { color: #CCFF00; font-weight: 700; }
 .wfa td:nth-child(3) { color: #FFB74D; font-weight: 700; }
 
-/* ===== PDF PREVIEW STYLE ===== */
+/* PDF Drive Preview */
 .pdf-container {
   margin-top: 40px;
   background: rgba(255,255,255,0.05);
@@ -163,18 +147,16 @@ tr:nth-child(even) { background: rgba(56,86,148,0.12); }
 <div id="judulHarian" class="judul-harian"></div>
 <div class="table-container" id="hasil"></div>
 
-<!-- ================= PDF PREVIEW ================= -->
+<!-- PDF preview di bawah tabel -->
 <div class="pdf-container">
   <div class="pdf-title">
     Jadwal Kuliah Semester Genap 2025/2026
   </div>
-
   <iframe 
     class="pdf-frame"
     src="https://drive.google.com/file/d/1nB0jzNliRQLStIeTaO3JwjMBE6P5PxHJ/preview">
   </iframe>
 </div>
-<!-- ============================================== -->
 
 </div>
 </div>
@@ -184,7 +166,18 @@ tr:nth-child(even) { background: rgba(56,86,148,0.12); }
 const API = "https://script.google.com/macros/s/AKfycbz7DlCzKWkXLlchOGij2gVkDbuwpBqobQ2t9cleK5V_8XZ9wsfTzyXeo9LaGi89LtYZqg/exec";
 
 function getLocalDateISO() {
-  return new Date().toISOString().split("T")[0];
+  const now = new Date();
+
+  // ambil tanggal berdasarkan timezone Asia/Jakarta
+  const jakarta = new Date(
+    now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+  );
+
+  const year = jakarta.getFullYear();
+  const month = String(jakarta.getMonth() + 1).padStart(2, "0");
+  const day = String(jakarta.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
 
 document.getElementById("filterTanggal").value = getLocalDateISO();
@@ -200,7 +193,7 @@ function formatIndonesia(dateObj){
 
 function loadData(){
   const tanggal = document.getElementById("filterTanggal").value;
-  document.getElementById("hasil").innerHTML = "Update / Refresh data per 60 detik...";
+  document.getElementById("hasil").innerHTML = "Update data per 60 detik...";
 
   fetch(`${API}?action=laporanharian&sheet=absensi&tanggal=${tanggal}`)
     .then(res => res.json())
@@ -217,7 +210,10 @@ function loadData(){
 }
 
 function tampilkan(data, tanggalFilter){
-  const dateObj = new Date(tanggalFilter + "T00:00:00");
+  const dateObj = new Date(
+  new Date(tanggalFilter + "T00:00:00")
+    .toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+);
   document.getElementById("judulHarian").innerText =
     "Perkuliahan " + formatIndonesia(dateObj);
 
@@ -256,7 +252,7 @@ function tampilkan(data, tanggalFilter){
 
 window.onload = () => {
   loadData();
-  setInterval(loadData, 60000);
+  setInterval(loadData, 60000); // refresh tabel setiap 60 detik
 };
 </script>
 
