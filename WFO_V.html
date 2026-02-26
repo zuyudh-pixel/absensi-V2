@@ -299,6 +299,37 @@ window.addEventListener("scroll", ()=>{
   const scrollY = window.scrollY;
   bgVideo.style.transform=`translate3d(0,${scrollY*0.05}px,0) scale(1.05)`;
 });
+
+// ===============================
+// ANTI INSPECT SUPER AGRESIF
+// ===============================
+
+// Blokir klik kanan
+document.addEventListener("contextmenu", e => e.preventDefault());
+
+// Blokir shortcut developer tools
+document.addEventListener("keydown", function(e){
+
+  // F12
+  if (e.key === "F12") e.preventDefault();
+
+  // Ctrl+Shift+I/J/C
+  if (e.ctrlKey && e.shiftKey && 
+     (e.key === "I" || e.key === "J" || e.key === "C")) {
+    e.preventDefault();
+  }
+
+  // Ctrl+U
+  if (e.ctrlKey && e.key === "u") {
+    e.preventDefault();
+  }
+
+  // Ctrl+S
+  if (e.ctrlKey && e.key === "s") {
+    e.preventDefault();
+  }
+
+});  
 </script>
 </body>
 </html>
