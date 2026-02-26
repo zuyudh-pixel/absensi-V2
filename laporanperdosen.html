@@ -19,62 +19,85 @@ html{ font-size:16px; }
 body{
   margin:0;
   font-family:'Poppins',sans-serif;
-  background:linear-gradient(180deg,#0f172a,#111827);
-  align-items:center; /* ⬅️ center vertical */
+  background:linear-gradient(90deg,#0f3d3e,#0b1f3a);
+  min-height:100vh;
+  padding:20px 16px;
   color:#ffffff;
-  padding:16px;
 }
 
+/* CONTAINER */
 .container{
   max-width:480px;
   margin:auto;
 }
 
+/* CARD GLASS */
 .card{
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(20px);
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 15px 40px rgba(0,0,0,0.35);
+  background:linear-gradient(145deg,rgba(255,255,255,0.12),rgba(255,255,255,0.05));
+  backdrop-filter:blur(30px);
+  -webkit-backdrop-filter:blur(30px);
+  border-radius:28px;
+  padding:26px 22px;
+  border:1px solid rgba(255,255,255,0.18);
+  box-shadow:
+    0 0 40px rgba(16,185,129,0.25),
+    0 25px 60px rgba(0,0,0,0.5);
 }
 
+/* TITLE */
 h2{
   margin:0 0 24px 0;
   text-align:center;
-  font-size:1.3rem;
+  font-size:1.25rem;
   font-weight:700;
+  color:#facc15;
+  letter-spacing:0.6px;
 }
 
+/* LABEL */
 label{
-  font-size:0.9rem;
-  opacity:0.8;
+  font-size:0.85rem;
+  opacity:0.85;
+  margin-bottom:6px;
+  display:block;
 }
 
+/* FORM ROW */
 .row{
   display:flex;
   flex-direction:column;
-  gap:16px;
+  gap:18px;
   margin-bottom:24px;
 }
 
-input[type="date"]{
+/* INPUT & SELECT */
+input[type="date"],
+select,
+input[type="text"]{
   width:100%;
-  padding:14px 16px;
-  margin-top:6px;
-  border-radius:14px;
-  border:1px solid #334155;
-  background:#1e293b;
+  padding:14px 18px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.25);
+  background:rgba(255,255,255,0.10);
   color:#ffffff;
-  font-size:1rem;
+  font-size:0.95rem;
   outline:none;
+  transition:all 0.25s ease;
 }
 
+input:focus,
+select:focus{
+  border-color:#34d399;
+  box-shadow:0 0 15px rgba(52,211,153,0.6);
+}
+
+/* PRIMARY BUTTON (HIJAU) */
 button{
   width:100%;
-  padding:12px;
+  padding:14px;
   border:none;
-  border-radius:14px;
-  font-size:1rem;
+  border-radius:24px;
+  font-size:0.95rem;
   font-weight:600;
   cursor:pointer;
   transition:all 0.25s ease;
@@ -82,34 +105,42 @@ button{
 
 button:not(.btn-back){
   margin-top:8px;
-  background:linear-gradient(135deg,#38bdf8,#0ea5e9);
+  background:linear-gradient(135deg,#22c55e,#16a34a);
   color:#ffffff;
+  box-shadow:0 8px 25px rgba(34,197,94,0.5);
 }
 
+button:not(.btn-back):active{
+  transform:scale(0.96);
+}
+
+/* BACK BUTTON (GLASS CYAN) */
 .btn-back{
-  margin-top:12px;
-  background:rgba(255,255,255,0.08);
+  margin-top:14px;
+  background:linear-gradient(135deg,#14b8a6,#0ea5e9);
   color:#ffffff;
-  border:1px solid rgba(255,255,255,0.15);
+  border:none;
+  box-shadow:0 8px 25px rgba(20,184,166,0.4);
 }
 
+/* TABLE */
 .table-wrapper{
   margin-top:32px;
   overflow-x:auto;
-  border-radius:14px;
+  border-radius:18px;
 }
 
 table{
   width:100%;
   border-collapse:collapse;
-  font-size:0.9rem;
+  font-size:0.85rem;
   min-width:700px;
 }
 
 th{
   padding:14px 10px;
-  background:#1e293b;
-  color:#38bdf8;
+  background:rgba(255,255,255,0.12);
+  color:#facc15;
   font-weight:600;
   text-align:center;
 }
@@ -117,17 +148,19 @@ th{
 td{
   padding:12px 10px;
   text-align:center;
-  border-bottom:1px solid #334155;
+  border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
 td.no-wrap{
   white-space:nowrap;
 }
 
+/* SUMMARY */
 .summary-row td{
   padding:16px;
   font-weight:600;
   color:#facc15;
+  background:rgba(250,204,21,0.1);
 }
 </style>
 </head>

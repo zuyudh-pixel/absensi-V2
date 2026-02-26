@@ -6,115 +6,139 @@
 <title>Rekap Perkuliahan</title>
 
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body {
-    height: 100vh;
-    font-family: 'Poppins', sans-serif;
-    background: #0f172a;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-  }
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-  .header {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  .header img { width: 70px; margin-bottom: 8px; }
-  .header h1 {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 4px;
-    color: #ffffffdd;
-  }
-  .header h2 {
-    font-size: 18px;
-    font-weight: 700;
-    color: #7FFF00;
-    text-shadow: 0 0 8px #7FFF00;
-  }
-  h3.title {
-    color: #7FFF00;
-    margin-bottom: 12px;
-    font-weight: 600;
-    font-size: 18px;
-    text-align: center;
-    text-shadow: 0 0 8px #7FFF00;
-  }
+html, body {
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+  color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 14px 20px;
+}
 
-  .iframe-wrapper {
-    width: 98vw;
-    max-width: 1250px;
-    height: 75vh;
-    background: #1e3a8a;
-    border-radius: 18px;
-    box-shadow: 0 10px 30px rgba(127, 255, 0, 0.4),
-                inset 0 0 15px rgba(127, 255, 0, 0.3);
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-  }
+/* ================= HEADER ================= */
+.top-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
 
-  iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 14px;
-    background: #fff;
-  }
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  .refresh-info {
-    margin-top: 8px;
-    font-size: 14px;
-    text-align: center;
-    color: #66ccff;
-    text-shadow: 0 0 6px #66ccff;
-  }
+.header-left img {
+  width: 55px;
+}
 
-  /* LANDSCAPE TV */
-  @media (orientation: landscape) { .iframe-wrapper { height: 80vh; } }
-  /* PORTRAIT TV */
-  @media (orientation: portrait) { .iframe-wrapper { height: 88vh; } }
-  /* MOBILE */
-  @media (max-width: 600px) {
-    .iframe-wrapper { height: 75vh; }
-    .header h1 { font-size: 12px; }
-    .header h2 { font-size: 15px; }
-    h3.title { font-size: 14px; }
-    .refresh-info { font-size: 12px; }
+.header-text h1 {
+  font-size: 12px;
+  font-weight: 500;
+  color: #ffffffcc;
+}
+
+.header-text h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffffee;
+}
+
+/* ================= JUDUL ================= */
+.rekap-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0,255,200,0.6);
+}
+
+/* ================= FRAME CARD ================= */
+.iframe-wrapper {
+  flex: 1;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 200, 0.4);
+  box-shadow: 
+    0 8px 25px rgba(0, 255, 200, 0.25),
+    inset 0 0 20px rgba(255, 255, 255, 0.05);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease;
+}
+
+.iframe-wrapper:hover {
+  box-shadow: 
+    0 12px 35px rgba(0, 255, 200, 0.35),
+    inset 0 0 25px rgba(255, 255, 255, 0.08);
+}
+
+/* ================= IFRAME ================= */
+iframe {
+  flex: 1;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+/* ================= FOOTER INFO ================= */
+.refresh-info {
+  margin-top: 8px;
+  font-size: 13px;
+  text-align: center;
+  color: #00ffcc;
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 768px) {
+  .rekap-title {
+    font-size: 15px;
   }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-  <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" alt="Logo UIN Ponorogo" />
-  <h1>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h1>
-  <h2>PASCASARJANA</h2>
+<!-- HEADER KIRI -->
+<div class="top-header">
+  <div class="header-left">
+    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" alt="Logo UIN Ponorogo" />
+    <div class="header-text">
+      <h1>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h1>
+      <h2>PASCASARJANA</h2>
+    </div>
+  </div>
 </div>
 
-<h3 class="title">REKAP PERKULIAHAN SEMESTER GENAP T.A. 2025/2026</h3>
+<!-- JUDUL CENTER SELEBAR SHEET -->
+<div class="rekap-title">
+  REKAP PERKULIAHAN SEMESTER GENAP T.A. 2025/2026
+</div>
 
-<div class="iframe-wrapper" title="Rekap Absensi Google Sheet">
+<!-- SHEET -->
+<div class="iframe-wrapper">
   <iframe 
     id="sheetFrame"
-    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzq1_5f6SRCLmWhp67jEIPR89jTT7nquF99sH-_6tP_ypdkOc9PQnWL_duMjDvyk05MWNvQPMgHEx3/pubhtml?gid=419371495&single=true" 
-    allowfullscreen 
+    src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQzq1_5f6SRCLmWhp67jEIPR89jTT7nquF99sH-_6tP_ypdkOc9PQnWL_duMjDvyk05MWNvQPMgHEx3/pubhtml?gid=419371495&single=true"
     loading="lazy"
-    referrerpolicy="no-referrer"
-  ></iframe>
+    referrerpolicy="no-referrer">
+  </iframe>
   <div class="refresh-info">Refresh/update data per 3 menit</div>
 </div>
 
 <script>
 function refreshIframe() {
   const iframe = document.getElementById('sheetFrame');
-  iframe.src = iframe.src; // reload iframe
+  iframe.src = iframe.src;
 }
-
-// Refresh setiap 3 menit (180000 ms)
 setInterval(refreshIframe, 180000);
 </script>
 
