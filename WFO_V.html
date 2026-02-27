@@ -22,21 +22,18 @@ body{
   overflow:hidden;
 }
 
-/* Video background fullscreen dengan blur + parallax transform */
-#bgVideo {
+#bgVideo{
   position:fixed;
   top:0;
   left:0;
-  width:110vw;  /* lebih lebar untuk efek geser */
-  height:110vh; /* lebih tinggi untuk efek geser */
+  width:110vw;
+  height:110vh;
   object-fit:cover;
-  //filter: blur(8px);
   transform: translate3d(0,0,0) scale(1.05);
   transition: transform 0.1s ease-out;
   z-index:-2;
 }
 
-/* Overlay tipis */
 body::before{
   content:"";
   position:fixed;
@@ -45,24 +42,22 @@ body::before{
   z-index:-1;
 }
 
-/* Card */
 .card{
-  background: rgba(251, 251, 252, 0.678); /* 50% transparan */
-  // background:#1e293b;
+  background: rgba(251,251,252,0.68);
   padding:20px;
   width:100%;
   max-width:420px;
   border-radius:20px;
   box-shadow:0 15px 40px rgba(0,0,0,.6);
   text-align:center;
-  position:relative;
-   border: 2px solid #ffffff; /* border putih */
+  border:2px solid #fff;
 }
+
 video#video{
   width:100%;
   max-width:280px;
   border-radius:12px;
-  border: 2px solid #ffffff;
+  border:2px solid #fff;
 }
 
 .scan-box{
@@ -76,6 +71,18 @@ video#video{
   transform:translate(-50%,-50%);
   pointer-events:none;
   box-shadow:0 0 20px rgba(34,197,94,.5);
+  transition:all .25s ease;
+}
+
+.scan-box.processing{
+  border-color:#facc15;
+  box-shadow:0 0 25px rgba(250,204,21,.8);
+}
+
+.scan-box.success{
+  border-color:#00ff88;
+  box-shadow:0 0 35px rgba(0,255,136,.9);
+  transform:translate(-50%,-50%) scale(1.08);
 }
 
 .status{
@@ -87,12 +94,12 @@ video#video{
 .status.processing{ color:#4606f7; }
 .status.error{ color:#910303; }
 
-.time {
-  font-size: 16px;
-  color: rgba(255,255,255,.95);
-  font-weight: 900;  
-  text-shadow: 2px 2px 4px #000000;
-  margin: 5px 0;
+.time{
+  font-size:16px;
+  color:#fff;
+  font-weight:900;
+  text-shadow:2px 2px 4px #000;
+  margin:5px 0;
 }
 
 .toast{
@@ -100,7 +107,7 @@ video#video{
   top:30%;
   left:50%;
   transform:translate(-50%,-50%) scale(.9);
-  background:rgba(255,255,255,.95);
+  background:#fff;
   color:#111;
   padding:18px 24px;
   border-radius:16px;
@@ -123,21 +130,20 @@ video#video{
 
 <video autoplay muted loop id="bgVideo">
   <source src="https://absensi-v2-self.vercel.app/VID-20260214-WA0000.mp4" type="video/mp4">
-  Browsermu tidak mendukung video background.
 </video>
 
 <div class="card">
-
   <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" style="width:80px;">
-  <div style="font-size:16px;color:#010107; font-weight:700;">
-  UIN KIAI AGENG MUHAMMAD BESARI PONOROGO
+  <div style="font-size:16px;color:#010107;font-weight:700;">
+    UIN KIAI AGENG MUHAMMAD BESARI PONOROGO
   </div>
-  <div style="font-size:26px;color:#79030d; font-weight:700;">
+  <div style="font-size:26px;color:#79030d;font-weight:700;">
     PASCASARJANA
   </div>
-  <div style="font-size:18px;color:#410492;margin-top:5px; font-weight:700;">
+  <div style="font-size:18px;color:#410492;margin-top:5px;font-weight:700;">
     ABSENSI DOSEN PENGAMPU
   </div>
+
   <div class="time" id="timeNow"></div>
 
   <div style="position:relative; display:flex; justify-content:center;">
@@ -146,58 +152,45 @@ video#video{
   </div>
 
   <div class="status ready" id="statusText">🟢 Siap Scan Barcode</div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAf8h_8Je8-60pLsqP2-O6qxM-K3VqDPwX3ONeZOx-YPlv0vOKNC0BdHa7uzjcYuIilw/exec";
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzAf8h_8Je8-60pLsqP2-O6qxM-K3VqDPwX3ONeZOx-YPlv0vOKNC0BdHa7uzjcYuIilw/exec";
 
-let videoStream=null;
 let isProcessing=false;
 const video=document.getElementById("video");
 const canvas=document.createElement("canvas");
 const ctx=canvas.getContext("2d");
 const statusText=document.getElementById("statusText");
+const scanBox=document.querySelector(".scan-box");
 const bgVideo=document.getElementById("bgVideo");
 
-// ================= JAM =================
+// JAM
 setInterval(()=>{
-  document.getElementById("timeNow").innerText=
-    new Date().toLocaleDateString()+" - "+
-    new Date().toLocaleTimeString();
+  timeNow.innerText=new Date().toLocaleDateString()+" - "+new Date().toLocaleTimeString();
 },1000);
 
-// ================= FULLSCREEN =================
-function enterFullscreen() {
-  const el = document.documentElement;
-  if (el.requestFullscreen) {
-    el.requestFullscreen().catch(err => console.warn("Fullscreen gagal:", err));
-  }
-}
-function initFullscreen() {
-  ["pointerdown","keydown","touchstart"].forEach(evt=>{
-    window.addEventListener(evt,function handler(){
-      enterFullscreen();
-      window.removeEventListener(evt,handler);
-    });
-  });
-}
-window.addEventListener("load", initFullscreen);
-
-// ================= BEEP =================
-function beep(){
-  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  const oscillator = audioCtx.createOscillator();
-  oscillator.type="sine";
-  oscillator.frequency.setValueAtTime(900, audioCtx.currentTime);
-  oscillator.connect(audioCtx.destination);
+// DOUBLE BEEP SCANNER
+function playBeep(duration,frequency){
+  const audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  const oscillator=audioCtx.createOscillator();
+  const gainNode=audioCtx.createGain();
+  oscillator.type="square";
+  oscillator.frequency.setValueAtTime(frequency,audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(0.5,audioCtx.currentTime);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
   oscillator.start();
-  setTimeout(()=>oscillator.stop(),120);
+  oscillator.stop(audioCtx.currentTime+duration/1000);
+}
+function doubleBeep(){
+  playBeep(100,1400);
+  setTimeout(()=>playBeep(100,1000),140);
 }
 
-// ================= STATUS =================
+// STATUS
 function setStatus(text,mode){
   statusText.innerText=text;
   statusText.className="status "+mode;
@@ -206,14 +199,14 @@ function showToast(message){
   const t=document.getElementById("toast");
   t.innerText=message;
   t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),4000);
+  setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-// ================= CAMERA =================
+// CAMERA
 async function startCamera(){
   try{
-    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
-    video.srcObject=videoStream;
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
+    video.srcObject=stream;
     await video.play();
     scanLoop();
   }catch{
@@ -221,15 +214,15 @@ async function startCamera(){
   }
 }
 
-// ================= SCAN LOOP =================
+// SCAN LOOP
 function scanLoop(){
-  if(video.readyState === video.HAVE_ENOUGH_DATA){
+  if(video.readyState===video.HAVE_ENOUGH_DATA){
     canvas.width=video.videoWidth;
     canvas.height=video.videoHeight;
     ctx.drawImage(video,0,0);
     const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
     const code=jsQR(imageData.data,imageData.width,imageData.height);
-    if(code && !isProcessing){
+    if(code&&!isProcessing){
       isProcessing=true;
       processBarcode(code.data);
     }
@@ -237,13 +230,17 @@ function scanLoop(){
   requestAnimationFrame(scanLoop);
 }
 
-// ================= PROCESS =================
+// PROCESS
 async function processBarcode(data){
   if(!data.includes("|")){
     setStatus("❌ Format salah","error");
     cooldown();
     return;
   }
+
+  scanBox.classList.add("processing");
+  setStatus("⏳ Memproses...","processing");
+
   const [id,password]=data.split("|");
   const fd=new FormData();
   fd.append("action","login");
@@ -251,85 +248,46 @@ async function processBarcode(data){
   fd.append("password",password);
 
   try{
-    setStatus("⏳ Memproses...","processing");
     const res=await fetch(WEB_APP_URL,{method:"POST",body:fd});
     const r=await res.json();
 
-    if(r.status==="success"){
-      beep();
-      setStatus("✅ "+r.tipe+" Berhasil","ready");
-      showToast("Selamat, Bpk/Ibu " + r.nama + ", berhasil. Terimakasih.");
-    } else if(r.status==="absen_sudah_lengkap"){
-      beep();
-      setStatus("✅ Bpk/Ibu...Sudah lengkap hari ini","ready");
-      showToast("Bpk/Ibu " + r.nama + ", Sudah lengkap hari ini. Terimakasih.");
-    } else{
-      beep();
+    if(r.status==="success"||r.status==="absen_sudah_lengkap"){
+      doubleBeep();
+      scanBox.classList.remove("processing");
+      scanBox.classList.add("success");
+      showToast("Bpk/Ibu "+r.nama+" berhasil.");
+      setStatus("✅ Berhasil","ready");
+    }else{
+      playBeep(200,400);
       setStatus("❌ Login gagal","error");
     }
   }catch{
-    beep();
+    playBeep(200,300);
     setStatus("❌ Server error","error");
   }
+
   cooldown();
 }
 
-// ================= COOLDOWN =================
+// RESET
 function cooldown(){
   setTimeout(()=>{
     isProcessing=false;
+    scanBox.classList.remove("processing","success");
     setStatus("🟢 Siap Scan Barcode","ready");
   },2000);
 }
-setInterval(()=>{
-  isProcessing=false;
-  setStatus("🟢 Siap Scan Barcode","ready");
-},300000);
 
-// ================= START CAMERA =================
+// START
 window.onload=startCamera;
 
-// ================= PARALLAX EFFECT =================
-document.addEventListener("mousemove", e=>{
-  const x = (e.clientX/window.innerWidth - 0.5) * 20; // max ±10px
-  const y = (e.clientY/window.innerHeight - 0.5) * 20;
+// PARALLAX
+document.addEventListener("mousemove",e=>{
+  const x=(e.clientX/window.innerWidth-0.5)*20;
+  const y=(e.clientY/window.innerHeight-0.5)*20;
   bgVideo.style.transform=`translate3d(${x}px,${y}px,0) scale(1.05)`;
 });
-window.addEventListener("scroll", ()=>{
-  const scrollY = window.scrollY;
-  bgVideo.style.transform=`translate3d(0,${scrollY*0.05}px,0) scale(1.05)`;
-});
-
-// ===============================
-// ANTI INSPECT SUPER AGRESIF
-// ===============================
-
-// Blokir klik kanan
-document.addEventListener("contextmenu", e => e.preventDefault());
-
-// Blokir shortcut developer tools
-document.addEventListener("keydown", function(e){
-
-  // F12
-  if (e.key === "F12") e.preventDefault();
-
-  // Ctrl+Shift+I/J/C
-  if (e.ctrlKey && e.shiftKey && 
-     (e.key === "I" || e.key === "J" || e.key === "C")) {
-    e.preventDefault();
-  }
-
-  // Ctrl+U
-  if (e.ctrlKey && e.key === "u") {
-    e.preventDefault();
-  }
-
-  // Ctrl+S
-  if (e.ctrlKey && e.key === "s") {
-    e.preventDefault();
-  }
-
-});  
 </script>
+
 </body>
 </html>
