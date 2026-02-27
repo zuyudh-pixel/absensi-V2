@@ -190,7 +190,7 @@ input[type="text"]:focus{
       <input type="file" id="fileInput" accept="image/*" onchange="scanFile(this)">
     </div>
     <div style="text-align:center;margin-top:28px;">
-      <span onclick="window.location.href=window.location.href" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:none;&#8635"> 🔄 Refresh</span>
+      <span onclick="window.location.reload(true)" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:none;&#8635"> 🔄 Refresh</span>
       <span style="margin:0 8px;">|</span>
       <span onclick="logout()" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:none;&#8635"> 🚪 Keluar</span>
 
@@ -219,7 +219,7 @@ input[type="text"]:focus{
     <div style="display:flex;gap:8px;margin-top:12px;">
       <button class="btn-success" id="btnAbsen" onclick="absen()">📤 Kirim</button>
       <button class="btn-primary" onclick="bukaLaporan()">📑 Laporan</button>
-      <button class="btn-danger" onclick="logout()">🔓 Logout</button>
+      <button class="btn-danger" onclick="window.location.reload(true)">🔓 Logout</button>
     </div>
   </div>
 </div>
