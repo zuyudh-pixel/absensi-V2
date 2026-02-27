@@ -204,7 +204,7 @@ input[type="text"]:focus{
       <option value="Pulang">Pulang</option>
     </select>
 
-    <label>Lokasi</label>
+    <label>Lokasi Kerja</label>
     <select id="workfrom">
       <option value="WFO">Kampus (WFO)</option>
       <option value="WFA">WFA</option>
@@ -214,9 +214,9 @@ input[type="text"]:focus{
     <input type="text" id="kegiatan" placeholder="Contoh: 25.MHKI.A; 25.MPAI.B;...">
 
     <div style="display:flex;gap:8px;margin-top:12px;">
-      <button class="btn-success" id="btnAbsen" onclick="absen()">Kirim</button>
-      <button class="btn-primary" onclick="bukaLaporan()">Laporan</button>
-      <button class="btn-danger" onclick="logout()">Logout</button>
+      <button class="btn-success" id="btnAbsen" onclick="absen()">📤 Kirim</button>
+      <button class="btn-primary" onclick="bukaLaporan()">📑 Laporan</button>
+      <button class="btn-danger" onclick="logout()">🔓 Logout</button>
     </div>
   </div>
 </div>
@@ -224,66 +224,151 @@ input[type="text"]:focus{
 <div class="toast" id="toast"></div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7sBHPJbjaZa0M_doxp9I3IN0wGZV523lYy4iIn_iEODTtkmu2mg5i_G0J6mSDw_gNiw/exec"; // Ganti dengan URL Deploy GAS
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx7sBHPJbjaZa0M_doxp9I3IN0wGZV523lYy4iIn_iEODTtkmu2mg5i_G0J6mSDw_gNiw/exec";
 
 let currentUser={}, userLat=null, userLng=null;
 let videoStream=null, scanning=false;
+let audioCtx=null;
+
 const video=document.getElementById("video");
 const canvas=document.getElementById("canvas");
 const ctx=canvas.getContext("2d");
 
-setInterval(()=>document.getElementById("timeNow").innerText = new Date().toLocaleDateString()+" - "+new Date().toLocaleTimeString(),1000);
+/* ================= JAM ================= */
+setInterval(()=>{
+  document.getElementById("timeNow").innerText =
+    new Date().toLocaleDateString()+" - "+
+    new Date().toLocaleTimeString();
+},1000);
 
+/* ================= TOAST ================= */
 function showToast(msg){
   const t=document.getElementById("toast");
   t.innerText=msg;
+  t.style.whiteSpace="pre-line"; // support \n
   t.classList.add("show");
   setTimeout(()=>t.classList.remove("show"),3000);
 }
 
-function getLocation(){
-  if(navigator.geolocation){
-    navigator.geolocation.getCurrentPosition(pos=>{userLat=pos.coords.latitude; userLng=pos.coords.longitude;});
+/* ================= AUDIO FIX MOBILE ================= */
+function initAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended"){
+    audioCtx.resume();
   }
 }
 
-document.getElementById("btnScan").addEventListener("click",()=>{scanning?stopScanner():startScanner();});
+function playBeep(duration=150,frequency=1000,volume=0.7){
+  if(!audioCtx) return;
+
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+
+  oscillator.type="sine";
+  oscillator.frequency.value=frequency;
+
+  gainNode.gain.setValueAtTime(volume,audioCtx.currentTime);
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + duration/1000);
+}
+
+function doubleBeep(){
+  playBeep(120,1200);
+  setTimeout(()=>playBeep(120,900),150);
+}
+
+/* ================= GPS ================= */
+function getLocation(){
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(pos=>{
+      userLat=pos.coords.latitude;
+      userLng=pos.coords.longitude;
+    });
+  }
+}
+
+/* ================= SCANNER ================= */
+document.getElementById("btnScan").addEventListener("click",()=>{
+  initAudio(); // WAJIB agar beep aktif
+  scanning?stopScanner():startScanner();
+});
 
 async function startScanner(){
   try{
-    videoStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}}});
-    video.srcObject=videoStream; await video.play();
-    scanning=true; document.getElementById("btnScan").innerText="Stop Scan";
+    videoStream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:"environment"}}
+    });
+    video.srcObject=videoStream;
+    await video.play();
+    scanning=true;
+    document.getElementById("btnScan").innerText="Stop Scan";
     scanLoop();
-  }catch{showToast("Gagal akses kamera ❌");}
+  }catch{
+    showToast("Gagal akses kamera ❌");
+  }
 }
 
 function scanLoop(){
   if(!scanning) return;
-  canvas.width=video.videoWidth; canvas.height=video.videoHeight;
+
+  canvas.width=video.videoWidth;
+  canvas.height=video.videoHeight;
   ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
   const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
   const code=jsQR(imageData.data,imageData.width,imageData.height,{inversionAttempts:"dontInvert"});
-  if(code){stopScanner(); processBarcode(code.data); return;}
+
+  if(code){
+    stopScanner();
+    doubleBeep();
+    showToast("Barcode terdeteksi ✅\nTunggu sampai login berhasil ⚠️");
+    processBarcode(code.data);
+    return;
+  }
+
   requestAnimationFrame(scanLoop);
 }
 
 function stopScanner(){
-  if(videoStream){videoStream.getTracks().forEach(t=>t.stop()); videoStream=null;}
-  scanning=false; video.srcObject=null; document.getElementById("btnScan").innerText="Scan Barcode";
+  if(videoStream){
+    videoStream.getTracks().forEach(t=>t.stop());
+    videoStream=null;
+  }
+  scanning=false;
+  video.srcObject=null;
+  document.getElementById("btnScan").innerText="Scan Barcode";
 }
 
+/* ================= SCAN FILE ================= */
 function scanFile(input){
+  initAudio();
   if(!input.files.length) return;
+
   const reader=new FileReader();
   reader.onload=e=>{
     const img=new Image();
     img.onload=()=>{
-      canvas.width=img.width; canvas.height=img.height; ctx.drawImage(img,0,0);
+      canvas.width=img.width;
+      canvas.height=img.height;
+      ctx.drawImage(img,0,0);
+
       const imageData=ctx.getImageData(0,0,canvas.width,canvas.height);
       const code=jsQR(imageData.data,imageData.width,imageData.height);
-      if(code){showToast("Barcode terdeteksi ✅"); processBarcode(code.data);}
-      else{showToast("Barcode tidak terbaca ❌");}
+
+      if(code){
+        doubleBeep();
+        showToast("Barcode terdeteksi ✅\nTunggu sampai login berhasil ⚠️");
+        processBarcode(code.data);
+      }else{
+        showToast("Barcode tidak terbaca ❌");
+      }
+
       input.value="";
     };
     img.src=e.target.result;
@@ -291,18 +376,26 @@ function scanFile(input){
   reader.readAsDataURL(input.files[0]);
 }
 
+/* ================= LOGIN ================= */
 function processBarcode(data){
-  if(!data.includes("|")){showToast("Format barcode salah ❌"); return;}
+  if(!data.includes("|")){
+    showToast("Format barcode salah ❌");
+    return;
+  }
   loginWithBarcode(data);
 }
 
 async function loginWithBarcode(data){
   const [id,password]=data.split("|");
   const fd=new FormData();
-  fd.append("action","login"); fd.append("id",id); fd.append("password",password);
+  fd.append("action","login");
+  fd.append("id",id);
+  fd.append("password",password);
+
   try{
     const res=await fetch(WEB_APP_URL,{method:"POST",body:fd});
     const r=await res.json();
+
     if(r.status==="success"){
       currentUser={id,nama:r.nama};
       document.getElementById("loginArea").style.display="none";
@@ -310,66 +403,111 @@ async function loginWithBarcode(data){
       document.getElementById("userInfoAbsen").innerText=r.nama;
       showToast("Login berhasil ✅");
       getLocation();
-    }else{showToast("Barcode tidak valid ❌");}
-  }catch{showToast("Server error ❌");}
+    }else{
+      showToast("Barcode tidak valid ❌");
+    }
+  }catch{
+    showToast("Server error ❌");
+  }
 }
 
+/* ================= LOGOUT ================= */
 function logout(){
-  currentUser={}; userLat=null; userLng=null;
+  currentUser={};
+  userLat=null;
+  userLng=null;
+
   document.getElementById("loginArea").style.display="block";
   document.getElementById("absenArea").style.display="none";
   document.getElementById("userInfoAbsen").innerText="";
+
   stopScanner();
 }
 
-function refreshPage(){logout(); document.getElementById("kegiatan").value=""; document.getElementById("tipe").selectedIndex=0; document.getElementById("workfrom").selectedIndex=0; showToast("Tampilan direset ✅");}
-
-function getBulanIndo3(date){const bulan=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"]; return bulan[date.getMonth()];}
+/* ================= ABSEN ================= */
+function getBulanIndo3(date){
+  const bulan=["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  return bulan[date.getMonth()];
+}
 
 async function absen(){
-  if(!currentUser.id){showToast("Silakan login dulu ❗"); return;}
+  if(!currentUser.id){
+    showToast("Silakan login dulu ❗");
+    return;
+  }
+
   const now=new Date();
-  const hour=now.getHours(); const minute=now.getMinutes(); const second=now.getSeconds();
-  const currentTime = hour*3600+minute*60+second; 
-  const startTime=8*3600; const endTime=22*3600;
-  if(currentTime<startTime || currentTime>endTime){showToast("Absensi hanya bisa pukul 08.00-22.00 WIB ❗"); return;}
+  const currentTime=now.getHours()*3600+now.getMinutes()*60+now.getSeconds();
+  const startTime=8*3600;
+  const endTime=22*3600;
+
+  if(currentTime<startTime || currentTime>endTime){
+    showToast("Absensi hanya pukul 08.00-22.00 WIB ❗");
+    return;
+  }
 
   const tipe=document.getElementById("tipe").value;
   const workfrom=document.getElementById("workfrom").value;
   const kegiatan=document.getElementById("kegiatan").value.trim();
-  if(tipe==="Masuk" && kegiatan===""){showToast("Kelas wajib diisi saat absen MASUK ❗"); document.getElementById("kegiatan").focus(); return;}
-  if(!userLat){showToast("GPS belum aktif/posisi belum terdeteksi!"); return;}
 
-  const btn=document.getElementById("btnAbsen"); btn.innerText="Memproses...";
+  if(tipe==="Masuk" && kegiatan===""){
+    showToast("Kelas wajib diisi saat MASUK ❗");
+    return;
+  }
 
-  const key_rekap = currentUser.id + tipe + workfrom + getBulanIndo3(now);
+  if(!userLat){
+    showToast("GPS belum aktif ❗");
+    return;
+  }
+
+  const btn=document.getElementById("btnAbsen");
+  btn.innerText="Memproses...";
+
+  const key_rekap=currentUser.id+tipe+workfrom+getBulanIndo3(now);
 
   const fd=new FormData();
-  fd.append("action","absen"); fd.append("id",currentUser.id); fd.append("nama",currentUser.nama);
-  fd.append("tipe",tipe); fd.append("workfrom",workfrom); fd.append("kegiatan",kegiatan);
-  fd.append("latitude",userLat); fd.append("longitude",userLng); fd.append("key_rekap",key_rekap);
+  fd.append("action","absen");
+  fd.append("id",currentUser.id);
+  fd.append("nama",currentUser.nama);
+  fd.append("tipe",tipe);
+  fd.append("workfrom",workfrom);
+  fd.append("kegiatan",kegiatan);
+  fd.append("latitude",userLat);
+  fd.append("longitude",userLng);
+  fd.append("key_rekap",key_rekap);
 
   try{
     const res=await fetch(WEB_APP_URL,{method:"POST",body:fd});
     const r=await res.json();
-    if(r.status==="success"){showToast("Selamat.. Absensi berhasil ✅");}
-    else if(r.status==="duplicate_masuk"){showToast("Anda sudah absen MASUK hari ini ❗");}
-    else if(r.status==="no_masuk"){showToast("Anda belum absen MASUK hari ini ❗");}
-    else if(r.status==="updated_pulang"){showToast("Absensi PULANG berhasil diupdate ✅");}
-    else if(r.status==="out_of_radius"){showToast("Di luar radius kampus ❌");}
-    else{showToast("Gagal absen ❌");}
-  }catch(e){console.error(e); showToast("Server error ❌");}
+
+    if(r.status==="success") showToast("Absensi berhasil ✅");
+    else if(r.status==="duplicate_masuk") showToast("Sudah absen MASUK ❗");
+    else if(r.status==="no_masuk") showToast("Belum absen MASUK ❗");
+    else if(r.status==="updated_pulang") showToast("PULANG berhasil diupdate ✅");
+    else if(r.status==="out_of_radius") showToast("Di luar radius ❌");
+    else showToast("Gagal absen ❌");
+
+  }catch{
+    showToast("Server error ❌");
+  }
 
   btn.innerText="Kirim";
 }
 
+
+/* ================= BUKA LAPORAN ================= */
 function bukaLaporan(){
-  if(!currentUser.id){showToast("Silakan login dulu ❗"); return;}
-  const url="laporanperdosen.html?id="+encodeURIComponent(currentUser.id);
-  window.open(url,"_blank");
+  if(!currentUser.id){
+    showToast("Silakan login dulu ❗");
+    return;
+  }
+
+  const url = "laporanperdosen.html?id=" + encodeURIComponent(currentUser.id);
+
+  // buka di tab baru
+  window.open(url, "_blank");
 }
 
-// ===============================
 // ANTI INSPECT SUPER AGRESIF
 // ===============================
 
@@ -399,6 +537,7 @@ document.addEventListener("keydown", function(e){
   }
 
 });
+
 </script>
 </body>
 </html>
