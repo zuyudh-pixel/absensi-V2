@@ -189,9 +189,12 @@ input[type="text"]:focus{
       <button class="btn-primary" id="btnScan">Scan Barcode</button>
       <input type="file" id="fileInput" accept="image/*" onchange="scanFile(this)">
     </div>
-    <div style="text-align:center;margin-top:8px;">
-      <span onclick="refreshPage()" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:underline;&#8635"> &#8635 Refresh</span>
-       </div>
+    <div style="text-align:center;margin-top:28px;">
+      <span onclick="refreshPage()" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:none;&#8635"> 🔄 Refresh</span>
+      <span style="margin:0 8px;">|</span>
+      <span onclick="window.close()" style="font-size:13px;color:#60a5fa;cursor:pointer;text-decoration:none;&#8635"> 🚪 Keluar</span>
+
+    </div>
     
   </div>
 
