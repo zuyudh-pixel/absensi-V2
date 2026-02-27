@@ -182,7 +182,7 @@ td.no-wrap{
       </div>
     </div>
 
-    <button onclick="loadData()">Lihat Laporan</button>
+    <button onclick="loadData()">🔍 Lihat Laporan</button>
     <div id="hasil"></div>
     <button class="btn-back" onclick="window.close()">⬅ Kembali</button>
 
@@ -233,6 +233,27 @@ function loadData(){
       document.getElementById("hasil").innerHTML =
         "<p style='color:red'>Gagal mengambil data</p>";
     });
+}
+
+// ================================
+// SET DEFAULT 7 HARI TERAKHIR
+// ================================
+function setDefaultTanggal() {
+  const today = new Date();
+
+  const tujuhHariLalu = new Date();
+  tujuhHariLalu.setDate(today.getDate() - 6); 
+  // -6 supaya total tetap 7 hari termasuk hari ini
+
+  function formatDate(date) {
+    const tahun = date.getFullYear();
+    const bulan = String(date.getMonth() + 1).padStart(2, '0');
+    const hari = String(date.getDate()).padStart(2, '0');
+    return `${tahun}-${bulan}-${hari}`;
+  }
+
+  document.getElementById("tglAwal").value = formatDate(tujuhHariLalu);
+  document.getElementById("tglAkhir").value = formatDate(today);
 }
 
 // ================================
@@ -331,6 +352,7 @@ function tampilkan(data){
 }
 
 window.onload=function(){
+  setDefaultTanggal(); // set otomatis 7 hari terakhir
   loadData();
   setInterval(loadData,30000);
 }
