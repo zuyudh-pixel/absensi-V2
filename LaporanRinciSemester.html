@@ -5,8 +5,10 @@
 <title>Rekap Bulanan Semester</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -21,20 +23,9 @@ flex-direction:column;
 padding:14px;
 }
 
-.top-header{
-display:flex;
-align-items:center;
-margin-bottom:10px;
-}
-
-.header-left{
-display:flex;
-align-items:center;
-gap:12px;
-}
-
+.top-header{display:flex;align-items:center;margin-bottom:10px;}
+.header-left{display:flex;align-items:center;gap:12px;}
 .header-left img{width:75px;}
-
 .header-text h1{font-size:14px;font-weight:700;}
 .header-text h2{font-size:13px;font-weight:600;}
 
@@ -46,8 +37,15 @@ margin:10px 0;
 color:#00ffcc;
 }
 
-button.pdf-btn{
-margin:0 auto 15px auto;
+/* ===== BUTTON GROUP ===== */
+.button-group{
+display:flex;
+justify-content:center;
+gap:15px;
+margin-bottom:15px;
+}
+
+button{
 padding:10px 28px;
 background:#00ffcc;
 color:#000;
@@ -57,7 +55,7 @@ border-radius:50px;
 cursor:pointer;
 transition:.3s;
 }
-button.pdf-btn:hover{transform:scale(1.05);}
+button:hover{transform:scale(1.05);}
 
 .table-frame{
 flex:1;
@@ -121,6 +119,29 @@ font-size:11px;
 text-align:center;
 color:#00ffcc;
 }
+/* ===== WARNA KOLOM ===== */
+.col-lur{
+background:#d4edda;
+color:#155724;
+font-weight:600;
+}
+
+.col-dar{
+background:#cce5ff;
+color:#004085;
+font-weight:600;
+}
+
+.col-ijin{
+background:#f8d7da;
+color:#721c24;
+font-weight:600;
+}
+
+/* Header warna juga */
+.th-lur{background:#2e7d32 !important;}
+.th-dar{background:#1565c0 !important;}
+.th-ijin{background:#c62828 !important;}
 </style>
 </head>
 <body>
@@ -137,7 +158,11 @@ color:#00ffcc;
 </div>
 
 <h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
-<button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+
+<div class="button-group">
+  <button onclick="downloadPDF()">Download PDF</button>
+  <button onclick="exportExcel()">Export Excel</button>
+</div>
 
 <div class="table-frame">
   <div class="table-scroll">
@@ -181,32 +206,74 @@ const thead=document.querySelector("#rekapTable thead");
 const tbody=document.querySelector("#rekapTable tbody");
 
 let header1="<tr><th rowspan='2'>No</th><th rowspan='2'>Nama</th>";
-months.forEach(m=>{header1+=`<th colspan='3'>${m}</th>`;});
+months.forEach(m=>{
+header1+=`<th colspan='3'>${m}</th>`;
+});
 header1+=`<th colspan='4'>TOTAL</th></tr>`;
 
 let header2="<tr>";
-months.forEach(()=>{header2+="<th>Lur</th><th>Dar</th><th>Ijin</th>";});
-header2+="<th>Lur</th><th>Dar</th><th>Ijin</th><th>Akhir</th></tr>";
+months.forEach(()=>{
+header2+=`
+<th class='th-lur'>Lur</th>
+<th class='th-dar'>Dar</th>
+<th class='th-ijin'>Ijin</th>`;
+});
+header2+=`
+<th class='th-lur'>Lur</th>
+<th class='th-dar'>Dar</th>
+<th class='th-ijin'>Ijin</th>
+<th>Akhir</th></tr>`;
 
 thead.innerHTML=header1+header2;
-
 tbody.innerHTML="";
+
 data.forEach((r,i)=>{
 let row=`<td>${i+1}</td><td>${r.nama}</td>`;
 months.forEach(m=>{
-if(r[m]){
-const p=r[m].split("/");
-row+=`<td class="wfo">${p[0]}</td>
-<td class="wfa">${p[1]}</td>
-<td class="ijin">${p[2]}</td>`;
-}else row+=`<td>0</td><td>0</td><td>0</td>`;
+let p=r[m]?r[m].split("/"):["0","0","0"];
+row+=`
+<td class='col-lur'>${p[0]}</td>
+<td class='col-dar'>${p[1]}</td>
+<td class='col-ijin'>${p[2]}</td>`;
 });
-row+=`<td class="wfo">${r.WFO}</td>
-<td class="wfa">${r.WFA}</td>
-<td class="ijin">${r.IJIN}</td>
+row+=`
+<td class='col-lur'>${r.WFO}</td>
+<td class='col-dar'>${r.WFA}</td>
+<td class='col-ijin'>${r.IJIN}</td>
 <td>${r.total}</td>`;
+
 tbody.innerHTML+=`<tr>${row}</tr>`;
 });
+}
+
+/* ===== EXPORT EXCEL ===== */
+function exportExcel(){
+let startYear=parseInt(tahunAjaran.split("/")[0]);
+let fileName=`Rekap_Smt_${semester}_(${startYear}).xlsx`;
+
+let wb=XLSX.utils.book_new();
+let wsData=[];
+
+let header=["No","Nama"];
+months.forEach(m=>{
+header.push(m+" Lur",m+" Dar",m+" Ijin");
+});
+header.push("Total Lur","Total Dar","Total Ijin","Akhir");
+wsData.push(header);
+
+currentData.forEach((r,i)=>{
+let row=[i+1,r.nama];
+months.forEach(m=>{
+let p=r[m]?r[m].split("/"):["0","0","0"];
+row.push(Number(p[0]),Number(p[1]),Number(p[2]));
+});
+row.push(Number(r.WFO),Number(r.WFA),Number(r.IJIN),Number(r.total));
+wsData.push(row);
+});
+
+let ws=XLSX.utils.aoa_to_sheet(wsData);
+XLSX.utils.book_append_sheet(wb,ws,"Rekap");
+XLSX.writeFile(wb,fileName);
 }
 
 /* ================= PDF PREMIUM DENGAN ALAMAT ================= */
@@ -294,8 +361,8 @@ doc.text("..........................................................", rightBloc
 doc.save("Laporan_Semester.pdf");
 }
 
+
 loadData();
-setInterval(loadData,300000);
 </script>
 
 </body>
