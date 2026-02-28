@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Rekap Semester</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100vh; font-family:'Poppins', sans-serif; background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:#fff; display:flex; flex-direction:column; padding:14px 20px; }
+
+/* HEADER */
+.top-header { display:flex; align-items:center; margin-bottom:8px; }
+.header-left { display:flex; align-items:center; gap:12px; }
+.header-left img { width:55px; }
+.header-text h1 { font-size:12px; font-weight:500; color:#ffffffcc; }
+.header-text h2 { font-size:14px; font-weight:600; color:#ffffffee; }
+
+/* JUDUL */
+.rekap-title { text-align:center; font-size:20px; font-weight:700; margin-bottom:14px; color:#00ffcc; text-shadow:0 0 10px rgba(0,255,200,0.6); }
+
+/* CARD ELEGAN */
+.iframe-wrapper { 
+  flex:1; width:100%; 
+  background:rgba(255,255,255,0.05); backdrop-filter:blur(12px); 
+  border-radius:20px; border:1px solid rgba(0,255,200,0.3); 
+  box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.03); 
+  padding:12px; display:flex; flex-direction:column; transition:0.3s ease;
+  overflow:hidden;
+}
+.iframe-wrapper:hover { 
+  box-shadow:0 14px 35px rgba(0,255,200,0.25), inset 0 0 25px rgba(255,255,255,0.05); 
+}
+
+/* TABEL DENGAN SCROLL VERTICAL DAN HORIZONTAL */
+.table-container {
+  flex:1; 
+  overflow:auto; 
+  border-radius:12px; 
+}
+table { width:100%; border-collapse:collapse; font-size:14px; background:rgba(255,255,255,0.95); min-width:600px; }
+th, td { padding:0.3rem 0.5rem; border-bottom:1px solid #00ffcc33; }
+th { background:#00ffccaa; color:#000; cursor:pointer; text-align:center; font-weight:700; position:sticky; top:0; z-index:2; }
+td { color:#000; text-align:center; font-weight:400; }
+td:nth-child(2){ text-align:left; padding-left:8px; }
+
+/* HIGHLIGHT TOP 3 */
+tr.top1 { background:#ffd70033; font-weight:400; }
+tr.top2 { background:#c0c0c033; font-weight:400; }
+tr.top3 { background:#cd7f3233; font-weight:400; }
+tr:hover { background:#00ffcc22; }
+
+/* GRAND TOTAL */
+tr.grand-total td { font-weight:700; background:#00ffcc22; }
+
+/* FOOTER */
+.refresh-info { margin-top:8px; font-size:13px; text-align:center; color:#00ffcc; }
+
+/* RESPONSIVE */
+@media (max-width:768px){ 
+  .rekap-title{ font-size:16px; } 
+  td, th{ font-size:12px; } 
+  table { min-width:100%; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="header-left">
+    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png" alt="Logo UIN Ponorogo">
+    <div class="header-text">
+      <h1>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h1>
+      <h2>PASCASARJANA</h2>
+    </div>
+  </div>
+</div>
+
+<h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
+
+<div class="iframe-wrapper">
+  <div class="table-container">
+    <table id="rekapTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="refresh-info">Data diperbarui otomatis setiap akses dan setiap 5 menit</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz7sFVWcrw8MkNSA5yfSI12WzokbilJqT-dng1v0z383rxYyAmHAjlPnomJEhbLceJUZA/exec"; 
+let currentData = [];
+
+async function loadData() {
+  document.getElementById("rekapTitle").innerText = "Memuat data...";
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const json = await res.json();
+    document.getElementById("rekapTitle").innerText = json.title;
+
+    currentData = json.data.map((r,i)=>({
+      ...r,
+      no: r.nama.toUpperCase().includes("GRAND TOTAL") ? "" : i+1
+    }));
+    renderTable(currentData);
+  } catch(e) {
+    document.getElementById("rekapTitle").innerText = "Gagal memuat data";
+    console.error(e);
+  }
+}
+
+function renderTable(data){
+  const thead = document.querySelector("#rekapTable thead");
+  const tbody = document.querySelector("#rekapTable tbody");
+  thead.innerHTML="<tr><th>No</th><th>Nama</th><th>Luring</th><th>Daring</th><th>Ijin</th><th>Total</th></tr>";
+  tbody.innerHTML="";
+  data.forEach((r,i)=>{
+    const tr = document.createElement("tr");
+    if(r.nama.toUpperCase().includes("GRAND TOTAL")) { tr.classList.add("grand-total"); r.no=""; }
+    else { if(i===0) tr.classList.add("top1"); else if(i===1) tr.classList.add("top2"); else if(i===2) tr.classList.add("top3"); }
+    tr.innerHTML=`<td>${r.no}</td><td>${r.nama}</td><td>${r.WFO}</td><td>${r.WFA}</td><td>${r.IJIN}</td><td>${r.total}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+// Sort client-side
+document.querySelector("#rekapTable").addEventListener("click", e=>{
+  if(e.target.tagName!=="TH") return;
+  const colIndex = e.target.cellIndex;
+  const keys = ["no","nama","WFO","WFA","IJIN","total"];
+  const key = keys[colIndex];
+  currentData.sort((a,b)=>typeof a[key]==="number"? b[key]-a[key] : a[key].localeCompare(b[key]));
+  renderTable(currentData);
+});
+
+loadData();
+setInterval(loadData, 300000); // 5 menit
+</script>
+
+</body>
+</html>

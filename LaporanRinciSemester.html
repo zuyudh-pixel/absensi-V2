@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Rekap Bulanan Semester</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;display:flex;flex-direction:column;padding:14px 10px;}
+.top-header{display:flex;align-items:center;margin-bottom:8px;flex-wrap:wrap;}
+.header-left{display:flex;align-items:center;gap:12px;}
+.header-left img{width:55px;}
+.header-text h1{font-size:12px;font-weight:500;color:#ffffffcc;}
+.header-text h2{font-size:14px;font-weight:600;color:#ffffffee;}
+.rekap-title{text-align:center;font-size:18px;font-weight:700;margin-bottom:10px;color:#00ffcc;text-shadow:0 0 8px rgba(0,255,200,0.6);}
+.iframe-wrapper{flex:1;width:100%;background:rgba(255,255,255,0.05);backdrop-filter:blur(12px);border-radius:20px;border:1px solid rgba(0,255,200,0.3);box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 0 20px rgba(255,255,255,0.03);padding:10px;display:flex;flex-direction:column;overflow:hidden;}
+.table-container{flex:1;overflow:auto;border-radius:12px;}
+table{width:100%;border-collapse:collapse;font-size:12px;background:rgba(255,255,255,0.95);}
+th,td{padding:0.3rem 0.5rem;border-bottom:1px solid #000;border-right:1px solid #000;font-size:12px;text-align:center;}
+th:last-child, td:last-child{border-right:none;}
+th{background:#00ffccaa;color:#000;font-weight:700;position:sticky;top:0;z-index:2;}
+td{color:#000;}
+td:nth-child(2){text-align:left;padding-left:6px;white-space:nowrap;}
+.wfo{background-color:#d4edda;color:#155724;font-weight:600;}   
+.wfa{background-color:#cce5ff;color:#004085;font-weight:600;}   
+.ijin{background-color:#f8d7da;color:#721c24;font-weight:600;}  
+button.pdf-btn{margin:20px auto;padding:12px 28px;background:#00ffcc;color:#000;font-weight:bold;border:none;border-radius:50px;cursor:pointer;font-size:14px;}
+.refresh-info{margin-top:6px;font-size:11px;text-align:center;color:#00ffcc;}
+</style>
+</head>
+<body>
+
+<div class="top-header">
+  <div class="header-left">
+    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png">
+    <div class="header-text">
+      <h1>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h1>
+      <h2>PASCASARJANA</h2>
+    </div>
+  </div>
+</div>
+
+<h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
+<button class="pdf-btn" onclick="downloadPDF()">Download PDF</button>
+
+<div class="iframe-wrapper">
+  <div class="table-container">
+    <table id="rekapTable">
+      <thead></thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="refresh-info">Data diperbarui otomatis setiap akses dan setiap 5 menit</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyCj0kNeBGQ93IANJDcFOLBFVcN-pWyFsJ9WRggcME85iFyOUfYX9-3OAaPdqmD9Jw-yw/exec";
+let currentData = [];
+let months = [];
+let semester = '';
+let tahunAjaran = '';
+
+async function loadData() {
+  document.getElementById("rekapTitle").innerText = "Memuat data...";
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const json = await res.json();
+    document.getElementById("rekapTitle").innerText = json.title;
+    currentData = json.data;
+    months = json.headerMonths;
+    semester = json.semester || 'GENAP';
+    tahunAjaran = json.tahunAjaran || '2025/2026';
+    renderTable(currentData, months);
+  } catch(e) {
+    document.getElementById("rekapTitle").innerText = "Gagal memuat data";
+  }
+}
+
+function renderTable(data, months) {
+  const thead = document.querySelector("#rekapTable thead");
+  const tbody = document.querySelector("#rekapTable tbody");
+
+  thead.innerHTML = "<tr><th>No</th><th>Nama</th>";
+  months.forEach(m => thead.querySelector("tr").innerHTML += `<th>${m} LUR</th><th>${m} DAR</th><th>${m} IJIN</th>`);
+  thead.querySelector("tr").innerHTML += `<th>Total WFO</th><th>Total WFA</th><th>Total IJIN</th><th>Total Akhir</th></tr>`;
+
+  tbody.innerHTML = "";
+  data.forEach((r,i)=>{
+    let row = `<td>${i+1}</td><td>${r.nama}</td>`;
+    months.forEach(m=>{
+      if(r[m]){
+        const p=r[m].split("/");
+        row+=`<td class="wfo">${p[0]}</td><td class="wfa">${p[1]}</td><td class="ijin">${p[2]}</td>`;
+      } else {
+        row+=`<td>0</td><td>0</td><td>0</td>`;
+      }
+    });
+    row+=`<td class="wfo">${r.WFO}</td><td class="wfa">${r.WFA}</td><td class="ijin">${r.IJIN}</td><td>${r.total}</td>`;
+    tbody.innerHTML+=`<tr>${row}</tr>`;
+  });
+}
+
+/* ============================
+   PDF RESMI SESUAI GAMBAR
+============================ */
+
+function downloadPDF() {
+  if(currentData.length===0) return alert("Data belum dimuat");
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape','mm','a4');
+
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const centerX = pageWidth / 2;
+
+  const img = new Image();
+  img.crossOrigin="anonymous";
+  img.src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png";
+
+  img.onload = function(){
+
+    /* =========================
+       KOP LEBIH RAPAT & PROPORSIONAL
+    ========================== */
+
+    // 🔹 Logo diperbesar & sejajar tinggi kop
+    doc.addImage(img,'PNG',20,15,38,38);
+
+    let y = 20; // posisi awal lebih atas
+    const lineGap = 7; // jarak antar baris lebih rapat
+
+    doc.setFont("helvetica","bold");
+
+    doc.setFontSize(15);
+    doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,y,{align:"center"});
+    y += lineGap;
+
+    doc.setFontSize(13);
+    doc.text("UNIVERSITAS ISLAM NEGERI",centerX,y,{align:"center"});
+    y += lineGap;
+
+    doc.setFontSize(15);
+    doc.text("KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,y,{align:"center"});
+    y += lineGap;
+
+    doc.setFontSize(13);
+    doc.text("PASCASARJANA",centerX,y,{align:"center"});
+    y += lineGap;
+
+    doc.setFont("helvetica","normal");
+    doc.setFontSize(9);
+    doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, Ponorogo 63471",centerX,y,{align:"center"});
+    y += 5;
+
+    doc.text("Website : www.pasca.uinponorogo.ac.id email : pasca@uinponorogo.ac.id",centerX,y,{align:"center"});
+
+    // 🔹 Garis hanya 1 (tebal)
+    y += 6;
+    doc.setLineWidth(1);
+    doc.line(15,y,pageWidth-15,y);
+
+    /* =========================
+       JUDUL TENGAH
+    ========================== */
+
+    y += 10;
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(12);
+    doc.text(`LAPORAN PERKULIAHAN SEMESTER ${semester} TA. ${tahunAjaran}`,centerX,y,{align:"center"});
+
+    /* =========================
+       TABEL
+    ========================== */
+
+    const columns=["No","Nama"];
+    months.forEach(m=>{
+      columns.push(`${m} LUR`);
+      columns.push(`${m} DAR`);
+      columns.push(`${m} IJIN`);
+    });
+    columns.push("Total WFO","Total WFA","Total IJIN","Total Akhir");
+
+    const rows=[];
+    currentData.forEach((r,i)=>{
+      const row=[i+1,r.nama];
+      months.forEach(m=>{
+        if(r[m]){
+          const p=r[m].split("/");
+          row.push(p[0],p[1],p[2]);
+        } else row.push(0,0,0);
+      });
+      row.push(r.WFO,r.WFA,r.IJIN,r.total);
+      rows.push(row);
+    });
+
+    doc.autoTable({
+      startY:y+6,
+      head:[columns],
+      body:rows,
+      theme:'grid',
+      styles:{fontSize:7,cellPadding:2},
+      headStyles:{fillColor:[0,0,0],textColor:[255,255,255],fontStyle:'bold'},
+      columnStyles:{1:{halign:'left'}},
+      margin:{left:15,right:15}
+    });
+
+    doc.save(`Laporan_Semester_${semester}_${tahunAjaran}.pdf`);
+  }
+}
+
+loadData();
+setInterval(loadData,300000);
+</script>
+
+</body>
+</html>
