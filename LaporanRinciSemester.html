@@ -37,25 +37,88 @@ margin:10px 0;
 color:#00ffcc;
 }
 
-/* ===== BUTTON GROUP ===== */
-.button-group{
+/* ===== ACTION BAR (SEMUA SATU BARIS) ===== */
+/* ===== ACTION BAR ===== */
+.action-bar{
 display:flex;
-justify-content:center;
-gap:15px;
+justify-content:space-between;
+align-items:center;
 margin-bottom:15px;
+flex-wrap:wrap;
+gap:10px;
 }
 
-button{
-padding:8px 16px;
-background:#00ffcc;
+/* LEFT & RIGHT CONTAINER */
+.left-actions,
+.right-actions{
+display:flex;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+/* Tombol umum */
+.action-bar button{
+padding:7px 18px;
+font-size:12px;
+border-radius:20px;
+font-weight:600;
 color:#000;
-font-weight:bold;
-border:none;
-border-radius:50px;
 cursor:pointer;
 transition:.3s;
+border:none;
 }
-button:hover{transform:scale(1.05);}
+
+/* Warna tombol kiri */
+.left-actions button{
+background:#4fff98;
+}
+
+/* Tombol Terapkan */
+.right-actions button{
+background:#4fffb6;
+}
+
+.action-bar button:hover{
+transform:scale(1.05);
+}
+
+/* Select & input */
+.action-bar select{
+padding:7px 12px;
+border-radius:8px;
+border:none;
+font-size:12px;
+}
+
+/* Input angka dibuat lebih kecil */
+.action-bar input[type="number"]{
+width:80px;           /* cukup untuk 4 digit */
+padding:7px 8px;
+border-radius:8px;
+border:none;
+font-size:12px;
+text-align:center;
+}
+
+/* Label */
+.action-bar label{
+font-size:12px;
+font-weight:500;
+color:#fff;
+}
+
+/* Responsive mobile */
+@media(max-width:768px){
+.action-bar{
+flex-direction:column;
+align-items:stretch;
+}
+.left-actions,
+.right-actions{
+justify-content:center;
+}
+}
 
 .table-frame{
 flex:1;
@@ -142,6 +205,34 @@ font-weight:600;
 .th-lur{background:#579b5a !important;}
 .th-dar{background:#5686bd !important;}
 .th-ijin{background:#c05b5b !important;}
+
+/* ===== FILTER ===== */
+.filter-group{
+display:flex;
+justify-content:center;
+align-items:center;
+gap:10px;
+margin-bottom:10px;
+flex-wrap:wrap;
+}
+
+.filter-group select,
+.filter-group input{
+padding:6px 14px;
+border-radius:6px;
+border:none;
+font-size:12px;
+}
+
+.filter-group button{
+padding:6px 14px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+color:#000;
+cursor:pointer;
+transition:.3s;
+}
 </style>
 </head>
 <body>
@@ -159,9 +250,27 @@ font-weight:600;
 
 <h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
 
-<div class="button-group">
-  <button onclick="downloadPDF()">Download PDF</button>
-  <button onclick="exportExcel()">Export Excel</button>
+<div class="action-bar">
+
+  <div class="left-actions">
+    <button onclick="downloadPDF()">Download PDF</button>
+    <button onclick="exportExcel()">Export Excel</button>
+  </div>
+
+  <div class="right-actions">
+    <label>Filter Total:</label>
+
+    <select id="filterType">
+      <option value="all">Semua</option>
+      <option value="min">Total ≥</option>
+      <option value="max">Total ≤</option>
+    </select>
+
+    <input type="number" id="filterValue" placeholder="0" min="0">
+
+    <button onclick="applyFilter()">Terapkan</button>
+  </div>
+
 </div>
 
 <div class="table-frame">
@@ -244,6 +353,28 @@ row+=`
 
 tbody.innerHTML+=`<tr>${row}</tr>`;
 });
+}
+
+function applyFilter(){
+
+let type = document.getElementById("filterType").value;
+let value = parseInt(document.getElementById("filterValue").value);
+
+if(type==="all" || isNaN(value)){
+renderTable(currentData,months);
+return;
+}
+
+let filtered = currentData.filter(r=>{
+let total = Number(r.total)||0;
+
+if(type==="min") return total >= value;
+if(type==="max") return total <= value;
+
+return true;
+});
+
+renderTable(filtered,months);
 }
 
 /* ===== EXPORT EXCEL ===== */
