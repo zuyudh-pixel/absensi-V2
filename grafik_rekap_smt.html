@@ -212,8 +212,8 @@ async function exportPDF(){
 
   doc.setFont("helvetica","normal");
   doc.setFontSize(9);
-  doc.text("alamat : jl. pramuka 156, ronowijayan, siman, ponorogo 63471",centerX,36,{align:"center"});
-  doc.text("website : https://pasca.uinponorogo.ac.id email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
+  doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, ponorogo 63471",centerX,36,{align:"center"});
+  doc.text("Website : https://pasca.uinponorogo.ac.id | email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
 
   doc.setLineWidth(0.8);
   doc.line(15,45,pageWidth-15,45);
@@ -222,6 +222,7 @@ async function exportPDF(){
 
   doc.setFont("helvetica","bold");
   doc.setFontSize(12);
+  yContent += 12; 
   doc.text(document.getElementById("semesterTitle").innerText,centerX,yContent,{align:"center"});
   yContent+=6;
 
