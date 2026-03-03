@@ -66,6 +66,10 @@ th:nth-child(6), td:nth-child(6){width:10%;}
 
 <h2 id="semesterTitle" class="semester-title"></h2>
 
+<div id="loadingText" style="text-align:center; font-weight:600; margin:20px 0;">
+  Tunggu memuat data...
+</div>
+
 <div class="action-bar">
   <div class="left-actions">
     <a href="javascript:history.back()" class="btn-kembali">← Kembali</a>
@@ -116,13 +120,26 @@ const WEB_APP_URL="https://script.google.com/macros/s/AKfycbxIBbwwa5Ig7Ep6YwzIq5
 let pieChart, rankingChart, currentData;
 
 async function loadData(){
-  const res=await fetch(WEB_APP_URL);
-  const json=await res.json();
-  currentData=json;
-  document.getElementById("semesterTitle").innerText=json.title;
-  renderTable(json.data);
-  renderPie(json.pie);
-  renderRanking(json.data);
+  const loading = document.getElementById("loadingText");
+  loading.style.display = "block"; // tampilkan teks
+
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const json = await res.json();
+    currentData = json;
+
+    document.getElementById("semesterTitle").innerText = json.title;
+    renderTable(json.data);
+    renderPie(json.pie);
+    renderRanking(json.data);
+
+  } catch (error) {
+    loading.innerText = "Gagal memuat data!";
+    console.error(error);
+    return;
+  }
+
+  loading.style.display = "none"; // sembunyikan setelah selesai
 }
 
 function renderPie(data){
