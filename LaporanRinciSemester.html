@@ -37,7 +37,6 @@ margin:10px 0;
 color:#00ffcc;
 }
 
-/* ===== ACTION BAR (SEMUA SATU BARIS) ===== */
 /* ===== ACTION BAR ===== */
 .action-bar{
 display:flex;
@@ -57,9 +56,9 @@ gap:10px;
 flex-wrap:wrap;
 }
 
-/* Tombol umum */
+/* Tombol model sama dengan "Terapkan" */
 .action-bar button{
-padding:7px 18px;
+padding:7px 14px;
 font-size:12px;
 border-radius:20px;
 font-weight:600;
@@ -67,16 +66,7 @@ color:#000;
 cursor:pointer;
 transition:.3s;
 border:none;
-}
-
-/* Warna tombol kiri */
-.left-actions button{
-background:#4fff98;
-}
-
-/* Tombol Terapkan */
-.right-actions button{
-background:#4fffb6;
+background:#4fffb6; /* hijau muda sama semua */
 }
 
 .action-bar button:hover{
@@ -84,21 +74,12 @@ transform:scale(1.05);
 }
 
 /* Select & input */
-.action-bar select{
-padding:7px 12px;
-border-radius:8px;
-border:none;
-font-size:12px;
-}
-
-/* Input angka dibuat lebih kecil */
+.action-bar select,
 .action-bar input[type="number"]{
-width:80px;           /* cukup untuk 4 digit */
-padding:7px 8px;
-border-radius:8px;
+padding:6px 12px;
+border-radius:6px;
 border:none;
 font-size:12px;
-text-align:center;
 }
 
 /* Label */
@@ -107,6 +88,17 @@ font-size:12px;
 font-weight:500;
 color:#fff;
 }
+
+/* Link Kembali */
+.back-link{
+font-size:14px;
+font-weight:600;
+margin-bottom:6px;
+color:#facc15; /* kuning */
+cursor:pointer;
+text-decoration:none;
+}
+.back-link:hover{text-decoration:underline;}
 
 /* Responsive mobile */
 @media(max-width:768px){
@@ -129,6 +121,7 @@ border-radius:16px;
 border:3px solid #004d40;
 box-shadow:0 8px 25px rgba(0,0,0,0.3);
 overflow:hidden;
+margin-bottom:10px;
 }
 
 .table-scroll{flex:1;overflow:auto;}
@@ -182,57 +175,16 @@ font-size:11px;
 text-align:center;
 color:#00ffcc;
 }
+
 /* ===== WARNA KOLOM ===== */
-.col-lur{
-background:#d4edda;
-color:#155724;
-font-weight:600;
-}
-
-.col-dar{
-background:#cce5ff;
-color:#004085;
-font-weight:600;
-}
-
-.col-ijin{
-background:#f8d7da;
-color:#721c24;
-font-weight:600;
-}
+.col-lur{background:#d4edda;color:#155724;font-weight:600;}
+.col-dar{background:#cce5ff;color:#004085;font-weight:600;}
+.col-ijin{background:#f8d7da;color:#721c24;font-weight:600;}
 
 /* Header warna juga */
 .th-lur{background:#579b5a !important;}
 .th-dar{background:#5686bd !important;}
 .th-ijin{background:#c05b5b !important;}
-
-/* ===== FILTER ===== */
-.filter-group{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:10px;
-margin-bottom:10px;
-flex-wrap:wrap;
-}
-
-.filter-group select,
-.filter-group input{
-padding:6px 14px;
-border-radius:6px;
-border:none;
-font-size:12px;
-}
-
-.filter-group button{
-padding:6px 14px;
-border-radius:20px;
-font-size:12px;
-font-weight:bold;
-color:#000;
-cursor:pointer;
-transition:.3s;
-}
 </style>
 </head>
 <body>
@@ -250,27 +202,25 @@ transition:.3s;
 
 <h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
 
-<div class="action-bar">
+<!-- LINK KEMBALI DI ATAS -->
+<a class="back-link" href="javascript:history.back()">← Kembali</a>
 
+<!-- ACTION BAR: kiri tombol PDF/Excel, kanan filter + Terapkan -->
+<div class="action-bar">
   <div class="left-actions">
     <button onclick="downloadPDF()">Download PDF</button>
     <button onclick="exportExcel()">Export Excel</button>
   </div>
-
   <div class="right-actions">
     <label>Filter Total:</label>
-
     <select id="filterType">
       <option value="all">Semua</option>
       <option value="min">Total ≥</option>
       <option value="max">Total ≤</option>
     </select>
-
     <input type="number" id="filterValue" placeholder="0" min="0">
-
     <button onclick="applyFilter()">Terapkan</button>
   </div>
-
 </div>
 
 <div class="table-frame">
@@ -281,6 +231,9 @@ transition:.3s;
     </table>
   </div>
 </div>
+
+<!-- LINK KEMBALI BAWAH -->
+<a class="back-link" href="javascript:history.back()">← Kembali</a>
 
 <div class="refresh-info">
 Data diperbarui otomatis setiap akses dan setiap 5 menit
@@ -356,7 +309,6 @@ tbody.innerHTML+=`<tr>${row}</tr>`;
 }
 
 function applyFilter(){
-
 let type = document.getElementById("filterType").value;
 let value = parseInt(document.getElementById("filterValue").value);
 
@@ -377,7 +329,6 @@ return true;
 renderTable(filtered,months);
 }
 
-/* ===== EXPORT EXCEL ===== */
 function exportExcel(){
 let startYear=parseInt(tahunAjaran.split("/")[0]);
 let fileName=`Rekap_Smt_${semester}_(${startYear}).xlsx`;
@@ -407,91 +358,58 @@ XLSX.utils.book_append_sheet(wb,ws,"Rekap");
 XLSX.writeFile(wb,fileName);
 }
 
-/* ================= PDF PREMIUM DENGAN ALAMAT ================= */
-
 function downloadPDF(){
-
 if(currentData.length===0){alert("Data belum dimuat");return;}
-
 const { jsPDF }=window.jspdf;
 const doc=new jsPDF('landscape','mm','a4');
 const pageWidth=doc.internal.pageSize.getWidth();
 const centerX=pageWidth/2;
-
 const img=document.getElementById("logoImg");
-
-/* ================= LOGO ================= */
 doc.addImage(img,'PNG',15,10,28,28);
-
-/* ================= KOP ================= */
 doc.setFont("helvetica","bold");
 doc.setFontSize(14);
 doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,18,{align:"center"});
 doc.text("UIN KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,24,{align:"center"});
 doc.text("PASCASARJANA",centerX,30,{align:"center"});
-
-/* ================= ALAMAT ================= */
 doc.setFont("helvetica","normal");
 doc.setFontSize(10);
 doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, Ponorogo 63471",centerX,36,{align:"center"});
 doc.text("Website : www.pasca.uinponorogo.ac.id  Email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
-
-/* ================= GARIS ================= */
 doc.setLineWidth(1.2);
 doc.line(10,46,pageWidth-10,46);
-
-/* ================= JUDUL ================= */
 doc.setFont("helvetica","bold");
 doc.setFontSize(12);
 doc.text("LAPORAN PERKULIAHAN SEMESTER "+semester+" TA "+tahunAjaran,centerX,54,{align:"center"});
-
-/* ================= TABEL ================= */
 doc.autoTable({
 html:"#rekapTable",
 startY:60,
 theme:'grid',
 styles:{fontSize:7},
-headStyles:{
-fillColor:[0,0,0],
-textColor:[255,255,255],
-fontStyle:'bold'
-}
+headStyles:{fillColor:[0,0,0],textColor:[255,255,255],fontStyle:'bold'}
 });
-
-/* ================= TANDA TANGAN ================= */
-
 let finalY = doc.lastAutoTable.finalY + 12;
-
-/* Format tanggal Indonesia */
-const bulanIndo = [
-"Januari","Februari","Maret","April","Mei","Juni",
-"Juli","Agustus","September","Oktober","November","Desember"
-];
-
+const bulanIndo = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 const today = new Date();
-const tanggalIndo = today.getDate()+" "+
-bulanIndo[today.getMonth()]+" "+
-today.getFullYear();
-
-/* ================= POSISI SISI KANAN TAPI RATA KIRI ================= */
-
-/* Tentukan margin blok kanan */
+const tanggalIndo = today.getDate()+" "+bulanIndo[today.getMonth()]+" "+today.getFullYear();
 const rightBlockX = pageWidth - 80; 
-// 80 mm dari kanan → membentuk kolom tanda tangan
-
 doc.setFont("helvetica","normal");
 doc.setFontSize(11);
-
-/* Semua rata kiri tapi berada di sisi kanan */
 doc.text("Ponorogo, "+tanggalIndo, rightBlockX, finalY);
 doc.text("Direktur,", rightBlockX, finalY+6);
 doc.text(" ", rightBlockX, finalY+6);
 doc.text(" ", rightBlockX, finalY+6);
 doc.text("..........................................................", rightBlockX, finalY+36);
-
 doc.save("Laporan_Semester.pdf");
 }
 
+// ANTI INSPECT
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", function(e){
+if (e.key === "F12") e.preventDefault();
+if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) e.preventDefault();
+if (e.ctrlKey && e.key === "u") e.preventDefault();
+if (e.ctrlKey && e.key === "s") e.preventDefault();
+});
 
 loadData();
 </script>
