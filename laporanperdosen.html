@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laporan Absensi Dosen</title>
+<meta name="theme-color" content="#0f172a">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --primary:#22d3ee;
+  --secondary:#10b981;
+  --glass:rgba(255,255,255,0.07);
+  --glass-border:rgba(255,255,255,0.18);
+  --text-soft:#94a3b8;
+}
+*,
+*::before,
+*::after{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html{ font-size:16px; }
+body{
+  margin:0;
+  font-family:'Poppins',sans-serif;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(34,211,238,.25), transparent 40%),
+    radial-gradient(circle at 85% 80%, rgba(16,185,129,.25), transparent 40%),
+    linear-gradient(135deg,#0f172a,#0b1120 60%,#0a0f1c);
+  min-height:100vh;
+  padding:20px 16px;
+  color:#ffffff;
+}
+.container{ max-width:520px; margin:auto; }
+.card{
+  background:var(--glass);
+  backdrop-filter:blur(35px);
+  -webkit-backdrop-filter:blur(35px);
+  border-radius:30px;
+  padding:32px 26px;
+  border:1px solid var(--glass-border);
+  box-shadow:0 35px 90px rgba(0,0,0,.65),0 0 60px rgba(34,211,238,.15);
+  position:relative;
+  transition:.4s ease;
+}
+.card::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:30px;
+  background:linear-gradient(135deg,rgba(34,211,238,.4),rgba(16,185,129,.4));
+  opacity:.15;
+  filter:blur(25px);
+  z-index:-1;
+}
+.card:hover{
+  transform:translateY(-6px);
+  box-shadow:0 45px 110px rgba(0,0,0,.75),0 0 80px rgba(34,211,238,.25);
+}
+h2{
+  margin:0 0 28px 0;
+  text-align:center;
+  font-size:1.3rem;
+  font-weight:600;
+  background:linear-gradient(90deg,#22d3ee,#10b981);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:.6px;
+}
+label{
+  font-size:0.8rem;
+  color:var(--text-soft);
+  margin-bottom:6px;
+  display:block;
+}
+.row{ display:flex; gap:14px; margin-bottom:22px; }
+.row > div{ flex:1; }
+input[type="date"], select, input[type="text"]{
+  width:100%;
+  padding:14px 16px;
+  border-radius:20px;
+  border:1px solid rgba(255,255,255,0.15);
+  background:rgba(255,255,255,0.05);
+  color:#ffffff;
+  font-size:0.9rem;
+  outline:none;
+  transition:.3s ease;
+}
+input:focus, select:focus{
+  border:1px solid var(--primary);
+  box-shadow:0 0 0 3px rgba(34,211,238,.2);
+  background:rgba(255,255,255,0.08);
+}
+button{
+  padding:12px 28px;
+  border:none;
+  border-radius:20px;
+  font-size:0.85rem;
+  font-weight:500;
+  cursor:pointer;
+  transition:.3s ease;
+  display:inline-block;
+  min-width:170px;
+  letter-spacing:.3px;
+}
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 25px rgba(0,0,0,.5);
+}
+button:not(.btn-back){
+  background:linear-gradient(135deg,#22d3ee,#10b981);
+  color:#fff;
+}
+.btn-back{
+  margin-top:18px;
+  background:linear-gradient(135deg,#0ea5a4,#22d3ee);
+  color:#fff;
+}
+.table-wrapper{
+  margin-top:30px;
+  overflow-x:auto;
+  border-radius:22px;
+  background:rgba(255,255,255,0.04);
+  backdrop-filter:blur(15px);
+  border:1px solid rgba(255,255,255,0.08);
+  padding:10px;
+}
+table{ width:100%; border-collapse:collapse; font-size:0.8rem; min-width:700px; }
+th{ padding:14px 8px; background:rgba(255,255,255,0.08); color:#22d3ee; font-weight:600; text-align:center; }
+td{ padding:12px 8px; text-align:center; border-bottom:1px solid rgba(255,255,255,0.08); }
+td.no-wrap{ white-space:nowrap; }
+tbody tr:hover{ background:rgba(255,255,255,0.05); }
+.summary-row td{
+  padding:16px;
+  font-weight:600;
+  background:rgba(34,211,238,0.1);
+  color:#10b981;
+  border-top:1px solid rgba(255,255,255,0.1);
+}
+@media (max-width:480px){ .row{ flex-direction:column; } table{ font-size:0.75rem; } }
+@media (max-width:360px){ html{ font-size:14px; } .card{ padding:24px 18px; border-radius:24px; } button{ width:100%; min-width:auto; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card">
+    <h2>📊 Laporan Absensi Saya</h2>
+    <div class="row">
+      <div style="flex:1">
+        <label>Tanggal Awal</label>
+        <input type="date" id="tglAwal">
+      </div>
+      <div style="flex:1">
+        <label>Tanggal Akhir</label>
+        <input type="date" id="tglAkhir">
+      </div>
+    </div>
+    <button onclick="loadData()">🔍 Lihat Laporan</button>
+    <div id="hasil"></div>
+    <button class="btn-back" onclick="window.close()">⬅ Kembali</button>
+  </div>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxIAyZyATjjOKbTFzyE7C6YCGyM1ycudS-y7M2y1tKfYoC-kWNs2THJbsiqthKZ_LuTHQ/exec";
+
+(function(){
+  const params = new URLSearchParams(window.location.search);
+  const idFromUrl = params.get("id");
+  if(idFromUrl){
+    sessionStorage.setItem("userId", idFromUrl);
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+})();
+function getUserId(){ return sessionStorage.getItem("userId"); }
+
+function loadData(){
+  const userId = getUserId();
+  if(!userId){
+    document.getElementById("hasil").innerHTML = "<p style='color:red'>Session ID tidak ditemukan</p>";
+    return;
+  }
+  const tglAwal = document.getElementById("tglAwal").value;
+  const tglAkhir = document.getElementById("tglAkhir").value;
+  const url = WEB_APP_URL +
+    "?action=laporan&id=" + encodeURIComponent(userId) +
+    "&awal=" + encodeURIComponent(tglAwal || "") +
+    "&akhir=" + encodeURIComponent(tglAkhir || "");
+  fetch(url)
+    .then(res => res.json())
+    .then(data => tampilkan(data.data))
+    .catch(() => { document.getElementById("hasil").innerHTML = "<p style='color:red'>Gagal mengambil data</p>"; });
+}
+
+function setDefaultTanggal() {
+  const today = new Date();
+  const tujuhHariLalu = new Date();
+  tujuhHariLalu.setDate(today.getDate() - 6);
+  function formatDate(date) {
+    const tahun = date.getFullYear();
+    const bulan = String(date.getMonth()+1).padStart(2,'0');
+    const hari = String(date.getDate()).padStart(2,'0');
+    return `${tahun}-${bulan}-${hari}`;
+  }
+  document.getElementById("tglAwal").value = formatDate(tujuhHariLalu);
+  document.getElementById("tglAkhir").value = formatDate(today);
+}
+
+function tampilkan(data){
+  if(!data || data.length===0){
+    document.getElementById("hasil").innerHTML="<p>Tidak ada data</p>";
+    return;
+  }
+  const grouped={};
+  let totalWFO=0,totalWFA=0,totalIjin=0;
+
+  data.forEach(r=>{
+    if(!r.tanggal) return;
+    const d = new Date(r.tanggal + "T00:00:00");
+    const key = UtilitiesFormatDate(d);
+
+    if(!grouped[key]){
+      grouped[key]={tanggal:key,masuk:"-",keluar:"-",lokasi:"-",kegiatan:"",isIjin:false};
+    }
+
+    const jam = r.timestamp ? formatJam(r.timestamp) : "-";
+    const jenis=(r.tipe||"").toLowerCase().trim();
+    const workfrom=(r.workfrom||"").trim();
+    const kegiatanSheet=(r.kegiatan||"").trim();
+
+    if(jenis==="ijin"){
+      grouped[key].kegiatan="Ijin";
+      totalIjin++;
+      return;
+    }
+    if(jenis==="masuk"){
+      grouped[key].masuk = jam;
+      grouped[key].lokasi = workfrom;
+      if(workfrom==="WFO") { totalWFO++; grouped[key].kegiatan=kegiatanSheet; }
+      if(workfrom==="WFA") { totalWFA++; grouped[key].kegiatan=kegiatanSheet; }
+    }
+    if(jenis==="pulang"){
+      grouped[key].keluar = jam;
+    }
+  });
+
+  let html=`<div class="table-wrapper"><table>
+  <thead><tr>
+  <th>Tanggal</th><th>Jam Masuk</th><th>Jam Pulang</th>
+  <th>Lokasi</th><th>Lama Kerja</th><th>Keterangan</th>
+  </tr></thead><tbody>`;
+
+  Object.values(grouped).sort((a,b)=>new Date(a.tanggal)-new Date(b.tanggal))
+  .forEach(row=>{
+    const lama = hitungDurasi(row.masuk,row.keluar);
+    html+=`<tr>
+      <td class="no-wrap">${row.tanggal}</td>
+      <td>${row.masuk||"-"}</td>
+      <td>${row.keluar||"-"}</td>
+      <td>${row.lokasi||"-"}</td>
+      <td>${lama}</td>
+      <td class="no-wrap">${row.kegiatan||"-"}</td>
+    </tr>`;
+  });
+
+  html+=`</tbody>
+  <tfoot><tr class="summary-row">
+  <td colspan="6">Total WFO: ${totalWFO} | Total WFA: ${totalWFA} | Total Ijin: ${totalIjin}</td>
+  </tr></tfoot></table></div>`;
+
+  document.getElementById("hasil").innerHTML=html;
+}
+
+function hitungDurasi(m,k){
+  if(!m||!k || m==="-" || k==="-" ) return "-";
+  const masuk = new Date("1970-01-01T"+m+":00");
+  const pulang = new Date("1970-01-01T"+k+":00");
+  const diff = (pulang - masuk)/1000;
+  if(diff<=0) return "-";
+  const jam = Math.floor(diff/3600);
+  const menit = Math.floor((diff%3600)/60);
+  return String(jam).padStart(2,'0')+":"+String(menit).padStart(2,'0');
+}
+
+function formatJam(timestamp){
+  const d = new Date(timestamp);
+  const h = String(d.getHours()).padStart(2,'0');
+  const m = String(d.getMinutes()).padStart(2,'0');
+  return h+":"+m;
+}
+
+function UtilitiesFormatDate(date){
+  const d = date;
+  const hari = String(d.getDate()).padStart(2,'0');
+  const bulan = String(d.getMonth()+1).padStart(2,'0');
+  const tahun = d.getFullYear();
+  return `${hari}-${bulan}-${tahun}`;
+}
+
+window.onload=function(){
+  setDefaultTanggal();
+  loadData();
+  setInterval(loadData,30000);
+}
+
+// Blokir klik kanan & shortcut developer tools
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("keydown", function(e){
+  if (e.key === "F12") e.preventDefault();
+  if (e.ctrlKey && e.shiftKey && (e.key==="I"||e.key==="J"||e.key==="C")) e.preventDefault();
+  if (e.ctrlKey && e.key==="u") e.preventDefault();
+  if (e.ctrlKey && e.key==="s") e.preventDefault();
+});
+</script>
+</body>
+</html>

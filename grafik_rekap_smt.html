@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rekap Semester Pascasarjana</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#203c49,#215c4a,#2c5364);color:#fff;padding:20px;}
+.web-header{padding:15px 0;margin-bottom:15px;}
+.header-content{display:flex;align-items:center;gap:20px;}
+.header-content img{width:70px;}
+.header-text{line-height:1.3;}
+.header-text .kementerian{font-size:13px;}
+.header-text .uin{font-size:15px;font-weight:500;}
+.header-text .pasca{font-size:18px;font-weight:700;margin-top:3px;}
+.semester-title{text-align:center;font-size:20px;font-weight:700;margin-bottom:15px;letter-spacing:1px;}
+.action-bar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;margin-bottom:15px;gap:10px;}
+.left-actions,.right-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.action-bar button{padding:7px 14px;font-size:12px;border-radius:20px;font-weight:600;color:#000;cursor:pointer;transition:.3s;border:none;background:#4fffb6;}
+.action-bar button:hover{transform:translateY(-2px);}
+.btn-kembali{background:none;color:#facc15;font-weight:600;font-size:12px;text-decoration:none;padding:0;margin:0;cursor:pointer;}
+#filterValue{width:60px;padding:7px 8px;border-radius:20px;border:none;text-align:center;font-size:12px;}
+.card{background:#ffffff10;border-radius:12px;padding:20px;margin-bottom:25px;}
+.chart-wrapper{display:flex;flex-wrap:wrap;gap:30px;justify-content:center;}
+.chart-box{flex:1 1 400px;max-width:500px;}
+canvas{width:100% !important;height:350px !important;}
+table{width:100%;border-collapse:collapse;background:white;color:#000;table-layout:fixed;}
+th,td{padding:8px;border:1px solid #ddd;text-align:center;font-size:13px;word-wrap:break-word;}
+th{background:#222;color:#fff;}
+td:nth-child(2){text-align:left;}
+tr.top1{background:#ffd70040;}
+tr.top2{background:#c0c0c040;}
+tr.top3{background:#cd7f3240;}
+/* Kolom proporsional */
+th:nth-child(1), td:nth-child(1){width:5%;}
+th:nth-child(2), td:nth-child(2){width:55%;}
+th:nth-child(3), td:nth-child(3){width:10%;}
+th:nth-child(4), td:nth-child(4){width:10%;}
+th:nth-child(5), td:nth-child(5){width:10%;}
+th:nth-child(6), td:nth-child(6){width:10%;}
+</style>
+</head>
+<body>
+
+<div class="web-header">
+  <div class="header-content">
+    <img src="https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png">
+    <div class="header-text">
+      <div class="kementerian">KEMENTERIAN AGAMA REPUBLIK INDONESIA</div>
+      <div class="uin">UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</div>
+      <div class="pasca">PASCASARJANA</div>
+    </div>
+  </div>
+</div>
+
+<h2 id="semesterTitle" class="semester-title"></h2>
+
+<div id="loadingText" style="text-align:center; font-weight:600; margin:20px 0;">
+  Tunggu memuat data...
+</div>
+
+<div class="action-bar">
+  <div class="left-actions">
+    <a href="javascript:history.back()" class="btn-kembali">← Kembali</a>
+    <button onclick="exportPDF()">Export PDF</button>
+    <button onclick="exportExcel()">Export Excel</button>
+  </div>
+  <div class="right-actions">
+    <label>Filter Total:</label>
+    <select id="filterType">
+      <option value="all">Semua</option>
+      <option value="min">≥</option>
+      <option value="max">≤</option>
+    </select>
+    <input type="number" id="filterValue" placeholder="0" min="0">
+    <button onclick="applyFilter()">Terapkan</button>
+  </div>
+</div>
+
+<div class="card">
+  <div class="chart-wrapper">
+    <div class="chart-box"><canvas id="pieChart"></canvas></div>
+    <div class="chart-box"><canvas id="rankingChart"></canvas></div>
+  </div>
+</div>
+
+<div class="card">
+  <table id="rekapTable">
+    <thead>
+      <tr>
+        <th>No</th>
+        <th>Nama</th>
+        <th>Luring</th>
+        <th>Daring</th>
+        <th>Ijin</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div style="margin-top:10px;">
+  <a href="javascript:history.back()" class="btn-kembali">← Kembali</a>
+</div>
+
+<script>
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbyUXRwNoEnlvjGqQitbmip4KUbwRrU40DChaTaEPbQ63yMOHUYvKSMSf1ABBKR-7rk0lw/exec";
+let pieChart, rankingChart, currentData;
+
+async function loadData(){
+  const loading = document.getElementById("loadingText");
+  loading.style.display = "block"; // tampilkan teks
+
+  try {
+    const res = await fetch(WEB_APP_URL);
+    const json = await res.json();
+    currentData = json;
+
+    document.getElementById("semesterTitle").innerText = json.title;
+    renderTable(json.data);
+    renderPie(json.pie);
+    renderRanking(json.data);
+
+  } catch (error) {
+    loading.innerText = "Gagal memuat data!";
+    console.error(error);
+    return;
+  }
+
+  loading.style.display = "none"; // sembunyikan setelah selesai
+}
+
+function renderPie(data){
+  const total=data.WFO+data.WFA+data.IJIN;
+  if(pieChart) pieChart.destroy();
+  pieChart=new Chart(document.getElementById("pieChart"),{
+    type:"pie",
+    data:{labels:["Luring","Daring","Ijin"],datasets:[{data:[data.WFO,data.WFA,data.IJIN],backgroundColor:["#4CAF50","#2196F3","#FF9800"]}]},
+    options:{plugins:{legend:{labels:{color:"#ffffff"}},datalabels:{color:"#ffffff",formatter:(v)=>((v/total)*100).toFixed(1)+"%"}}},plugins:[ChartDataLabels]
+  });
+}
+
+function renderRanking(data){
+  if(rankingChart) rankingChart.destroy();
+  rankingChart=new Chart(document.getElementById("rankingChart"),{
+    type:"bar",
+    data:{labels:data.slice(0,10).map(r=>r.nama),datasets:[{data:data.slice(0,10).map(r=>r.total),backgroundColor:"#3f51b5"}]},
+    options:{indexAxis:'y',scales:{x:{ticks:{color:"#ffffff"}},y:{ticks:{color:"#ffffff"}}},plugins:{legend:{display:false},datalabels:{color:"#ffffff",anchor:"end",align:"right"}}},
+    plugins:[ChartDataLabels]
+  });
+}
+
+function renderTable(data){
+  const tbody=document.querySelector("#rekapTable tbody");
+  tbody.innerHTML="";
+  data.forEach((r,i)=>{
+    const tr=document.createElement("tr");
+    if(i<3) tr.classList.add("top"+(i+1));
+    tr.innerHTML=`<td>${i+1}</td><td>${r.nama}</td><td>${r.WFO}</td><td>${r.WFA}</td><td>${r.IJIN}</td><td>${r.total}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function applyFilter(){
+  let type=document.getElementById("filterType").value;
+  let value=parseInt(document.getElementById("filterValue").value);
+  if(type==="all"||isNaN(value)){renderTable(currentData.data);return;}
+  let filtered=currentData.data.filter(r=>{let total=Number(r.total)||0;if(type==="min")return total>=value;if(type==="max")return total<=value;return true;});
+  renderTable(filtered);
+}
+
+async function exportPDF(){
+  if(!currentData.data) return;
+
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF('landscape','mm','a4');
+  const pageWidth=doc.internal.pageSize.getWidth();
+  const centerX=pageWidth/2;
+
+  const marginLeft = 15;
+  const marginRight = 15;
+  const usableWidth = pageWidth - marginLeft - marginRight;
+
+  // ===== PROPORSI KOLOM (5%,55%,10%,10%,10%,10%) =====
+  const colNo     = usableWidth * 0.05;
+  const colNama   = usableWidth * 0.55;
+  const colLuring = usableWidth * 0.10;
+  const colDaring = usableWidth * 0.10;
+  const colIjin   = usableWidth * 0.10;
+  const colTotal  = usableWidth * 0.10;
+
+  // ===== UBAH WARNA GRAFIK JADI HITAM =====
+  const oldPieLabels=pieChart.options.plugins.legend.labels.color;
+  const oldPieData=pieChart.options.plugins.datalabels.color;
+  pieChart.options.plugins.legend.labels.color="#000000";
+  pieChart.options.plugins.datalabels.color="#000000";
+  pieChart.update();
+
+  const oldBarX=rankingChart.options.scales.x.ticks.color;
+  const oldBarY=rankingChart.options.scales.y.ticks.color;
+  const oldBarDL=rankingChart.options.plugins.datalabels.color;
+  rankingChart.options.scales.x.ticks.color="#000000";
+  rankingChart.options.scales.y.ticks.color="#000000";
+  rankingChart.options.plugins.datalabels.color="#000000";
+  rankingChart.update();
+
+  // ===== HEADER =====
+  const img=await loadImage("https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png");
+  doc.addImage(img,'PNG',15,10,25,25);
+
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(14);
+  doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,18,{align:"center"});
+  doc.setFontSize(12);
+  doc.text("UIN KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,24,{align:"center"});
+  doc.text("PASCASARJANA",centerX,30,{align:"center"});
+
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(9);
+  doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, ponorogo 63471",centerX,36,{align:"center"});
+  doc.text("Website : https://pasca.uinponorogo.ac.id | email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
+
+  doc.setLineWidth(0.8);
+  doc.line(15,45,pageWidth-15,45);
+
+  let yContent=50;
+
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  yContent += 12; 
+  doc.text(document.getElementById("semesterTitle").innerText,centerX,yContent,{align:"center"});
+  yContent+=6;
+
+  // ===== GRAFIK =====
+  const pieImg=document.getElementById("pieChart").toDataURL("image/png",1.0);
+  doc.addImage(pieImg,"PNG",20,yContent,80,60);
+
+  const barImg=document.getElementById("rankingChart").toDataURL("image/png",1.0);
+  doc.addImage(barImg,"PNG",110,yContent,120,60);
+
+  yContent+=65;
+
+  // ===== TABEL =====
+  const tableData=currentData.data.map((r,i)=>[
+    i+1,
+    r.nama,
+    r.WFO,
+    r.WFA,
+    r.IJIN,
+    r.total
+  ]);
+
+  doc.autoTable({
+    head:[["No","Nama","Luring","Daring","Ijin","Total"]],
+    body:tableData,
+    startY:yContent,
+    margin:{left:marginLeft,right:marginRight},
+    theme:"grid",
+    styles:{fontSize:11, halign:'center'},
+    columnStyles:{
+      0:{cellWidth:colNo},
+      1:{cellWidth:colNama, halign:'left'},
+      2:{cellWidth:colLuring},
+      3:{cellWidth:colDaring},
+      4:{cellWidth:colIjin},
+      5:{cellWidth:colTotal}
+    },
+    headStyles:{fillColor:[63,81,181], textColor:255}
+  });
+
+  // ===== TTD =====
+  const finalY=doc.lastAutoTable.finalY+12;
+  const rightX=pageWidth-95;
+
+  const today=new Date();
+  const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const tglStr=`Ponorogo, ${today.getDate()} ${bulan[today.getMonth()]} ${today.getFullYear()}`;
+
+  doc.setFontSize(11);
+  doc.text(tglStr,rightX,finalY);
+  doc.text("Direktur,",rightX,finalY+6);
+  doc.text("Prof. Dr. H. Agus Purnomo, M.Ag.",rightX,finalY+30);
+  
+
+  doc.save("rekap_semester.pdf");
+
+  // ===== KEMBALIKAN WARNA GRAFIK =====
+  pieChart.options.plugins.legend.labels.color=oldPieLabels;
+  pieChart.options.plugins.datalabels.color=oldPieData;
+  pieChart.update();
+
+  rankingChart.options.scales.x.ticks.color=oldBarX;
+  rankingChart.options.scales.y.ticks.color=oldBarY;
+  rankingChart.options.plugins.datalabels.color=oldBarDL;
+  rankingChart.update();
+}
+
+function exportExcel(){
+  if(!currentData.data) return;
+  let wb=XLSX.utils.book_new();
+  let wsData=[["No","Nama","Luring","Daring","Ijin","Total"]];
+  currentData.data.forEach((r,i)=>wsData.push([i+1,r.nama,r.WFO,r.WFA,r.IJIN,r.total]));
+  let ws=XLSX.utils.aoa_to_sheet(wsData);
+  XLSX.utils.book_append_sheet(wb,ws,"Rekap");
+  XLSX.writeFile(wb,"rekap_semester.xlsx");
+}
+
+function loadImage(url){
+  return new Promise(resolve=>{
+    const img=new Image();
+    img.crossOrigin="anonymous";
+    img.onload=()=>resolve(img);
+    img.src=url;
+  });
+}
+
+
+
+loadData();
+</script>
+
+</body>
+</html>
