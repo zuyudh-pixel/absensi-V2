@@ -271,6 +271,37 @@ body{
 </div>
 
 <script>
+
+/* LOAD SEMESTER OTOMATIS */
+async function loadSemester() {
+  try {
+    const response = await fetch("https://script.google.com/macros/s/AKfycbxIBbwwa5Ig7Ep6YwzIq5Uz5lUzDUHB3QZMhNBOGcFWX_pb9ntnHI4h_wZV4OMRLrm-Pg/exec");
+    const result = await response.json();
+
+    let text = result.title
+      .replace("REKAP ", "")
+      .replace("TA.", "")
+      .trim();
+
+    document.getElementById("semesterTitle").innerText = text;
+
+  } catch (err) {
+    document.getElementById("semesterTitle").innerText = "Semester Tidak Tersedia";
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  loadSemester();
+
+  let links=document.querySelectorAll(".sidebar a");
+  let currentPage=window.location.pathname.split("/").pop();
+  if(currentPage===""){currentPage="dashboard.html";}
+  links.forEach(link=>{
+    if(link.getAttribute("href")===currentPage){
+      link.classList.add("active");
+    }
+  });
+});
 function toggleSidebar(){
   const sidebar=document.getElementById("sidebar");
   const main=document.getElementById("main");
