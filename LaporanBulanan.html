@@ -12,176 +12,40 @@
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
-
-html,body{
-height:100%;
-font-family:'Poppins',sans-serif;
-background:linear-gradient(135deg,#203c49,#215c4a,#2c5364);
-color:#fff;
-display:flex;
-flex-direction:column;
-padding:14px;
-}
-
+html,body{height:100%;font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#203c49,#215c4a,#2c5364);color:#fff;display:flex;flex-direction:column;padding:14px;}
 .top-header{display:flex;align-items:center;margin-bottom:10px;}
 .header-left{display:flex;align-items:center;gap:12px;}
 .header-left img{width:75px;}
 .header-text h1{font-size:13px;font-weight:400;}
 .header-text h2{font-size:16px;font-weight:700;}
-
-.rekap-title{
-text-align:center;
-font-size:18px;
-font-weight:700;
-margin:10px 0;
-color:#00ffcc;
-}
-
-/* ===== ACTION BAR ===== */
-.action-bar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:15px;
-flex-wrap:wrap;
-gap:10px;
-}
-
-/* LEFT & RIGHT CONTAINER */
-.left-actions,
-.right-actions{
-display:flex;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-}
-
-/* Tombol model sama dengan "Terapkan" */
-.action-bar button{
-padding:7px 14px;
-font-size:12px;
-border-radius:20px;
-font-weight:600;
-color:#000;
-cursor:pointer;
-transition:.3s;
-border:none;
-background:#4fffb6; /* hijau muda sama semua */
-}
-
-.action-bar button:hover{
-transform:scale(1.05);
-}
-
-/* Select & input */
-.action-bar select,
-.action-bar input[type="number"]{
-padding:6px 12px;
-border-radius:6px;
-border:none;
-font-size:12px;
-}
-
-/* Label */
-.action-bar label{
-font-size:12px;
-font-weight:500;
-color:#fff;
-}
-
-/* Link Kembali */
-.back-link{
-font-size:14px;
-font-weight:600;
-margin-bottom:6px;
-color:#facc15; /* kuning */
-cursor:pointer;
-text-decoration:none;
-}
+.rekap-title{text-align:center;font-size:18px;font-weight:700;margin:10px 0;color:#00ffcc;}
+.action-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;flex-wrap:wrap;gap:10px;}
+.left-actions,.right-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.action-bar button{padding:7px 14px;font-size:12px;border-radius:20px;font-weight:600;color:#000;cursor:pointer;transition:.3s;border:none;background:#4fffb6;}
+.action-bar button:hover{transform:scale(1.05);}
+.action-bar select,.action-bar input[type="number"]{padding:6px 12px;border-radius:6px;border:none;font-size:12px;}
+.action-bar label{font-size:12px;font-weight:500;color:#fff;}
+.back-link{font-size:14px;font-weight:600;margin-bottom:6px;color:#facc15;cursor:pointer;text-decoration:none;}
 .back-link:hover{text-decoration:underline;}
-
-/* Responsive mobile */
-@media(max-width:768px){
-.action-bar{
-flex-direction:column;
-align-items:stretch;
-}
-.left-actions,
-.right-actions{
-justify-content:center;
-}
-}
-
-.table-frame{
-flex:1;
-display:flex;
-flex-direction:column;
-background:#ffffff;
-border-radius:16px;
-border:3px solid #004d40;
-box-shadow:0 8px 25px rgba(0,0,0,0.3);
-overflow:hidden;
-margin-bottom:10px;
-}
-
+@media(max-width:768px){.action-bar{flex-direction:column;align-items:stretch;}.left-actions,.right-actions{justify-content:center;}}
+.table-frame{flex:1;display:flex;flex-direction:column;background:#ffffff;border-radius:16px;border:3px solid #004d40;box-shadow:0 8px 25px rgba(0,0,0,0.3);overflow:hidden;margin-bottom:10px;}
 .table-scroll{flex:1;overflow:auto;}
-
-table{
-width:100%;
-border-collapse:collapse;
-font-size:12px;
-min-width:max-content;
-}
-
+table{width:100%;border-collapse:collapse;font-size:12px;min-width:max-content;}
 thead tr:first-child{height:42px;}
 thead tr:nth-child(2){height:38px;}
-
-th,td{
-border:1px solid #000;
-text-align:center;
-padding:6px;
-line-height:1.2;
-}
-
-thead th{
-position:sticky;
-color:#fff;
-z-index:10;
-}
-
-thead tr:first-child th{
-top:0;
-background:#004d40;
-font-weight:700;
-}
-
-thead tr:nth-child(2) th{
-top:42px;
-background:#00695c;
-font-weight:600;
-z-index:9;
-}
-
+th,td{border:1px solid #000;text-align:center;padding:6px;line-height:1.2;}
+thead th{position:sticky;color:#fff;z-index:10;}
+thead tr:first-child th{top:0;background:#004d40;font-weight:700;}
+thead tr:nth-child(2) th{top:42px;background:#00695c;font-weight:600;z-index:9;}
 td{color:#000;}
 td:nth-child(2){text-align:left;white-space:nowrap;}
-
 .wfo{background:#d4edda;color:#155724;font-weight:600;}
 .wfa{background:#cce5ff;color:#004085;font-weight:600;}
 .ijin{background:#f8d7da;color:#721c24;font-weight:600;}
-
-.refresh-info{
-margin-top:6px;
-font-size:11px;
-text-align:center;
-color:#00ffcc;
-}
-
-/* ===== WARNA KOLOM ===== */
+.refresh-info{margin-top:6px;font-size:11px;text-align:center;color:#00ffcc;}
 .col-lur{background:#d4edda;color:#155724;font-weight:600;}
 .col-dar{background:#cce5ff;color:#004085;font-weight:600;}
 .col-ijin{background:#f8d7da;color:#721c24;font-weight:600;}
-
-/* Header warna juga */
 .th-lur{background:#579b5a !important;}
 .th-dar{background:#5686bd !important;}
 .th-ijin{background:#c05b5b !important;}
@@ -202,10 +66,8 @@ color:#00ffcc;
 
 <h2 class="rekap-title" id="rekapTitle">Memuat data...</h2>
 
-<!-- LINK KEMBALI DI ATAS -->
 <a class="back-link" href="javascript:history.back()">← Kembali</a>
 
-<!-- ACTION BAR: kiri tombol PDF/Excel, kanan filter + Terapkan -->
 <div class="action-bar">
   <div class="left-actions">
     <button onclick="downloadPDF()">Download PDF</button>
@@ -218,7 +80,7 @@ color:#00ffcc;
       <option value="min">Total ≥</option>
       <option value="max">Total ≤</option>
     </select>
-    <input type="number" id="filterValue" placeholder="0" min="0" max="99999" maxlength="5"  oninput="limitDigits(this)">
+    <input type="number" id="filterValue" placeholder="0" min="0" max="99999" oninput="limitDigits(this)">
     <button onclick="applyFilter()">Terapkan</button>
   </div>
 </div>
@@ -232,183 +94,136 @@ color:#00ffcc;
   </div>
 </div>
 
-<!-- LINK KEMBALI BAWAH -->
 <a class="back-link" href="javascript:history.back()">← Kembali</a>
 
-<div class="refresh-info">
-Data diperbarui otomatis setiap akses dan setiap 5 menit
-</div>
+<div class="refresh-info">Data diperbarui otomatis setiap akses dan setiap 5 menit</div>
 
 <script>
-const WEB_APP_URL="https://script.google.com/macros/s/AKfycbxPrfl2IDvLdYQmNc95EPr62ijCkcLsCF1rRSTOZWo_Fbf5IsR1siQ_2Yp3XiAMnjH2qg/exec";
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbzIBabYqWv83ixjzGSdxIgeAmJx0L1ldF6NNqcQIE8YkUmXpmbtEpwEr49zjBz9yJUYxQ/exec";
 
-let currentData=[];
-let months=[];
-let semester='';
-let tahunAjaran='';
+let currentData=[], months=[], semester='', tahunAjaran='';
 
 async function loadData(){
-document.getElementById("rekapTitle").innerText="Memuat data...";
-try{
-const res=await fetch(WEB_APP_URL);
-const json=await res.json();
-document.getElementById("rekapTitle").innerText=json.title;
-currentData=json.data;
-months=json.headerMonths;
-semester=json.semester||'GENAP';
-tahunAjaran=json.tahunAjaran||'2025/2026';
-renderTable(currentData,months);
-}catch(e){
-document.getElementById("rekapTitle").innerText="Gagal memuat data";
+  document.getElementById("rekapTitle").innerText="Memuat data...";
+  try{
+    const res=await fetch(WEB_APP_URL);
+    const json=await res.json();
+    document.getElementById("rekapTitle").innerText=json.title||"Rekap Bulanan Semester";
+    currentData=json.data||[];
+    months=json.headerMonths||[];
+    semester=json.semester||'GENAP';
+    tahunAjaran=json.tahunAjaran||'2025/2026';
+    renderTable(currentData,months);
+  }catch(e){
+    document.getElementById("rekapTitle").innerText="Gagal memuat data";
+    console.error(e);
+  }
 }
-}
 
-function renderTable(data,months){
-const thead=document.querySelector("#rekapTable thead");
-const tbody=document.querySelector("#rekapTable tbody");
+function renderTable(data, months){
+  const thead=document.querySelector("#rekapTable thead");
+  const tbody=document.querySelector("#rekapTable tbody");
 
-let header1="<tr><th rowspan='2'>No</th><th rowspan='2'>Nama</th>";
-months.forEach(m=>{
-header1+=`<th colspan='3'>${m}</th>`;
-});
-header1+=`<th colspan='4'>TOTAL</th></tr>`;
+  // Header 2 baris
+  let header1="<tr><th rowspan='2'>No</th><th rowspan='2'>Nama</th>";
+  months.forEach(m=>header1+=`<th colspan='3'>${m}</th>`);
+  header1+=`<th colspan='4'>TOTAL</th></tr>`;
 
-let header2="<tr>";
-months.forEach(()=>{
-header2+=`
-<th class='th-lur'>Lur</th>
-<th class='th-dar'>Dar</th>
-<th class='th-ijin'>Ijin</th>`;
-});
-header2+=`
-<th class='th-lur'>Lur</th>
-<th class='th-dar'>Dar</th>
-<th class='th-ijin'>Ijin</th>
-<th>Akhir</th></tr>`;
+  let header2="<tr>";
+  months.forEach(()=>header2+=`<th class='th-lur'>Lur</th><th class='th-dar'>Dar</th><th class='th-ijin'>Ijin</th>`);
+  header2+=`<th class='th-lur'>Lur</th><th class='th-dar'>Dar</th><th class='th-ijin'>Ijin</th><th>Akhir</th></tr>`;
 
-thead.innerHTML=header1+header2;
-tbody.innerHTML="";
+  thead.innerHTML = header1 + header2;
+  tbody.innerHTML = "";
 
-data.forEach((r,i)=>{
-let row=`<td>${i+1}</td><td>${r.nama}</td>`;
-months.forEach(m=>{
-let p=r[m]?r[m].split("/"):["0","0","0"];
-row+=`
-<td class='col-lur'>${p[0]}</td>
-<td class='col-dar'>${p[1]}</td>
-<td class='col-ijin'>${p[2]}</td>`;
-});
-row+=`
-<td class='col-lur'>${r.WFO}</td>
-<td class='col-dar'>${r.WFA}</td>
-<td class='col-ijin'>${r.IJIN}</td>
-<td>${r.total}</td>`;
-
-tbody.innerHTML+=`<tr>${row}</tr>`;
-});
+  data.forEach((r, i) => {
+    let row = `<td>${i+1}</td><td>${r.nama}</td>`;
+    months.forEach(m => {
+      let p = r[m] ? r[m].split("/") : [0,0,0];
+      while(p.length < 3) p.push(0); // Pastikan selalu ada Ijin
+      row += `<td class='col-lur'>${p[0]}</td><td class='col-dar'>${p[1]}</td><td class='col-ijin'>${p[2]}</td>`;
+    });
+    row += `<td class='col-lur'>${r.WFO||0}</td><td class='col-dar'>${r.WFA||0}</td><td class='col-ijin'>${r.IJIN||0}</td><td>${r.total||0}</td>`;
+    tbody.innerHTML += `<tr>${row}</tr>`;
+  });
 }
 
 function applyFilter(){
-let type = document.getElementById("filterType").value;
-let value = parseInt(document.getElementById("filterValue").value);
-
-if(type==="all" || isNaN(value)){
-renderTable(currentData,months);
-return;
-}
-
-let filtered = currentData.filter(r=>{
-let total = Number(r.total)||0;
-
-if(type==="min") return total >= value;
-if(type==="max") return total <= value;
-
-return true;
-});
-
-renderTable(filtered,months);
+  let type=document.getElementById("filterType").value;
+  let value=parseInt(document.getElementById("filterValue").value);
+  if(type==="all"||isNaN(value)){renderTable(currentData,months);return;}
+  let filtered=currentData.filter(r=>{let total=Number(r.total)||0;if(type==="min")return total>=value;if(type==="max")return total<=value;return true;});
+  renderTable(filtered,months);
 }
 
 function exportExcel(){
-let startYear=parseInt(tahunAjaran.split("/")[0]);
-let fileName=`Rekap_Smt_${semester}_(${startYear}).xlsx`;
-
-let wb=XLSX.utils.book_new();
-let wsData=[];
-
-let header=["No","Nama"];
-months.forEach(m=>{
-header.push(m+" Lur",m+" Dar",m+" Ijin");
-});
-header.push("Total Lur","Total Dar","Total Ijin","Akhir");
-wsData.push(header);
-
-currentData.forEach((r,i)=>{
-let row=[i+1,r.nama];
-months.forEach(m=>{
-let p=r[m]?r[m].split("/"):["0","0","0"];
-row.push(Number(p[0]),Number(p[1]),Number(p[2]));
-});
-row.push(Number(r.WFO),Number(r.WFA),Number(r.IJIN),Number(r.total));
-wsData.push(row);
-});
-
-let ws=XLSX.utils.aoa_to_sheet(wsData);
-XLSX.utils.book_append_sheet(wb,ws,"Rekap");
-XLSX.writeFile(wb,fileName);
+  let startYear=parseInt(tahunAjaran.split("/")[0]);
+  let fileName=`Rekap_Smt_${semester}_(${startYear}).xlsx`;
+  let wb=XLSX.utils.book_new();
+  let wsData=[];
+  let header=["No","Nama"];
+  months.forEach(m=>header.push(m+" Lur",m+" Dar",m+" Ijin"));
+  header.push("Total Lur","Total Dar","Total Ijin","Akhir");
+  wsData.push(header);
+  currentData.forEach((r,i)=>{
+    let row=[i+1,r.nama];
+    months.forEach(m=>{
+      let p=r[m]?r[m].split("/"):[0,0,0];
+      if(p.length<3) while(p.length<3)p.push(0);
+      row.push(Number(p[0]),Number(p[1]),Number(p[2]));
+    });
+    row.push(Number(r.WFO||0),Number(r.WFA||0),Number(r.IJIN||0),Number(r.total||0));
+    wsData.push(row);
+  });
+  let ws=XLSX.utils.aoa_to_sheet(wsData);
+  XLSX.utils.book_append_sheet(wb,ws,"Rekap");
+  XLSX.writeFile(wb,fileName);
 }
 
 function downloadPDF(){
-if(currentData.length===0){alert("Data belum dimuat");return;}
-const { jsPDF }=window.jspdf;
-const doc=new jsPDF('landscape','mm','a4');
-const pageWidth=doc.internal.pageSize.getWidth();
-const centerX=pageWidth/2;
-const img=document.getElementById("logoImg");
-doc.addImage(img,'PNG',15,10,28,28);
-doc.setFont("helvetica","bold");
-doc.setFontSize(14);
-doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,18,{align:"center"});
-doc.text("UIN KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,24,{align:"center"});
-doc.text("PASCASARJANA",centerX,30,{align:"center"});
-doc.setFont("helvetica","normal");
-doc.setFontSize(10);
-doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, Ponorogo 63471",centerX,36,{align:"center"});
-doc.text("Website : www.pasca.uinponorogo.ac.id  Email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
-doc.setLineWidth(1.2);
-doc.line(10,46,pageWidth-10,46);
-doc.setFont("helvetica","bold");
-doc.setFontSize(12);
-doc.text("LAPORAN PERKULIAHAN SEMESTER "+semester+" TA "+tahunAjaran,centerX,54,{align:"center"});
-doc.autoTable({
-html:"#rekapTable",
-startY:60,
-theme:'grid',
-styles:{fontSize:7},
-headStyles:{fillColor:[0,0,0],textColor:[255,255,255],fontStyle:'bold'}
-});
-let finalY = doc.lastAutoTable.finalY + 12;
-const bulanIndo = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
-const today = new Date();
-const tanggalIndo = today.getDate()+" "+bulanIndo[today.getMonth()]+" "+today.getFullYear();
-const rightBlockX = pageWidth - 80; 
-doc.setFont("helvetica","normal");
-doc.setFontSize(11);
-doc.text("Ponorogo, "+tanggalIndo, rightBlockX, finalY);
-doc.text("Direktur,", rightBlockX, finalY+6);
-doc.text(" ", rightBlockX, finalY+6);
-doc.text(" ", rightBlockX, finalY+6);
-doc.text("Prof. Dr. H. Agus Purnomo, M.Ag.", rightBlockX, finalY+36);
-doc.save("Laporan_Semester.pdf");
+  if(currentData.length===0){alert("Data belum dimuat");return;}
+  const { jsPDF }=window.jspdf;
+  const doc=new jsPDF('landscape','mm','a4');
+  const pageWidth=doc.internal.pageSize.getWidth();
+  const centerX=pageWidth/2;
+  const img=document.getElementById("logoImg");
+  doc.addImage(img,'PNG',15,10,28,28);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(14);
+  doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,18,{align:"center"});
+  doc.text("UIN KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,24,{align:"center"});
+  doc.text("PASCASARJANA",centerX,30,{align:"center"});
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
+  doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, Ponorogo 63471",centerX,36,{align:"center"});
+  doc.text("Website : www.pasca.uinponorogo.ac.id  Email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
+  doc.setLineWidth(1.2);
+  doc.line(10,46,pageWidth-10,46);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  doc.text("LAPORAN PERKULIAHAN SEMESTER "+semester+" TA "+tahunAjaran,centerX,54,{align:"center"});
+  doc.autoTable({html:"#rekapTable",startY:60,theme:'grid',styles:{fontSize:7},headStyles:{fillColor:[0,0,0],textColor:[255,255,255]}});
+  let finalY=doc.lastAutoTable.finalY+12;
+  const bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+  const today=new Date();
+  const tanggalIndo=today.getDate()+" "+bulanIndo[today.getMonth()]+" "+today.getFullYear();
+  const rightBlockX=pageWidth-80;
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(11);
+  doc.text("Ponorogo, "+tanggalIndo,rightBlockX,finalY);
+  doc.text("Direktur,",rightBlockX,finalY+6);
+  doc.text(" ",rightBlockX,finalY+6);
+  doc.text(" ",rightBlockX,finalY+6);
+  doc.text("Prof. Dr. H. Agus Purnomo, M.Ag.",rightBlockX,finalY+36);
+  doc.save("Laporan_Semester.pdf");
 }
 
 // ANTI INSPECT
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("keydown", function(e){
-if (e.key === "F12") e.preventDefault();
-if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) e.preventDefault();
-if (e.ctrlKey && e.key === "u") e.preventDefault();
-if (e.ctrlKey && e.key === "s") e.preventDefault();
+document.addEventListener("contextmenu", e=>e.preventDefault());
+document.addEventListener("keydown", e=>{
+  if(e.key==="F12") e.preventDefault();
+  if(e.ctrlKey && e.shiftKey && ["I","J","C"].includes(e.key)) e.preventDefault();
+  if(e.ctrlKey && ["u","s"].includes(e.key)) e.preventDefault();
 });
 
 loadData();

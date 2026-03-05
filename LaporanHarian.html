@@ -4,23 +4,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Laporan Perkuliahan Harian</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Laporan Perkuliahan Harian</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 :root{
   --primary:#0ea5a4;
-  --primary-soft:#2dd4bf;
   --accent:#22d3ee;
   --success:#10b981;
+  --warning:#facc15;
   --danger:#ef4444;
+  --orange:#fb923c;
   --glass:rgba(255,255,255,0.08);
   --glass-border:rgba(255,255,255,0.18);
 }
@@ -29,7 +22,6 @@
   box-sizing:border-box;
   margin:0;
   padding:0;
-  scroll-behavior:smooth;
 }
 
 body{
@@ -54,21 +46,7 @@ body{
   border:1px solid var(--glass-border);
   border-radius:28px;
   padding:32px;
-  box-shadow:
-      0 30px 80px rgba(0,0,0,.6),
-      0 0 60px rgba(34,211,238,.15);
-  position:relative;
-}
-
-.card::before{
-  content:"";
-  position:absolute;
-  inset:-1px;
-  border-radius:28px;
-  background:linear-gradient(135deg,rgba(34,211,238,.4),rgba(16,185,129,.4));
-  opacity:.15;
-  z-index:-1;
-  filter:blur(20px);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
 }
 
 /* HEADER */
@@ -89,12 +67,10 @@ body{
 
 .header-left img{
   width:75px;
-  filter:drop-shadow(0 0 15px rgba(34,211,238,.6));
 }
 
 .header-text h2{
   font-size:12px;
-  letter-spacing:.8px;
   opacity:.7;
 }
 
@@ -106,44 +82,34 @@ body{
   -webkit-text-fill-color:transparent;
 }
 
-/* INPUT & BUTTON */
+/* INPUT */
 input[type="date"]{
-  padding:14px 16px;
-  border-radius:18px;
+  padding:12px 16px;
+  border-radius:14px;
   background:rgba(255,255,255,0.06);
   color:white;
   border:1px solid rgba(255,255,255,.15);
-  font-size:14px;
-  outline:none;
 }
 
 button{
-  padding:14px 22px;
+  padding:12px 20px;
   border:none;
-  border-radius:18px;
-  font-weight:500;
+  border-radius:14px;
   cursor:pointer;
-  font-size:14px;
   background:linear-gradient(135deg,#0ea5a4,#22d3ee);
   color:white;
-  transition:.3s;
 }
 
 button:hover{
   transform:translateY(-2px);
-  box-shadow:0 8px 25px rgba(0,0,0,.4);
 }
 
-/* ===== JUDUL HARIAN (FINAL FIX) ===== */
+/* JUDUL */
 .judul-harian{
   text-align:center;
   font-size:22px;
   font-weight:600;
-  margin:16px 0 12px 0;
-  background:linear-gradient(90deg,#22d3ee,#10b981);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
-  letter-spacing:.5px;
+  margin:16px 0;
 }
 
 /* TABLE */
@@ -157,15 +123,12 @@ button:hover{
 table{
   width:100%;
   border-collapse:collapse;
-  min-width:750px;
 }
 
 th{
   padding:14px;
   background:rgba(255,255,255,0.07);
   color:#22d3ee;
-  font-weight:600;
-  text-align:center;
 }
 
 td{
@@ -174,142 +137,125 @@ td{
   border-bottom:1px solid rgba(255,255,255,.08);
 }
 
-tr:nth-child(even){
-  background:rgba(255,255,255,0.03);
-}
-
-/* ===== NAMA DOSEN RATA KIRI ===== */
 th:nth-child(2),
 td:nth-child(2){
   text-align:left;
   padding-left:22px;
 }
 
-/* STATUS COLOR */
+/* STATUS */
 .wfo td:nth-child(3){
   color:var(--success);
   font-weight:600;
 }
 
 .wfa td:nth-child(3){
-  color:#facc15;
+  color:var(--warning);
   font-weight:600;
 }
 
+.ijin td:nth-child(3){
+  color:var(--orange);
+  font-weight:600;
+}
+
+/* PDF */
 .pdf-container{
   margin-top:30px;
   background:rgba(255,255,255,0.05);
-  border-radius:22px;
-  padding:18px;
-  border:1px solid rgba(255,255,255,.1);
+  border-radius:20px;
+  padding:20px;
 }
 
 .pdf-title{
   text-align:center;
-  font-size:18px;
-  margin-bottom:16px;
-  font-weight:600;
-  background:linear-gradient(90deg,#22d3ee,#10b981);
-  -webkit-background-clip:text;
-  -webkit-text-fill-color:transparent;
+  margin-bottom:12px;
 }
 
 .pdf-frame{
   width:100%;
-  height:75vh;
+  height:70vh;
   border:none;
-  border-radius:16px;
 }
 
 .back-link{
-  margin:16px 0 4px 0;   /* sebelumnya lebih besar */
+  margin:16px 0;
 }
 
 .back-link a{
   color:#eaf869;
   text-decoration:none;
 }
-
-.back-link a:hover{
-  text-decoration:underline;
-}
 </style>
+</head>
+
 <body>
+
 <div class="container">
 <div class="card">
 
-<!-- HEADER KIRI-KANAN -->
 <div class="header-row">
 
-  <!-- KIRI -->
-  <div class="header-left">
-    <img src="logo.png">
-    <div class="header-text">
-      <h2>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h2>
-      <h3>PASCASARJANA</h3>
-    </div>
-  </div>
+<div class="header-left">
+<img src="logo.png">
+<div class="header-text">
+<h2>UIN KIAI AGENG MUHAMMAD BESARI PONOROGO</h2>
+<h3>PASCASARJANA</h3>
+</div>
+</div>
 
-  <!-- KANAN FILTER -->
-  <div class="header-right">
-    <label class="filter-label">Pilih Tanggal</label>
-    <div class="filter-row">
-      <input type="date" id="filterTanggal">
-      <button onclick="loadData()">Tampilkan Data</button>
-    </div>
-  </div>
+<div>
+<input type="date" id="filterTanggal">
+<button onclick="loadData()">Tampilkan Data</button>
+</div>
 
 </div>
 
-<!-- LINK KEMBALI ATAS TABEL -->
 <div class="back-link">
-  <a href="javascript:history.back()">← Kembali</a>
+<a href="javascript:history.back()">← Kembali</a>
 </div>
 
-<!-- JUDUL HARIAN -->
 <div id="judulHarian" class="judul-harian"></div>
 
-<!-- TABLE -->
 <div class="table-container" id="hasil"></div>
 
-<!-- PDF preview -->
 <div class="pdf-container">
-  <div class="pdf-title">
-    Jadwal Kuliah Semester Genap 2025/2026
-  </div>
-  <iframe 
-    class="pdf-frame"
-    src="jadkul.pdf">
-  </iframe>
+<div class="pdf-title">Jadwal Kuliah Semester Genap 2025/2026</div>
+<iframe class="pdf-frame" src="jadkul.pdf"></iframe>
 </div>
 
-<!-- LINK KEMBALI BAWAH PDF -->
 <div class="back-link">
-  <a href="javascript:history.back()">← Kembali</a>
+<a href="javascript:history.back()">← Kembali</a>
 </div>
 
 </div>
 </div>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxIAyZyATjjOKbTFzyE7C6YCGyM1ycudS-y7M2y1tKfYoC-kWNs2THJbsiqthKZ_LuTHQ/exec";
 
-function getLocalDateISO() {
+const API = "https://script.google.com/macros/s/AKfycby06l_Y1P6UYrq0DXnewt-tZRESaeSEKBE18z7H4MMwkU_q31vNGhYhkNVDnI6dSYNu3w/exec";
+
+function getLocalDateISO(){
+
   const now = new Date();
   const jakarta = new Date(
-    now.toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
+    now.toLocaleString("en-US",{timeZone:"Asia/Jakarta"})
   );
+
   const year = jakarta.getFullYear();
-  const month = String(jakarta.getMonth() + 1).padStart(2, "0");
-  const day = String(jakarta.getDate()).padStart(2, "0");
+  const month = String(jakarta.getMonth()+1).padStart(2,"0");
+  const day = String(jakarta.getDate()).padStart(2,"0");
+
   return `${year}-${month}-${day}`;
 }
 
 document.getElementById("filterTanggal").value = getLocalDateISO();
 
 function formatIndonesia(dateObj){
-  const hari = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-  const bulan = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
+  const hari=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulan=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+
   return hari[dateObj.getDay()] + ", " +
          dateObj.getDate() + " " +
          bulan[dateObj.getMonth()] + " " +
@@ -317,77 +263,107 @@ function formatIndonesia(dateObj){
 }
 
 function loadData(){
-  const tanggal = document.getElementById("filterTanggal").value;
-  document.getElementById("hasil").innerHTML = "Update data per 60 detik...";
+
+  const tanggal=document.getElementById("filterTanggal").value;
+
+  document.getElementById("hasil").innerHTML="Memuat data...";
 
   fetch(`${API}?action=laporanharian&sheet=absensi&tanggal=${tanggal}`)
-    .then(res => res.json())
-    .then(res => {
-      if(!res || res.status !== "success" || !res.data){
-        document.getElementById("hasil").innerHTML = "Tidak ada data";
-        return;
-      }
-      tampilkan(res.data, tanggal);
-    })
-    .catch(() => {
-      document.getElementById("hasil").innerHTML = "Gagal mengambil data";
-    });
+  .then(res=>res.json())
+  .then(res=>{
+
+    if(!res || res.status!=="success"){
+      document.getElementById("hasil").innerHTML="Tidak ada data";
+      return;
+    }
+
+    tampilkan(res.data,tanggal);
+
+  })
+  .catch(()=>{
+    document.getElementById("hasil").innerHTML="Gagal mengambil data";
+  });
+
 }
 
-function tampilkan(data, tanggalFilter){
-  const dateObj = new Date(
-    new Date(tanggalFilter + "T00:00:00")
-      .toLocaleString("en-US", { timeZone: "Asia/Jakarta" })
-  );
-  document.getElementById("judulHarian").innerText =
-    "Perkuliahan " + formatIndonesia(dateObj);
+function tampilkan(data,tanggalFilter){
 
-  let html = `<table>
-    <tr>
-      <th>No</th>
-      <th>Nama Dosen</th>
-      <th>Model Kuliah</th>
-      <th>Kelas</th>
-      <th>Konfirmasi</th>
-    </tr>`;
+  const dateObj=new Date(tanggalFilter);
 
-  let no = 1;
-  data.forEach(row => {
-    const timestamp = new Date(row.timestamp || row.Tanggal);
-    const jam = timestamp.toLocaleTimeString("id-ID",{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  document.getElementById("judulHarian").innerText=
+  "Perkuliahan "+formatIndonesia(dateObj);
 
-    let jenisKuliah = "-";
-    let kelasClass = "";
+  let html=`<table>
+  <tr>
+    <th>No</th>
+    <th>Nama Dosen</th>
+    <th>Model Kuliah</th>
+    <th>Kelas</th>
+    <th>Konfirmasi</th>
+  </tr>`;
 
-    if(row.workfrom === "WFO") { jenisKuliah = "Luring"; kelasClass="wfo"; }
-    else if(row.workfrom === "WFA") { jenisKuliah = "Daring"; kelasClass="wfa"; }
+  let no=1;
 
-    html += `<tr class="${kelasClass}">
+  data.forEach(row=>{
+
+    const timestamp=new Date(row.timestamp);
+
+    const jam=timestamp.toLocaleTimeString("id-ID",{
+      hour:"2-digit",
+      minute:"2-digit",
+      second:"2-digit",
+      hour12:false
+    });
+
+    /* =========================
+       AMBIL STATUS DARI DATA
+    ========================= */
+
+    const absensi=(row.absensi || row.Absensi || "").toLowerCase().trim();
+    const workfrom=(row.workfrom || row.WorkFrom || "").toLowerCase().trim();
+
+    let jenisKuliah="-";
+    let kelasClass="";
+
+    if(absensi==="ijin" || absensi==="izin"){
+      jenisKuliah="Ijin";
+      kelasClass="ijin";
+    }
+    else if(workfrom==="wfo"){
+      jenisKuliah="Luring";
+      kelasClass="wfo";
+    }
+    else if(workfrom==="wfa"){
+      jenisKuliah="Daring";
+      kelasClass="wfa";
+    }
+
+    html+=`<tr class="${kelasClass}">
       <td>${no++}</td>
       <td>${row.nama || "-"}</td>
       <td>${jenisKuliah}</td>
       <td>${row.kegiatan || "-"}</td>
       <td>${jam}</td>
     </tr>`;
+
   });
 
-  html += "</table>";
-  document.getElementById("hasil").innerHTML = html;
+  html+="</table>";
+
+  document.getElementById("hasil").innerHTML=html;
+
 }
 
-window.onload = () => {
+window.onload=function(){
+
+  document.getElementById("filterTanggal").value=getLocalDateISO();
+
   loadData();
-  setInterval(loadData, 60000);
+
+  setInterval(loadData,60000);
+
 };
 
-// ANTI INSPECT (opsional)
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("keydown", function(e){
-  if (e.key === "F12") e.preventDefault();
-  if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) e.preventDefault();
-  if (e.ctrlKey && e.key === "u") e.preventDefault();
-  if (e.ctrlKey && e.key === "s") e.preventDefault();
-});
 </script>
 
 </body>
