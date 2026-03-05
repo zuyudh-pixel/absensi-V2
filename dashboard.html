@@ -33,7 +33,7 @@ body{
   height:100%;
   transition:0.3s;
   color:white;
-  z-index:2;
+  z-index:20; /* Lebih tinggi dari elemen background */
 
   background:
     radial-gradient(circle at 15% 20%, rgba(34,211,238,.25), transparent 40%),
@@ -90,18 +90,33 @@ body{
   transition:left .3s;
 }
 
-/* ================= MAIN ================= */
+/* ================= MAIN AREA ================= */
 .main{
   flex:1;
   margin-left:250px;
   padding:35px 45px;
   transition:.3s;
+  position: relative; /* Menjadi anchor untuk gambar background */
 }
 
 .main.fullwidth{ margin-left:0; }
 
+/* ================= DEKORASI BACKGROUND ================= */
+.bg-decoration-corner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px; /* Ukuran lebih besar karena di belakang header */
+  height: auto;
+  opacity: 0.6; /* Transparansi agar tidak terlalu mencolok */
+  z-index: 0;   /* Paling belakang di dalam container main */
+  pointer-events: none;
+}
+
 /* ================= HEADER ================= */
 .header{
+  position: relative;
+  z-index: 5; /* Di atas gambar dekorasi */
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -111,10 +126,10 @@ body{
   margin-bottom:40px;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
 
+  /* Background semi-transparan agar dekorasi di belakang sedikit terlihat */
   background:
-    radial-gradient(circle at 15% 20%, rgba(34,211,238,.25), transparent 40%),
-    radial-gradient(circle at 85% 80%, rgba(16,185,129,.25), transparent 40%),
-    linear-gradient(135deg,#0f172a,#0b1120 60%,#0a0f1c);
+    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(11, 17, 32, 0.95) 60%);
+  backdrop-filter: blur(5px); /* Efek blur kaca */
 }
 
 .header-left{
@@ -134,39 +149,32 @@ body{
 /* ================= HERO IMAGE ================= */
 .hero-section{
   position:relative;
+  z-index: 5;
   width:100%;
   height:430px;
   background:url('bg-2.png') center/cover no-repeat;
   border-radius:20px;
   overflow:hidden;
-
   box-shadow:0 30px 70px rgba(0,0,0,.35);
-
-  /* bikin gambar lebih hidup */
   filter:contrast(1.05) saturate(1.05);
 }
 
-/* overlay */
 .hero-overlay{
   position:absolute;
   inset:0;
-
-  /* overlay lebih tipis & tidak menutup gambar */
   background:
     linear-gradient(
       to bottom,
-      rgba(15,23,42,0.15) 0%,
-      rgba(15,23,42,0.25) 60%,
-      rgba(15,23,42,0.45) 100%
+      rgba(15, 23, 42, 0.14) 0%,
+      rgba(15, 23, 42, 0.14) 80%,
+      rgba(15, 23, 42, 0.27) 100%
     );
-
   display:flex;
   justify-content:center;
   align-items:flex-end;
   padding-bottom:70px;
 }
 
-/* menu di dalam gambar */
 .hero-menu{
   display:flex;
   gap:25px;
@@ -174,7 +182,6 @@ body{
   justify-content:center;
 }
 
-/* tombol */
 .hero-btn{
   background:white;
   padding:14px 28px;
@@ -203,13 +210,8 @@ body{
   .sidebar{ left:-250px; }
   .toggle-btn{ left:10px; }
   .main{ margin-left:0; padding:25px; }
-
   .hero-section{ height:350px; }
-
-  .hero-menu{
-    flex-direction:column;
-    gap:15px;
-  }
+  .bg-decoration-corner { width: 250px; }
 }
 </style>
 </head>
@@ -228,6 +230,8 @@ body{
 
 <div class="main" id="main">
 
+  <img src="sudut_kiri_atas.png" class="bg-decoration-corner">
+
   <div class="header">
     <div class="header-left">
       <img src="logo.png" class="header-logo">
@@ -243,27 +247,21 @@ body{
     </div>
   </div>
 
-  <!-- HERO IMAGE -->
   <div class="hero-section">
     <div class="hero-overlay">
       <div class="hero-menu">
-
         <a href="WFA.html" class="hero-btn">
           <i class="fas fa-user-check"></i> Absensi
         </a>
-
         <a href="LaporanHarian.html" class="hero-btn">
           <i class="fas fa-calendar-day"></i> Laporan Harian
         </a>
-
         <a href="LaporanBulanan.html" class="hero-btn">
           <i class="fas fa-file-alt"></i> Laporan Bulanan
         </a>
-
         <a href="grafik_rekap_smt.html" class="hero-btn">
           <i class="fas fa-chart-bar"></i> Rekap Semester
         </a>
-
       </div>
     </div>
   </div>
@@ -271,20 +269,13 @@ body{
 </div>
 
 <script>
-
-/* LOAD SEMESTER OTOMATIS */
+/* LOGIKA LOAD SEMESTER */
 async function loadSemester() {
   try {
     const response = await fetch("https://script.google.com/macros/s/AKfycbxIBbwwa5Ig7Ep6YwzIq5Uz5lUzDUHB3QZMhNBOGcFWX_pb9ntnHI4h_wZV4OMRLrm-Pg/exec");
     const result = await response.json();
-
-    let text = result.title
-      .replace("REKAP ", "")
-      .replace("TA.", "")
-      .trim();
-
+    let text = result.title.replace("REKAP ", "").replace("TA.", "").trim();
     document.getElementById("semesterTitle").innerText = text;
-
   } catch (err) {
     document.getElementById("semesterTitle").innerText = "Semester Tidak Tersedia";
   }
@@ -292,55 +283,36 @@ async function loadSemester() {
 
 document.addEventListener("DOMContentLoaded", function(){
   loadSemester();
-
-  let links=document.querySelectorAll(".sidebar a");
-  let currentPage=window.location.pathname.split("/").pop();
-  if(currentPage===""){currentPage="dashboard.html";}
-  links.forEach(link=>{
-    if(link.getAttribute("href")===currentPage){
+  
+  let links = document.querySelectorAll(".sidebar a");
+  let currentPage = window.location.pathname.split("/").pop();
+  if(currentPage === "" || currentPage === "/") { currentPage = "dashboard.html"; }
+  
+  links.forEach(link => {
+    if(link.getAttribute("href") === currentPage){
       link.classList.add("active");
     }
   });
 });
-function toggleSidebar(){
-  const sidebar=document.getElementById("sidebar");
-  const main=document.getElementById("main");
-  const toggle=document.getElementById("toggleIcon");
 
+function toggleSidebar(){
+  const sidebar = document.getElementById("sidebar");
+  const main = document.getElementById("main");
+  const toggle = document.getElementById("toggleIcon");
+  
   sidebar.classList.toggle("hidden");
   main.classList.toggle("fullwidth");
-  toggle.innerHTML=sidebar.classList.contains("hidden")?"&gt;":"&lt;";
-  toggle.style.left=sidebar.classList.contains("hidden")?"0px":"250px";
+  toggle.innerHTML = sidebar.classList.contains("hidden") ? "&gt;" : "&lt;";
+  toggle.style.left = sidebar.classList.contains("hidden") ? "0px" : "250px";
 }
 
-// ANTI INSPECT SUPER AGRESIF
-// ===============================
-
-// Blokir klik kanan
+/* ANTI INSPECT */
 document.addEventListener("contextmenu", e => e.preventDefault());
-
-// Blokir shortcut developer tools
 document.addEventListener("keydown", function(e){
-
-  // F12
   if (e.key === "F12") e.preventDefault();
-
-  // Ctrl+Shift+I/J/C
-  if (e.ctrlKey && e.shiftKey && 
-     (e.key === "I" || e.key === "J" || e.key === "C")) {
-    e.preventDefault();
-  }
-
-  // Ctrl+U
-  if (e.ctrlKey && e.key === "u") {
-    e.preventDefault();
-  }
-
-  // Ctrl+S
-  if (e.ctrlKey && e.key === "s") {
-    e.preventDefault();
-  }
-
+  if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) e.preventDefault();
+  if (e.ctrlKey && e.key === "u") e.preventDefault();
+  if (e.ctrlKey && e.key === "s") e.preventDefault();
 });
 </script>
 
