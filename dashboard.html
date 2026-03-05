@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Informasi Perkuliahan</title>
+<title>Dashboard Pascasarjana UIN Ponorogo</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://kit.fontawesome.com/4adad1b75f.js" crossorigin="anonymous"></script>
@@ -33,7 +33,7 @@ body{
   height:100%;
   transition:0.3s;
   color:white;
-  z-index:20; /* Lebih tinggi dari elemen background */
+  z-index:20;
 
   background:
     radial-gradient(circle at 15% 20%, rgba(34,211,238,.25), transparent 40%),
@@ -62,9 +62,7 @@ body{
   transition:.25s;
 }
 
-.sidebar a:hover{
-  background:rgba(255,255,255,0.1);
-}
+.sidebar a:hover{ background:rgba(255,255,255,0.1); }
 
 .sidebar a.active{
   background:rgba(255,255,255,0.15);
@@ -96,27 +94,27 @@ body{
   margin-left:250px;
   padding:35px 45px;
   transition:.3s;
-  position: relative; /* Menjadi anchor untuk gambar background */
+  position: relative; 
 }
 
 .main.fullwidth{ margin-left:0; }
 
-/* ================= DEKORASI BACKGROUND ================= */
+/* DEKORASI BACKGROUND SUDUT (DI BELAKANG) */
 .bg-decoration-corner {
   position: absolute;
   top: 0;
   left: 0;
-  width: 400px; /* Ukuran lebih besar karena di belakang header */
+  width: 450px; 
   height: auto;
-  opacity: 0.6; /* Transparansi agar tidak terlalu mencolok */
-  z-index: 0;   /* Paling belakang di dalam container main */
+  opacity: 0.7;
+  z-index: 0;
   pointer-events: none;
 }
 
 /* ================= HEADER ================= */
 .header{
   position: relative;
-  z-index: 5; /* Di atas gambar dekorasi */
+  z-index: 5;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -126,92 +124,87 @@ body{
   margin-bottom:40px;
   box-shadow:0 10px 25px rgba(0,0,0,.25);
 
-  /* Background semi-transparan agar dekorasi di belakang sedikit terlihat */
-  background:
-    linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(11, 17, 32, 0.95) 60%);
-  backdrop-filter: blur(5px); /* Efek blur kaca */
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(11, 17, 32, 0.96) 60%);
+  backdrop-filter: blur(8px);
 }
 
-.header-left{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
+.header-left{ display:flex; align-items:center; gap:10px; }
 .header-logo{ width:60px; }
-
 .header-text h4{ font-size:14px; opacity:.9; }
 .header-text h2{ font-size:16px; color:#22d3ee; }
-
 .header-right h1{ font-size:22px; }
 .header-right h2{ font-size:14px; opacity:.8; }
 
-/* ================= HERO IMAGE ================= */
+/* ================= HERO SECTION ================= */
 .hero-section{
   position:relative;
   z-index: 5;
   width:100%;
-  height:430px;
+  height:480px; /* Sedikit lebih tinggi untuk menampung tombol */
   background:url('bg-2.png') center/cover no-repeat;
   border-radius:20px;
   overflow:hidden;
   box-shadow:0 30px 70px rgba(0,0,0,.35);
-  filter:contrast(1.05) saturate(1.05);
 }
 
 .hero-overlay{
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(
-      to bottom,
-      rgba(15, 23, 42, 0.14) 0%,
-      rgba(15, 23, 42, 0.14) 80%,
-      rgba(15, 23, 42, 0.27) 100%
-    );
+  background: linear-gradient(to bottom, rgba(15,23,42,0) 50%, rgba(15,23,42,0.4) 100%);
   display:flex;
   justify-content:center;
   align-items:flex-end;
-  padding-bottom:70px;
+  padding-bottom:50px;
 }
 
+/* MENU TOMBOL SERAGAM */
 .hero-menu{
   display:flex;
-  gap:25px;
+  gap:15px;
   flex-wrap:wrap;
   justify-content:center;
+  width: 100%;
 }
 
 .hero-btn{
-  background:white;
-  padding:14px 28px;
-  border-radius:50px;
-  text-decoration:none;
-  font-size:14px;
-  font-weight:500;
-  color:#0f172a;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  box-shadow:0 12px 30px rgba(0,0,0,.2);
-  transition:.3s;
+  background: white;
+  color: #0f172a;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 15px 0;
+  border-radius: 50px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Panjang Seragam */
+  width: 230px; 
 }
 
 .hero-btn:hover{
-  transform:translateY(-5px);
-  background:#0f172a;
-  color:white;
+  transform: translateY(-5px);
+  background: #0f172a;
+  color: #22d3ee;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.3);
 }
 
-.hero-btn:hover i{ color:#22d3ee; }
-
 /* ================= RESPONSIVE ================= */
+@media(max-width:1100px){
+  .hero-btn { width: 200px; font-size: 13px; }
+}
+
 @media(max-width:900px){
   .sidebar{ left:-250px; }
   .toggle-btn{ left:10px; }
-  .main{ margin-left:0; padding:25px; }
-  .hero-section{ height:350px; }
-  .bg-decoration-corner { width: 250px; }
+  .main{ margin-left:0; padding:20px; }
+  .bg-decoration-corner { width: 280px; }
+  .hero-section { height: auto; padding: 100px 0 40px 0; }
+  .hero-overlay { position: relative; background: none; padding-bottom: 0; }
+  .hero-menu { flex-direction: column; align-items: center; }
+  .hero-btn { width: 85%; }
 }
 </style>
 </head>
@@ -250,18 +243,10 @@ body{
   <div class="hero-section">
     <div class="hero-overlay">
       <div class="hero-menu">
-        <a href="WFA.html" class="hero-btn">
-          <i class="fas fa-user-check"></i> Absensi
-        </a>
-        <a href="LaporanHarian.html" class="hero-btn">
-          <i class="fas fa-calendar-day"></i> Laporan Harian
-        </a>
-        <a href="LaporanBulanan.html" class="hero-btn">
-          <i class="fas fa-file-alt"></i> Laporan Bulanan
-        </a>
-        <a href="grafik_rekap_smt.html" class="hero-btn">
-          <i class="fas fa-chart-bar"></i> Rekap Semester
-        </a>
+        <a href="WFA.html" class="hero-btn">Absensi</a>
+        <a href="LaporanHarian.html" class="hero-btn">Laporan Harian</a>
+        <a href="LaporanBulanan.html" class="hero-btn">Laporan Bulanan</a>
+        <a href="grafik_rekap_smt.html" class="hero-btn">Rekap Semester</a>
       </div>
     </div>
   </div>
@@ -269,7 +254,6 @@ body{
 </div>
 
 <script>
-/* LOGIKA LOAD SEMESTER */
 async function loadSemester() {
   try {
     const response = await fetch("https://script.google.com/macros/s/AKfycbxIBbwwa5Ig7Ep6YwzIq5Uz5lUzDUHB3QZMhNBOGcFWX_pb9ntnHI4h_wZV4OMRLrm-Pg/exec");
@@ -283,15 +267,11 @@ async function loadSemester() {
 
 document.addEventListener("DOMContentLoaded", function(){
   loadSemester();
-  
   let links = document.querySelectorAll(".sidebar a");
   let currentPage = window.location.pathname.split("/").pop();
   if(currentPage === "" || currentPage === "/") { currentPage = "dashboard.html"; }
-  
   links.forEach(link => {
-    if(link.getAttribute("href") === currentPage){
-      link.classList.add("active");
-    }
+    if(link.getAttribute("href") === currentPage) link.classList.add("active");
   });
 });
 
@@ -299,20 +279,18 @@ function toggleSidebar(){
   const sidebar = document.getElementById("sidebar");
   const main = document.getElementById("main");
   const toggle = document.getElementById("toggleIcon");
-  
   sidebar.classList.toggle("hidden");
   main.classList.toggle("fullwidth");
   toggle.innerHTML = sidebar.classList.contains("hidden") ? "&gt;" : "&lt;";
   toggle.style.left = sidebar.classList.contains("hidden") ? "0px" : "250px";
 }
 
-/* ANTI INSPECT */
+// ANTI INSPECT
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("keydown", function(e){
   if (e.key === "F12") e.preventDefault();
   if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) e.preventDefault();
   if (e.ctrlKey && e.key === "u") e.preventDefault();
-  if (e.ctrlKey && e.key === "s") e.preventDefault();
 });
 </script>
 
