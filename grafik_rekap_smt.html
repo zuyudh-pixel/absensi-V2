@@ -116,12 +116,12 @@ th:nth-child(6), td:nth-child(6){width:10%;}
 </div>
 
 <script>
-const WEB_APP_URL="https://script.google.com/macros/s/AKfycbyUXRwNoEnlvjGqQitbmip4KUbwRrU40DChaTaEPbQ63yMOHUYvKSMSf1ABBKR-7rk0lw/exec";
+const WEB_APP_URL="https://script.google.com/macros/s/AKfycbwtgjnfQM8_k-rGnit_SIIQUtNIkn4bfWk-_U82C8CRp1Lmx8fkinmcX_WkTZxBwB2SAA/exec";
 let pieChart, rankingChart, currentData;
 
 async function loadData(){
   const loading = document.getElementById("loadingText");
-  loading.style.display = "block"; // tampilkan teks
+  loading.style.display = "block"; 
 
   try {
     const res = await fetch(WEB_APP_URL);
@@ -139,7 +139,7 @@ async function loadData(){
     return;
   }
 
-  loading.style.display = "none"; // sembunyikan setelah selesai
+  loading.style.display = "none"; 
 }
 
 function renderPie(data){
@@ -193,7 +193,6 @@ async function exportPDF(){
   const marginRight = 15;
   const usableWidth = pageWidth - marginLeft - marginRight;
 
-  // ===== PROPORSI KOLOM (5%,55%,10%,10%,10%,10%) =====
   const colNo     = usableWidth * 0.05;
   const colNama   = usableWidth * 0.55;
   const colLuring = usableWidth * 0.10;
@@ -201,7 +200,6 @@ async function exportPDF(){
   const colIjin   = usableWidth * 0.10;
   const colTotal  = usableWidth * 0.10;
 
-  // ===== UBAH WARNA GRAFIK JADI HITAM =====
   const oldPieLabels=pieChart.options.plugins.legend.labels.color;
   const oldPieData=pieChart.options.plugins.datalabels.color;
   pieChart.options.plugins.legend.labels.color="#000000";
@@ -216,7 +214,6 @@ async function exportPDF(){
   rankingChart.options.plugins.datalabels.color="#000000";
   rankingChart.update();
 
-  // ===== HEADER =====
   const img=await loadImage("https://raw.githubusercontent.com/zuyudh-pixel/absensi-V2/main/logo.png");
   doc.addImage(img,'PNG',15,10,25,25);
 
@@ -243,7 +240,6 @@ async function exportPDF(){
   doc.text(document.getElementById("semesterTitle").innerText,centerX,yContent,{align:"center"});
   yContent+=6;
 
-  // ===== GRAFIK =====
   const pieImg=document.getElementById("pieChart").toDataURL("image/png",1.0);
   doc.addImage(pieImg,"PNG",20,yContent,80,60);
 
@@ -252,7 +248,6 @@ async function exportPDF(){
 
   yContent+=65;
 
-  // ===== TABEL =====
   const tableData=currentData.data.map((r,i)=>[
     i+1,
     r.nama,
@@ -280,7 +275,6 @@ async function exportPDF(){
     headStyles:{fillColor:[63,81,181], textColor:255}
   });
 
-  // ===== TTD =====
   const finalY=doc.lastAutoTable.finalY+12;
   const rightX=pageWidth-95;
 
@@ -293,10 +287,8 @@ async function exportPDF(){
   doc.text("Direktur,",rightX,finalY+6);
   doc.text("Prof. Dr. H. Agus Purnomo, M.Ag.",rightX,finalY+30);
   
-
   doc.save("rekap_semester.pdf");
 
-  // ===== KEMBALIKAN WARNA GRAFIK =====
   pieChart.options.plugins.legend.labels.color=oldPieLabels;
   pieChart.options.plugins.datalabels.color=oldPieData;
   pieChart.update();
@@ -325,8 +317,6 @@ function loadImage(url){
     img.src=url;
   });
 }
-
-
 
 loadData();
 </script>
