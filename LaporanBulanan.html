@@ -182,39 +182,79 @@ function exportExcel(){
 
 function downloadPDF(){
   if(currentData.length===0){alert("Data belum dimuat");return;}
-  const { jsPDF }=window.jspdf;
-  const doc=new jsPDF('landscape','mm','a4');
-  const pageWidth=doc.internal.pageSize.getWidth();
-  const centerX=pageWidth/2;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('landscape','mm','a4');
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const centerX = pageWidth/2;
+
   const img=document.getElementById("logoImg");
   doc.addImage(img,'PNG',15,10,28,28);
+
   doc.setFont("helvetica","bold");
   doc.setFontSize(14);
   doc.text("KEMENTERIAN AGAMA REPUBLIK INDONESIA",centerX,18,{align:"center"});
   doc.text("UIN KIAI AGENG MUHAMMAD BESARI PONOROGO",centerX,24,{align:"center"});
   doc.text("PASCASARJANA",centerX,30,{align:"center"});
+
   doc.setFont("helvetica","normal");
   doc.setFontSize(10);
   doc.text("Alamat : Jl. Pramuka 156, Ronowijayan, Siman, Ponorogo 63471",centerX,36,{align:"center"});
   doc.text("Website : www.pasca.uinponorogo.ac.id  Email : pasca@uinponorogo.ac.id",centerX,41,{align:"center"});
+
   doc.setLineWidth(1.2);
   doc.line(10,46,pageWidth-10,46);
+
   doc.setFont("helvetica","bold");
   doc.setFontSize(12);
   doc.text("LAPORAN PERKULIAHAN SEMESTER "+semester+" TA "+tahunAjaran,centerX,54,{align:"center"});
-  doc.autoTable({html:"#rekapTable",startY:60,theme:'grid',styles:{fontSize:7},headStyles:{fillColor:[0,0,0],textColor:[255,255,255]}});
-  let finalY=doc.lastAutoTable.finalY+12;
+
+  doc.setFont("helvetica","normal");
+
+  doc.autoTable({
+    html:"#rekapTable",
+    startY:60,
+    theme:'grid',
+
+    styles:{
+      fontSize:10,          // huruf tabel lebih besar
+      lineColor:[0,0,0],    // garis hitam
+      lineWidth:0.3
+    },
+
+    headStyles:{
+      fillColor:[150,150,150],
+      textColor:[0,0,0],
+      halign:"center"
+    },
+
+    didParseCell:function(data){
+      if(data.section === 'body'){
+        let text = data.cell.text[0];
+
+        // cek apakah isi sel angka
+        if(!isNaN(text) && text !== ""){
+          data.cell.styles.halign = "center";
+        }
+      }
+    }
+
+  });
+
+  let finalY = doc.lastAutoTable.finalY + 12;
+
   const bulanIndo=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   const today=new Date();
   const tanggalIndo=today.getDate()+" "+bulanIndo[today.getMonth()]+" "+today.getFullYear();
+
   const rightBlockX=pageWidth-80;
-  doc.setFont("helvetica","normal");
+
   doc.setFontSize(11);
   doc.text("Ponorogo, "+tanggalIndo,rightBlockX,finalY);
   doc.text("Direktur,",rightBlockX,finalY+6);
-  doc.text(" ",rightBlockX,finalY+6);
-  doc.text(" ",rightBlockX,finalY+6);
+  doc.text(" ",rightBlockX,finalY+20);
   doc.text("Prof. Dr. H. Agus Purnomo, M.Ag.",rightBlockX,finalY+36);
+
   doc.save("Laporan_Semester.pdf");
 }
 
